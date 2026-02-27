@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M50 10 C 30 10, 10 30, 10 55 C 10 80, 50 95, 50 95 C 50 95, 90 80, 90 55 C 90 30, 70 10, 50 10 Z" fill="#CFA86E" />
+  <path d="M50 15 C 35 15, 20 28, 20 45 C 20 60, 50 75, 50 75 C 50 75, 80 60, 80 45 C 80 28, 65 15, 50 15 Z" fill="#121212" />
+  <text x="50" y="58" font-family="serif" font-size="35" fill="#CFA86E" text-anchor="middle" font-weight="bold">C</text>
+</svg>

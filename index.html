@@ -51,6 +51,11 @@
                         <input type="tel" id="bk-phone" required
                             style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
                     </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Email *</label>
+                        <input type="email" id="bk-email" required
+                            style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
                         <div style="flex: 1;">
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Date *</label>
@@ -573,6 +578,7 @@
             const data = {
                 name: document.getElementById('bk-name').value,
                 phone: document.getElementById('bk-phone').value,
+                email: document.getElementById('bk-email').value,
                 date: document.getElementById('bk-date').value,
                 time: document.getElementById('bk-time').value,
                 service: document.getElementById('bk-service').value,

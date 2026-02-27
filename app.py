@@ -58,15 +58,16 @@ def make_reservation():
         data = request.json
         name = data.get('name')
         phone = data.get('phone')
+        email = data.get('email')
         date_str = data.get('date')
         time_str = data.get('time')
         service = data.get('service')
         covers = data.get('covers')
         
-        if not all([name, phone, date_str, time_str, service, covers]):
+        if not all([name, phone, email, date_str, time_str, service, covers]):
             return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires."}), 400
             
-        success, message = engine.booking.submit_reservation(name, phone, date_str, time_str, service, covers)
+        success, message = engine.booking.submit_reservation(name, phone, email, date_str, time_str, service, covers)
         if success:
             return jsonify({"status": "success", "message": message})
         else:

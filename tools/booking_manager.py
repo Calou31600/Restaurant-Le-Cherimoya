@@ -159,10 +159,12 @@ class BookingManager:
         if not smtp_user or not smtp_pass or not booking_data.get('Email'): return
 
         subject = "Votre réservation au Chérimoya"
+        signature = "\n\nCordialement,\nL'équipe du Chérimoya\n3 R.D. 817, 31800 Villeneuve-de-Rivière\n07 56 09 47 24"
+        
         if status == "Confirmée":
-            body = f"Bonjour {booking_data['Nom']},\n\nNous avons le plaisir de vous confirmer votre réservation pour {booking_data['Couverts']} personnes le {booking_data['Date']} à {booking_data['Heure']}.\n\nSi vous avez besoin de nous contacter : 07 56 09 47 24.\n\nÀ très bientôt au Chérimoya !\n3 R.D. 817, Villeneuve-de-Rivière"
+            body = f"Bonjour {booking_data['Nom']},\n\nNous avons le plaisir de vous confirmer votre réservation pour {booking_data['Couverts']} personnes le {booking_data['Date']} à {booking_data['Heure']}.{signature}"
         else:
-            body = f"Bonjour {booking_data['Nom']},\n\nNous sommes au regret de ne pas pouvoir honorer votre demande de réservation pour le {booking_data['Date']} à {booking_data['Heure']}.\n\nVous pouvez nous joindre au 07 56 09 47 24 pour toute question.\n\nNous espérons vous recevoir une prochaine fois.\nL'équipe du Chérimoya"
+            body = f"Bonjour {booking_data['Nom']},\n\nNous sommes au regret de ne pas pouvoir honorer votre demande de réservation pour le {booking_data['Date']} à {booking_data['Heure']}. Vous pouvez nous joindre par téléphone pour tout complément d'information.{signature}"
 
         try:
             msg = MIMEText(body)

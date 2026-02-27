@@ -120,22 +120,34 @@ class BookingManager:
         except Exception as e:
             return False, "Erreur réseau lors de la réservation."
 
-    def update_reservation_status(self, record_id, status):
+    def update_reservation_status(self, record_id, action):
         """Met à jour le statut dans Airtable et notifie le client."""
+        status_map = {
+            "confirm": "Confirmée",
+            "cancel": "Annulée"
+        }
+        status = status_map.get(action)
+        if not status:
+            return False, "Action invalide."
+
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
         try:
             # 1. Récupérer les infos de la résa
             res_get = requests.get(url, headers=self.headers)
-            if res_get.status_code != 200: return False, "Réservation introuvable."
+            if res_get.status_code != 200: 
+                return False, f"Réservation introuvable (ID: {record_id})."
             data = res_get.json()['fields']
             
             # 2. Update Airtable
             res_patch = requests.patch(url, headers=self.headers, json={"fields": {"Statut": status}})
             if res_patch.status_code == 200:
                 self.send_client_response(data, status)
-                return True, f"Réservation {status.lower()}ée avec succès."
-            return False, "Erreur lors de la mise à jour."
+                return True, f"Réservation {status.lower()} avec succès."
+            
+            print(f"ERREUR AIRTABLE PATCH: {res_patch.status_code} - {res_patch.text}")
+            return False, f"Erreur Airtable ({res_patch.status_code})."
         except Exception as e:
+            print(f"EXCEPTION UPDATE STATUS: {e}")
             return False, str(e)
 
     def send_client_response(self, booking_data, status):
@@ -182,8 +194,10 @@ class BookingManager:
                 msg['From'] = smtp_user
                 msg['To'] = restaurant_email
 
-                confirm_url = f"{self.base_url}/api/reservations/action/{record_id}/Confirmée"
-                refuse_url = f"{self.base_url}/api/reservations/action/{record_id}/Annulée"
+                print(f"Tentative d'envoi d'e-mail à {restaurant_email} via {smtp_user}...")
+
+                confirm_url = f"{self.base_url}/api/reservations/action/{record_id}/confirm"
+                refuse_url = f"{self.base_url}/api/reservations/action/{record_id}/cancel"
 
                 html = f"""
                 <html>
@@ -207,10 +221,15 @@ class BookingManager:
                 msg.attach(MIMEText(html, 'html'))
 
                 with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    print("Connexion au serveur SMTP Gmail...")
                     server.login(smtp_user, smtp_pass)
+                    print("Authentification réussie.")
                     server.send_message(msg)
+                    print("E-mail envoyé avec succès !")
             except Exception as e:
-                print(f"Erreur notification: {e}")
+                print(f"ERREUR CRITIQUE SMTP : {e}")
+        else:
+            print("ERREUR : SMTP_USER ou SMTP_PASS manquant dans les variables d'environnement.")
 
 if __name__ == "__main__":
     manager = BookingManager()

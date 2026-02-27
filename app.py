@@ -75,22 +75,29 @@ def make_reservation():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/reservations/action/<record_id>/<status>', methods=['GET'])
-def handle_reservation_action(record_id, status):
+@app.route('/api/reservations/action/<record_id>/<action>', methods=['GET'])
+def handle_reservation_action(record_id, action):
     """Gère les clics depuis l'email de notification."""
-    success, message = engine.booking.update_reservation_status(record_id, status)
+    success, message = engine.booking.update_reservation_status(record_id, action)
     
     # On renvoie une petite page HTML propre pour l'utilisateur (le resto)
-    bg_color = "#28a745" if status == "Confirmée" else "#dc3545"
+    display_status = "Confirmée" if action == "confirm" else "Annulée"
+    bg_color = "#28a745" if action == "confirm" else "#dc3545"
+    title_text = "Réservation Confirmée" if action == "confirm" else "Réservation Annulée"
+
+    if not success:
+        title_text = "Erreur"
+        bg_color = "#f4a261" # Orange pour attention
+
     return f"""
     <html>
     <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; color: white;">
-        <div style="text-align: center; padding: 40px; border-radius: 10px; background: #2a2a2a; border: 1px solid {bg_color};">
-            <h1 style="color: {bg_color};">{status} !</h1>
-            <p>{message}</p>
-            <p style="font-size: 0.9rem; color: #888;">Le client a été notifié par email.</p>
+        <div style="text-align: center; padding: 40px; border-radius: 10px; background: #2a2a2a; border: 1px solid {bg_color}; max-width: 500px;">
+            <h1 style="color: {bg_color};">{title_text} !</h1>
+            <p style="font-size: 1.2rem;">{message}</p>
+            {"<p style='color: #888;'>Le client recevra un e-mail automatique d'ici quelques secondes.</p>" if success else ""}
             <br>
-            <a href="https://restaurant-le-cherimoya.vercel.app" style="color: white; text-decoration: none; border: 1px solid white; padding: 10px 20px; border-radius: 5px;">Retour au site</a>
+            <a href="https://restaurant-le-cherimoya.vercel.app" style="color: white; text-decoration: none; border: 1px solid white; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 20px;">Retour au site</a>
         </div>
     </body>
     </html>

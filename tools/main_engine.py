@@ -23,7 +23,8 @@ class MainEngine:
         self._cache = {}
         self._cache_ttl = {
             "menu": 300,    # 5 minutes
-            "weather": 600  # 10 minutes
+            "weather": 600, # 10 minutes
+            "reviews": 3600 # 1 heure
         }
 
     def _get_cached(self, key):
@@ -56,6 +57,36 @@ class MainEngine:
             print(f"Erreur Airtable Menu: {e}")
             return []
 
+    def get_google_reviews(self):
+        """Récupère les avis Google My Business avec cache."""
+        cached_reviews = self._get_cached("reviews")
+        if cached_reviews:
+            return cached_reviews
+        
+        google_api_key = os.getenv('GOOGLE_API_KEY')
+        if not google_api_key:
+            return None
+            
+        place_id = "ChIJw6L9_VP9qBIRmpyHeIKMEXo"
+        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=rating,user_ratings_total,reviews&language=fr&key={google_api_key}"
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json().get('result', {})
+                if data:
+                    # On garde les infos essentielles
+                    reviews_data = {
+                        "rating": data.get("rating", 4.5),
+                        "total": data.get("user_ratings_total", 0),
+                        "reviews": [{"author_name": r.get("author_name"), "rating": r.get("rating"), "text": r.get("text")} for r in data.get("reviews", []) if r.get("text")]
+                    }
+                    self._set_cache("reviews", reviews_data)
+                    return reviews_data
+            return None
+        except Exception as e:
+            print(f"Erreur Google Reviews: {e}")
+            return None
+
     def build_page_data(self):
         """Assemble toutes les données nécessaires pour le frontend avec optimisation des performances."""
         # 1. Obtenir la météo (mise en cache gérée dans weather_engine ou ici)
@@ -75,12 +106,16 @@ class MainEngine:
         # 3. Générer le SEO JSON-LD
         json_ld = self.seo.generate_json_ld(menu_items)
         
+        # 4. Avis Google
+        reviews = self.get_google_reviews()
+        
         return {
             "météo_tag": tag,
             "ui_style": style,
             "welcome_message": msg,
             "menu": menu_items,
-            "json_ld": json_ld
+            "json_ld": json_ld,
+            "reviews": reviews
         }
 
 if __name__ == "__main__":

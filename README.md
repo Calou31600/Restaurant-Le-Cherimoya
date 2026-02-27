@@ -66,6 +66,14 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
    ```
    Le site sera accessible sur `http://localhost:5000` et l'administration sur `http://localhost:5000/admin`.
 
+## 🚀 Déploiement (Vercel)
+
+L'application est configurée pour un déploiement serveur-less (Serverless) sur **Vercel** via le fichier `vercel.json` intégré :
+1. Connectez votre compte GitHub à Vercel.
+2. Importez ce dépôt.
+3. Configurez toutes les variables d'environnement (`OPENWEATHER_API_KEY`, `CLOUDINARY_URL`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, etc.) dans les paramètres d'environnement de Vercel.
+4. Le déploiement se fait automatiquement via la commande de build et le script `tools/main_engine.py` en tant que point d'entrée.
+
 ## 🔒 Sécurité
 - Le backend valide minutieusement les requêtes venant du dashboard.
 - Modale de sécurité prévenant toute suppression accidentelle de la base de données Airtable.

@@ -48,7 +48,7 @@
                 <h1 class="sr-only"
                     style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
                     Restaurant Le Chérimoya - Gastronomie Fusion à Villeneuve-de-Rivière</h1>
-                <h2 id="welcome-title" class="hero-title" data-i18n="title_welcome">Chef Thuong vous accueille</h2>
+                <h2 id="welcome-title" class="hero-title" data-i18n="title_welcome">Cheffe Thuong vous accueille</h2>
                 <p id="welcome-subtitle" data-i18n="subtitle_welcome"
                     style="font-size: 1.4rem; color: var(--text-dim); margin-top: 1rem; font-family: var(--font-heading); font-style: italic;">
                     L'excellence du terroir local, dictée par la nature.</p>
@@ -100,15 +100,16 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 1rem;">
-                <span class="score">4,3</span>
+                <span class="score" id="dynamic-rating">4,3</span>
                 <div>
-                    <div class="stars">★★★★<span style="color: rgba(255,255,255,0.2)">★</span></div>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="reviews_count">Basé sur 64 avis
+                    <div class="stars" id="dynamic-stars">★★★★<span style="color: rgba(255,255,255,0.2)">★</span></div>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;" id="dynamic-reviews-count"
+                        data-i18n="reviews_count">Basé sur 64 avis
                         Google</p>
                 </div>
             </div>
 
-            <p data-i18n="reviews_quote"
+            <p id="dynamic-review-quote" data-i18n="reviews_quote"
                 style="font-style: italic; color: var(--text-main); line-height: 1.8; margin-top: 1.5rem; border-left: 2px solid var(--accent); padding-left: 1rem;">
                 "Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La
                 cuisine fusion met brillamment en valeur les produits de notre terroir."
@@ -177,7 +178,7 @@
         const translations = {
             fr: {
                 badge_loc: "Villeneuve-de-Rivière",
-                title_welcome: "Chef Thuong vous accueille",
+                title_welcome: "Cheffe Thuong vous accueille",
                 subtitle_welcome: "L'excellence du terroir local, dictée par la nature.",
                 btn_discover: "Découvrir la Carte",
                 menu_title: "L'Inspiration du Moment",
@@ -531,7 +532,32 @@
                 fullMenuData = data.menu;
                 renderMenu(fullMenuData);
             } else {
-                menuContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--text-dim);'>Notre chef élabore actuellement la nouvelle carte, inspirée par les éléments...</p>";
+                menuContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--text-dim);'>Notre cheffe élabore actuellement la nouvelle carte, inspirée par les éléments...</p>";
+            }
+
+            // Mise à jour adaptative des avis Google
+            if (data.reviews) {
+                const rating = data.reviews.rating.toFixed(1).replace('.', ',');
+                document.getElementById('dynamic-rating').innerText = rating;
+
+                const total = data.reviews.total;
+                document.getElementById('dynamic-reviews-count').innerText = currentLang === 'fr' ? `Basé sur ${total} avis Google` : `Based on ${total} Google reviews`;
+
+                const score = Math.round(data.reviews.rating);
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= score) starsHTML += '★';
+                    else starsHTML += '<span style="color: rgba(255,255,255,0.2)">★</span>';
+                }
+                document.getElementById('dynamic-stars').innerHTML = starsHTML;
+
+                // Mettre le premier avis textuel long
+                if (data.reviews.reviews && data.reviews.reviews.length > 0) {
+                    const bestReview = data.reviews.reviews.sort((a, b) => b.rating - a.rating).find(r => r.text && r.text.length > 30);
+                    if (bestReview) {
+                        document.getElementById('dynamic-review-quote').innerHTML = `"${bestReview.text}"<br><span style="font-size: 0.9rem; color: var(--accent); margin-top: 8px; display: inline-block;">— ${bestReview.author_name}</span>`;
+                    }
+                }
             }
         }
 

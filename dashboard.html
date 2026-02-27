@@ -414,11 +414,22 @@
                 const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
                 const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
 
+                // Gestion des icônes d'intolérances pour le dashboard
+                const intolerances = f.intolerances || [];
+                const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
+
+                let iconsHtml = "";
+                if (intolerances.includes("Lactose")) iconsHtml += `<span title="Lactose" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥛</span>`;
+                if (intolerances.includes("Gluten")) iconsHtml += `<span title="Gluten" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🌾</span>`;
+                if (intolerances.includes("Cacahuète")) iconsHtml += `<span title="Cacahuète" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥜</span>`;
+
+                const intolerancesHtml = iconsHtml ? `<span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap; transition: 0.3s; display: inline-flex; align-items: center;">${iconsHtml}</span>` : "";
+
                 return `
                     <div class="admin-card" onclick="openEditModal('${item.id}')" style="grid-template-columns: 80px 1fr 100px; cursor: pointer;">
                         <img src="${imgSrc}" class="admin-img" style="pointer-events: none;">
                         <div class="admin-info" style="pointer-events: none;">
-                            <h4>${f.Plat} ${signatureBadge}</h4>
+                            <h4 style="display: flex; align-items: center;">${f.Plat} ${signatureBadge} ${intolerancesHtml}</h4>
                             <p style="color: var(--accent); font-size: 0.8rem; margin-bottom: 0.2rem;">${(f.Menu || []).join(' • ')} ${(f.tags_meteo && f.tags_meteo.length > 0) ? ' | 🌩️ ' + f.tags_meteo.join(', ') : ''}</p>
                             <p>${f.description_geo || 'Pas de description'}</p>
                         </div>

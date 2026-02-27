@@ -104,12 +104,13 @@ h2 {
 h2::after {
     content: '';
     position: absolute;
-    bottom: -15px;
+    bottom: -1.2rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 2px;
+    width: 80px;
+    height: 3px;
     background: var(--accent);
+    box-shadow: 0 0 10px rgba(207, 168, 110, 0.4);
 }
 
 .terroir-badge {
@@ -209,28 +210,179 @@ header {
     text-align: right;
 }
 
+/* Social Links Footer */
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.social-icon {
+    color: var(--text-dim);
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon:hover {
+    color: var(--accent);
+    transform: translateY(-3px);
+}
+
+.social-icon svg {
+    width: 30px;
+    height: 30px;
+    fill: currentColor;
+}
+
+/* Floating Address Card */
+.floating-address {
+    position: fixed;
+    top: 50%;
+    left: 30px;
+    transform: translateY(-50%);
+    z-index: 1000;
+    padding: 20px;
+    min-width: 250px;
+    animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(207, 168, 110, 0.3);
+    pointer-events: all;
+    transition: var(--transition-smooth);
+}
+
+.tel-link {
+    transition: var(--transition-smooth);
+}
+
+.tel-link:hover {
+    transform: translateX(5px);
+    filter: brightness(1.2);
+}
+
+.floating-address:hover {
+    transform: translateY(calc(-50% - 5px));
+    border-color: var(--accent);
+    background: rgba(20, 17, 15, 0.95);
+}
+
+.floating-address.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) translateX(-20px);
+}
+
+.floating-address h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.floating-address p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Menu Section Styling */
+.menu-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.menu-header h2 {
+    margin-bottom: 2.5rem;
+    /* Espace pour le trait doré */
+    font-size: 3.5rem;
+    display: block;
+    /* Pour que le centrage soit parfait */
+}
+
+.menu-subtitle {
+    color: var(--text-dim);
+    font-style: italic;
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    margin-bottom: 3.5rem;
+    opacity: 0.9;
+    letter-spacing: 0.02em;
+}
+
 .menu-filters {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 3.5rem;
+    padding: 0 2rem;
 }
 
 .filter-btn {
-    background: transparent;
-    border: 1px solid rgba(207, 168, 110, 0.4);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(207, 168, 110, 0.3);
     color: var(--text-dim);
-    padding: 8px 20px;
-    border-radius: 30px;
+    padding: 10px 24px;
+    border-radius: 50px;
     cursor: pointer;
     transition: var(--transition-smooth);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
 }
 
 .filter-btn.active,
 .filter-btn:hover {
     background: var(--accent);
-    color: var(--bg-base);
+    color: #14110f;
     border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(207, 168, 110, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Premium Buttons */
+.btn-premium {
+    display: inline-block;
+    padding: 14px 34px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-radius: 50px;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-premium:hover {
+    background: var(--accent);
+    color: var(--bg-base);
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(207, 168, 110, 0.4);
+}
+
+.btn-premium:active {
+    transform: scale(0.98);
 }
 
 /* Badge Signature Premium */
@@ -398,12 +550,16 @@ header {
 
 /* Responsive */
 @media (max-width: 768px) {
-    h1 {
-        font-size: 3rem;
+    .floating-address {
+        display: none;
     }
 
-    h2 {
+    .menu-header h2 {
         font-size: 2.2rem;
+    }
+
+    .menu-subtitle {
+        font-size: 1.1rem;
     }
 
     .menu-grid {
@@ -438,5 +594,57 @@ header {
 
     .modal-content {
         padding: 2rem 1.5rem;
+    }
+
+    .floating-reserve-container {
+        bottom: 1rem;
+    }
+
+    .floating-reserve-container .btn-premium {
+        padding: 12px 28px;
+        font-size: 0.85rem;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+}
+
+/* Bouton flottant de réservation */
+.floating-reserve-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1500;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: floatIn 0.8s ease-out 1s both;
+}
+
+.floating-reserve-container .btn-premium {
+    padding: 16px 40px;
+    font-size: 1rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(20, 17, 15, 0.85);
+    border: 2px solid var(--accent);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(207, 168, 110, 0.15);
+}
+
+.floating-reserve-container .btn-premium:hover {
+    background: var(--accent);
+    color: #14110f;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), 0 0 50px rgba(207, 168, 110, 0.3);
+}
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
     }
 }

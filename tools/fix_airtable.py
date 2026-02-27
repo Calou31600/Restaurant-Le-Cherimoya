@@ -43,7 +43,9 @@ payload = {
             {"name": "Côté Mer"},
             {"name": "Formules"},
             {"name": "Douceurs"},
-            {"name": "Boissons"}
+            {"name": "Boissons"},
+            {"name": "Asie"},
+            {"name": "Intolérance"}
         ]
     }
 }

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin | Le Chérimoya</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
     <style>
         :root {
@@ -146,6 +147,10 @@
             position: relative;
         }
 
+        #cropper-overlay .cropper-container {
+            z-index: 5001 !important;
+        }
+
         .form-control {
             width: 100%;
             background: rgba(255, 255, 255, 0.05);
@@ -183,6 +188,9 @@
                 <h2 style="margin-bottom:0">Administration Menu</h2>
                 <p class="terroir-badge" style="margin-top:0.5rem; border:none; padding:0">Le Chérimoya Control Center
                 </p>
+                <p id="menu-count"
+                    style="font-size: 0.85rem; color: var(--accent); margin-top: 0.2rem; opacity: 0.9; font-weight: 500;">
+                    Chargement du nombre de plats...</p>
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button class="btn-save" onclick="openAddModal()" style="font-size: 1rem; padding: 10px 20px;">+ Ajouter
@@ -248,6 +256,14 @@
                             style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
                                 type="checkbox" value="Boissons" class="cat-checkbox" style="margin-right: 8px;">
                             Boissons</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Asie" class="cat-checkbox" style="margin-right: 8px;">
+                            Asie</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Intolérance" class="cat-checkbox" style="margin-right: 8px;">
+                            Intolérance</label>
                     </div>
 
                     <label style="margin-top: 1rem; display: block;">Tags Météo (Recommandation IA)</label>
@@ -289,21 +305,15 @@
                 </div>
             </div>
 
-            <div id="delete-btn-container" style="display: none;">
-                <div
-                    style="display:flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                    <!-- Bouton de suppression -->
-                    <button onclick="deleteCurrentItem()"
-                        style="background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: 0.3s;"
-                        onmouseover="this.style.background='rgba(255,77,77,0.1)'"
-                        onmouseout="this.style.background='transparent'">
-                        🗑️ Supprimer ce plat
-                    </button>
-                </div>
-            </div>
-            <div style="display:flex; justify-content: flex-end; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;"
-                id="action-buttons-container">
-
+            <div id="modal-footer"
+                style="display:flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <!-- Bouton de suppression -->
+                <button id="delete-btn" onclick="deleteCurrentItem()"
+                    style="display: none; background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: 0.3s; margin-right: auto;"
+                    onmouseover="this.style.background='rgba(255,77,77,0.1)'"
+                    onmouseout="this.style.background='transparent'">
+                    🗑️ Supprimer ce plat
+                </button>
                 <div style="display:flex; gap: 1rem;">
                     <button class="filter-btn" onclick="closeEditModal()">Annuler</button>
                     <button class="btn-save" id="btn-save-all" style="font-size: 1.1rem; padding: 12px 25px;">Mise à
@@ -335,9 +345,27 @@
         </div>
     </div>
 
+    <!-- Modal Recadrage -->
+    <div id="cropper-overlay" class="upload-overlay" style="z-index: 5000;">
+        <div class="admin-modal" style="max-width: 800px; text-align: center;">
+            <h3 style="margin-top: 0; margin-bottom: 1rem;">Recadrer la photo</h3>
+            <div
+                style="width: 100%; max-height: 60vh; margin-bottom: 1.5rem; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                <img id="cropper-image" src="" style="max-width: 100%; max-height: 100%; display: block;">
+            </div>
+            <div style="display:flex; gap: 1rem; justify-content: center;">
+                <button class="filter-btn" onclick="closeCropperModal()">Annuler</button>
+                <button class="btn-save" onclick="applyCrop()" style="padding: 8px 20px;">Valider le recadrage</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
         let currentMenu = [];
         let currentUploadId = null;
+        let cropperInstance = null;
+        let currentCroppedBlob = null;
 
         async function fetchMenu() {
             try {
@@ -353,6 +381,12 @@
 
         function renderAdmin() {
             const grid = document.getElementById('admin-grid');
+            const countElement = document.getElementById('menu-count');
+
+            // Mise à jour du compteur
+            const totalPlats = currentMenu.length;
+            countElement.innerText = `${totalPlats} plat${totalPlats > 1 ? 's' : ''} à la carte`;
+
             grid.innerHTML = currentMenu.map(item => {
                 const f = item.fields;
                 const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
@@ -383,13 +417,8 @@
             currentEditId = id;
             document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
 
-            // Afficher le bouton supprimer et ajuster le container
-            document.getElementById('delete-btn-container').style.display = 'block';
-            document.getElementById('action-buttons-container').style.justifyContent = 'space-between';
-            document.getElementById('action-buttons-container').style.borderTop = 'none';
-            document.getElementById('action-buttons-container').style.marginTop = '0';
-            document.getElementById('action-buttons-container').style.paddingTop = '0';
-            document.getElementById('delete-btn-container').appendChild(document.getElementById('action-buttons-container'));
+            // Afficher le bouton supprimer
+            document.getElementById('delete-btn').style.display = 'block';
 
             document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
             document.getElementById('edit-name').value = f.Plat || '';
@@ -397,6 +426,7 @@
             document.getElementById('edit-price').value = f.prix || 0;
             document.getElementById('edit-featured').checked = !!f.is_featured;
             document.getElementById('edit-file').value = '';
+            currentCroppedBlob = null;
 
             // Gestion des catégories
             const currentCats = f.Menu || [];
@@ -417,13 +447,8 @@
             currentEditId = null;
             document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
 
-            // Cacher le bouton supprimer et ajuster le container
-            document.getElementById('delete-btn-container').style.display = 'none';
-            document.querySelector('.admin-modal').appendChild(document.getElementById('action-buttons-container'));
-            document.getElementById('action-buttons-container').style.justifyContent = 'flex-end';
-            document.getElementById('action-buttons-container').style.borderTop = '1px solid rgba(255,255,255,0.1)';
-            document.getElementById('action-buttons-container').style.marginTop = '2rem';
-            document.getElementById('action-buttons-container').style.paddingTop = '1.5rem';
+            // Cacher le bouton supprimer
+            document.getElementById('delete-btn').style.display = 'none';
 
             document.getElementById('edit-current-img').src = 'assets/dish1.png';
             document.getElementById('edit-name').value = '';
@@ -431,6 +456,7 @@
             document.getElementById('edit-price').value = 0;
             document.getElementById('edit-featured').checked = false;
             document.getElementById('edit-file').value = '';
+            currentCroppedBlob = null;
 
             document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
             document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
@@ -463,10 +489,19 @@
                 };
 
                 const fileInput = document.getElementById('edit-file');
-                if (fileInput.files.length > 0) {
+                let fileToUpload = null;
+
+                // Priorité à l'image recadrée si elle existe, sinon au fichier d'origine s'il y a un bypass
+                if (currentCroppedBlob) {
+                    fileToUpload = currentCroppedBlob;
+                } else if (fileInput.files.length > 0) {
+                    fileToUpload = fileInput.files[0];
+                }
+
+                if (fileToUpload) {
                     btn.innerText = "Upload de la photo...";
                     const formData = new FormData();
-                    formData.append('file', fileInput.files[0]);
+                    formData.append('file', fileToUpload, 'menu_image.jpg'); // Toujours fournir un nom propre
                     const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
                     const uploadData = await uploadRes.json();
                     if (uploadData.url) {
@@ -545,6 +580,71 @@
                 console.error(err);
                 alert("Erreur réseau lors de la suppression.");
             }
+        }
+
+        // --- Logique Cropper.js ---
+        document.getElementById('edit-file').addEventListener('change', function (e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('cropper-image').src = event.target.result;
+                    document.getElementById('cropper-overlay').style.display = 'flex';
+
+                    if (cropperInstance) {
+                        cropperInstance.destroy();
+                    }
+
+                    // Initialiser CropperJS
+                    const image = document.getElementById('cropper-image');
+                    cropperInstance = new Cropper(image, {
+                        aspectRatio: 4 / 3, // Ratio paysage recommandé pour la nourriture
+                        viewMode: 2,
+                        background: false,
+                        autoCropArea: 1,
+                        responsive: true
+                    });
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+
+        function closeCropperModal(resetInput = true) {
+            document.getElementById('cropper-overlay').style.display = 'none';
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            if (resetInput) {
+                document.getElementById('edit-file').value = '';
+                currentCroppedBlob = null;
+            }
+        }
+
+        function applyCrop() {
+            if (!cropperInstance) return;
+
+            const btnSaveCrop = document.querySelector('#cropper-overlay .btn-save');
+            btnSaveCrop.innerText = "Traitement...";
+            btnSaveCrop.disabled = true;
+
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 800,
+                height: 600,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
+            canvas.toBlob((blob) => {
+                currentCroppedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
+
+                btnSaveCrop.innerText = "Valider le recadrage";
+                btnSaveCrop.disabled = false;
+
+                closeCropperModal(false); // Fermer sans reset, car on vient de sauvegarder l'état
+            }, 'image/jpeg', 0.85); // Qualité optimale pour le web
         }
 
         fetchMenu();

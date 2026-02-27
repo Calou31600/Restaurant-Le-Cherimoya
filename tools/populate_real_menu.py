@@ -83,68 +83,71 @@ TRANSLATIONS = {
     "Dôme rubis": ("Ruby Dome", "Raspberry mousse, pure coulis heart, Joconde biscuit, and ruby glaze"),
     "Tiramisu au café": ("Coffee Tiramisu", "Coffee-soaked biscuits with rich mascarpone cream (alcohol-free)"),
     "Crème Brûlée au Café": ("Coffee Crème Brûlée", "Smooth coffee cream topped with a crunchy caramelized layer"),
-    "Glaces (2 boules au choix)": ("Ice Cream (2 scoops)", "Flavors of your choice, served with whipped cream")
+    "Glaces (2 boules au choix)": ("Ice Cream (2 scoops)", "Flavors of your choice, served with whipped cream"),
+    "Joue de bœuf braisée": ("Braised beef cheeks", "Tender beef cheeks slowly braised in a red wine reduction, served with creamy mashed potatoes and glazed carrots")
 }
 
 MENU_REEL = [
     # Entrées
-    {"Plat": "Salade de poulet croustillant", "description_geo": "Filet de poulet croustillant, salade verte et sauce maison", "prix": 9.90, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Salade de camembert rôti", "description_geo": "Camembert rôti au miel, accompagné de sa salade verte, jambon et olives", "prix": 11.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": True},
-    {"Plat": "Siu mai vapeur 5pc", "description_geo": "Délicates bouchées vapeur, farcies au porc tendre et crevettes fraîches", "prix": 6.90, "tags_meteo": ["Pluie", "Chaud"], "is_featured": False},
-    {"Plat": "Salade de nems", "description_geo": "Nems croustillants, salade verte et sauce maison", "prix": 9.90, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Ha Kao aux crevettes 5pc", "description_geo": "Délicats raviolis vapeur, garnis de crevettes fraîches", "prix": 6.90, "tags_meteo": ["Chaud", "Pluie"], "is_featured": False},
+    {"Plat": "Salade de poulet croustillant", "description_geo": "Filet de poulet croustillant, salade verte et sauce maison", "prix": 9.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Entrées"]},
+    {"Plat": "Salade de camembert rôti", "description_geo": "Camembert rôti au miel, accompagné de sa salade verte, jambon et olives", "prix": 11.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": True, "Menu": ["Entrées"]},
+    {"Plat": "Siu mai vapeur 5pc", "description_geo": "Délicates bouchées vapeur, farcies au porc tendre et crevettes fraîches", "prix": 6.90, "tags_meteo": ["Pluie", "Chaud"], "is_featured": False, "Menu": ["Entrées", "Asie"]},
+    {"Plat": "Salade de nems", "description_geo": "Nems croustillants, salade verte et sauce maison", "prix": 9.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Entrées", "Asie"]},
+    {"Plat": "Ha Kao aux crevettes 5pc", "description_geo": "Délicats raviolis vapeur, garnis de crevettes fraîches", "prix": 6.90, "tags_meteo": ["Chaud", "Pluie"], "is_featured": False, "Menu": ["Entrées", "Asie"]},
 
     # Apéritifs / Tapas
-    {"Plat": "Assiette d'apéritif - 4 nems", "description_geo": "4 nems poulet croustillants, roulés dans des feuilles de salade", "prix": 6.90, "tags_meteo": [], "is_featured": False},
-    {"Plat": "Plateau de fromages mixtes", "description_geo": "Assiette de fromages du moment, une sélection pour découvrir", "prix": 12.90, "tags_meteo": ["Froid"], "is_featured": False},
-    {"Plat": "Assiette de charcuterie et fromages", "description_geo": "Jambon ibérique, coppa et sélection de fromages à partager", "prix": 15.90, "tags_meteo": ["Froid"], "is_featured": True},
+    {"Plat": "Assiette d'apéritif - 4 nems", "description_geo": "4 nems poulet croustillants, roulés dans des feuilles de salade", "prix": 6.90, "tags_meteo": [], "is_featured": False, "Menu": ["À Partager", "Asie"]},
+    {"Plat": "Plateau de fromages mixtes", "description_geo": "Assiette de fromages du moment, une sélection pour découvrir", "prix": 12.90, "tags_meteo": ["Froid"], "is_featured": False, "Menu": ["À Partager"]},
+    {"Plat": "Assiette de charcuterie et fromages", "description_geo": "Jambon ibérique, coppa et sélection de fromages à partager", "prix": 15.90, "tags_meteo": ["Froid"], "is_featured": True, "Menu": ["À Partager"]},
 
     # Cocktails
-    {"Plat": "Américano", "description_geo": "Vermouth italien, bitter campari, perrier, équilibre douceur amertume", "prix": 10.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Pina colada", "description_geo": "Crème de coco, ananas, rhum blanc, cocktail tropical", "prix": 9.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Sunset boulevard", "description_geo": "Orange, cranberry, pêche, mûre, vodka. Fruité et acidulé", "prix": 11.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Mojito", "description_geo": "Sucre, citron vert, rhum cubain, perrier, menthe, angostura", "prix": 10.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Paradis asiatique", "description_geo": "Sirop d'hibiscus, fleur d'hibiscus comestible, citron vert, prosecco", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Nana fizz", "description_geo": "Gin, perrier, sirop de sucre de canne, citron vert, framboise", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": False},
+    {"Plat": "Américano", "description_geo": "Vermouth italien, bitter campari, perrier, équilibre douceur amertume", "prix": 10.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Pina colada", "description_geo": "Crème de coco, ananas, rhum blanc, cocktail tropical", "prix": 9.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Sunset boulevard", "description_geo": "Orange, cranberry, pêche, mûre, vodka. Fruité et acidulé", "prix": 11.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Boissons"]},
+    {"Plat": "Mojito", "description_geo": "Sucre, citron vert, rhum cubain, perrier, menthe, angostura", "prix": 10.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Paradis asiatique", "description_geo": "Sirop d'hibiscus, fleur d'hibiscus comestible, citron vert, prosecco", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Boissons", "Asie"]},
+    {"Plat": "Nana fizz", "description_geo": "Gin, perrier, sirop de sucre de canne, citron vert, framboise", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
 
     # Mocktails (Sans Alcool)
-    {"Plat": "Prohibition (Mocktail)", "description_geo": "Jus d'orange, ananas, citron, sirop de framboise", "prix": 8.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Virgin mojito", "description_geo": "Sirop de canne, perrier, citron vert, menthe fraîche", "prix": 8.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "L'exotique (Mocktail)", "description_geo": "Jus de banane, maracuja, pomme, vanille, citron vert", "prix": 9.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Virgin colada", "description_geo": "Jus d'ananas, crème de coco", "prix": 7.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Le délice (Mocktail)", "description_geo": "Jus de litchi, crème de framboise, citron, pomme", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": False},
+    {"Plat": "Prohibition (Mocktail)", "description_geo": "Jus d'orange, ananas, citron, sirop de framboise", "prix": 8.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Virgin mojito", "description_geo": "Sirop de canne, perrier, citron vert, menthe fraîche", "prix": 8.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "L'exotique (Mocktail)", "description_geo": "Jus de banane, maracuja, pomme, vanille, citron vert", "prix": 9.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Virgin colada", "description_geo": "Jus d'ananas, crème de coco", "prix": 7.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
+    {"Plat": "Le délice (Mocktail)", "description_geo": "Jus de litchi, crème de framboise, citron, pomme", "prix": 11.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Boissons"]},
 
     # Plats de la mer
-    {"Plat": "Grosses gambas grillées 3pc", "description_geo": "Gambas fraîches grillées au beurre et à l’ail, accompagnées de légumes grillés et riz parfumé", "prix": 29.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Moules à la crème beurre", "description_geo": "Moules sautées à la sauce beurre-crème, servies avec des frites", "prix": 16.90, "tags_meteo": ["Pluie"], "is_featured": False},
-    {"Plat": "Pâtes aux fruits de mer", "description_geo": "Pâtes cuisinées avec crevettes, moules, calamars noix de saint-jacques, et sauce tomate fait maison", "prix": 19.90, "tags_meteo": ["Pluie"], "is_featured": False},
-    {"Plat": "Riz sauté aux fruits de mer", "description_geo": "Riz parfumé associé aux crevettes, calamars et moules, noix de saint-jacques avec une touche de persil", "prix": 19.90, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Assiette de fruits de mer", "description_geo": "Gambas, crevettes, sole, calamars, moules fraîches, noix de saint-jacques, délicatement harmonisés", "prix": 45.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Filet de bar au beurre", "description_geo": "Filet de bar délicatement nappée de sauce beurre accompagnée de riz parfumé et légumes grillés", "prix": 19.90, "tags_meteo": ["Chaud"], "is_featured": False},
+    {"Plat": "Grosses gambas grillées 3pc", "description_geo": "Gambas fraîches grillées au beurre et à l’ail, accompagnées de légumes grillés et riz parfumé", "prix": 29.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Côté Mer"]},
+    {"Plat": "Moules à la crème beurre", "description_geo": "Moules sautées à la sauce beurre-crème, servies avec des frites", "prix": 16.90, "tags_meteo": ["Pluie"], "is_featured": False, "Menu": ["Côté Mer"]},
+    {"Plat": "Pâtes aux fruits de mer", "description_geo": "Pâtes cuisinées avec crevettes, moules, calamars noix de saint-jacques, et sauce tomate fait maison", "prix": 19.90, "tags_meteo": ["Pluie"], "is_featured": False, "Menu": ["Côté Mer"]},
+    {"Plat": "Riz sauté aux fruits de mer", "description_geo": "Riz parfumé associé aux crevettes, calamars et moules, noix de saint-jacques avec une touche de persil", "prix": 19.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Côté Mer", "Asie"]},
+    {"Plat": "Assiette de fruits de mer", "description_geo": "Gambas, crevettes, sole, calamars, moules fraîches, noix de saint-jacques, délicatement harmonisés", "prix": 45.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Côté Mer"]},
+    {"Plat": "Filet de bar au beurre", "description_geo": "Filet de bar délicatement nappée de sauce beurre accompagnée de riz parfumé et légumes grillés", "prix": 19.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Côté Mer"]},
 
     # Viandes / Plats de la terre
-    {"Plat": "Poulet sauce teriyaki", "description_geo": "Blanc de poulet émincé, grillé sur brochettes et nappé de sauce teriyaki, servi avec riz parfumé et légumes grillés", "prix": 17.90, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Faux filet de bœuf 250gr", "description_geo": "Faux filet de bœuf grillée, servie avec sauce maison et frites", "prix": 18.90, "tags_meteo": ["Froid"], "is_featured": False},
-    {"Plat": "Tataki de bœuf 250gr", "description_geo": "Bœuf grillé tendre, tranché finement et mariné avec sauce fait maison, servi avec purée de pommes de terre et légumes grillés", "prix": 18.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Filet de canard sauce fait maison", "description_geo": "Magret de canard grillé nappé sauce fait maison, servi avec des frites", "prix": 18.90, "tags_meteo": ["Froid"], "is_featured": False},
-    {"Plat": "Filet de canard caramel balsamique", "description_geo": "Magret de canard grillé accompagné d'une sauce caramel balsamique onctueuse, servi avec purée de pomme de terre et légumes grillés", "prix": 18.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": True},
+    {"Plat": "Poulet sauce teriyaki", "description_geo": "Blanc de poulet émincé, grillé sur brochettes et nappé de sauce teriyaki, servi avec riz parfumé et légumes grillés", "prix": 17.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Côté Terre", "Asie"]},
+    {"Plat": "Faux filet de bœuf 250gr", "description_geo": "Faux filet de bœuf grillée, servie avec sauce maison et frites", "prix": 18.90, "tags_meteo": ["Froid"], "is_featured": False, "Menu": ["Côté Terre"]},
+    {"Plat": "Tataki de bœuf 250gr", "description_geo": "Bœuf grillé tendre, tranché finement et mariné avec sauce fait maison, servi avec purée de pommes de terre et légumes grillés", "prix": 18.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Côté Terre", "Asie"]},
+    {"Plat": "Filet de canard sauce fait maison", "description_geo": "Magret de canard grillé nappé sauce fait maison, servi avec des frites", "prix": 18.90, "tags_meteo": ["Froid"], "is_featured": False, "Menu": ["Côté Terre"]},
+    {"Plat": "Filet de canard caramel balsamique", "description_geo": "Magret de canard grillé accompagné d'une sauce caramel balsamique onctueuse, servi avec purée de pomme de terre et légumes grillés", "prix": 18.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": True, "Menu": ["Côté Terre"]},
+    {"Plat": "Joue de bœuf braisée", "description_geo": "Joue de bœuf tendre braisée lentement au vin rouge, servie avec purée maison et carottes fondantes", "prix": 22.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": True, "Menu": ["Côté Terre"]},
 
     # Menus et Formules
-    {"Plat": "Formule Vietnamienne", "description_geo": "Entrée, Plat et Dessert au choix (Nems, Tiramisu, etc.)", "prix": 26.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Menu Enfant", "description_geo": "Plat au choix (Burger, Poulet, Pâtes) + 1 boule de glace", "prix": 12.90, "tags_meteo": [], "is_featured": False},
+    {"Plat": "Formule Vietnamienne", "description_geo": "Entrée, Plat et Dessert au choix (Nems, Tiramisu, etc.)", "prix": 26.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Formules", "Asie"]},
+    {"Plat": "Menu Enfant", "description_geo": "Plat au choix (Burger, Poulet, Pâtes) + 1 boule de glace", "prix": 12.90, "tags_meteo": [], "is_featured": False, "Menu": ["Formules"]},
 
     # Desserts
-    {"Plat": "Tartelette tatin", "description_geo": "Tarte renversée aux pommes caramélisées sur beurre rehaussé de confitures, servie tiède.", "prix": 4.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": False},
-    {"Plat": "Poire en trompe-l'œil", "description_geo": "Mousse poire onctueuse avec insert de compotée, façonnée comme une vraie poire.", "prix": 6.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Tropézienne", "description_geo": "Brioche moelleuse garnie de crème mousseline, douce et délicate.", "prix": 4.50, "tags_meteo": ["Chaud"], "is_featured": False},
-    {"Plat": "Dôme rubis", "description_geo": "Mousse framboise avec coulis au cœur, sur biscuit Joconde, enrobée de chocolat noir et glaçage rouge rubis. Parfait pour conclure le repas.", "prix": 7.90, "tags_meteo": ["Chaud"], "is_featured": True},
-    {"Plat": "Tiramisu au café", "description_geo": "Tiramisu au café – Biscuits imbibés de café, crème mascarpone onctueuse, saupoudré de cacao, sans alcool.", "prix": 4.90, "tags_meteo": ["Froid"], "is_featured": False},
-    {"Plat": "Crème Brûlée au Café", "description_geo": "Crème onctueuse avec une fine couche de caramel croquant, parfumée au café.", "prix": 4.50, "tags_meteo": ["Froid"], "is_featured": False},
-    {"Plat": "Glaces (2 boules au choix)", "description_geo": "Glaces (2 boules au choix) surmontées de crème chantilly onctueuse (vanille, chocolat, rhum raisin, mangue, fraise, café, caramel).", "prix": 4.90, "tags_meteo": ["Chaud"], "is_featured": False}
+    {"Plat": "Tartelette tatin", "description_geo": "Tarte renversée aux pommes caramélisées sur beurre rehaussé de confitures, servie tiède.", "prix": 4.90, "tags_meteo": ["Froid", "Pluie"], "is_featured": False, "Menu": ["Douceurs"]},
+    {"Plat": "Poire en trompe-l'œil", "description_geo": "Mousse poire onctueuse avec insert de compotée, façonnée comme une vraie poire.", "prix": 6.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Douceurs"]},
+    {"Plat": "Tropézienne", "description_geo": "Brioche moelleuse garnie de crème mousseline, douce et délicate.", "prix": 4.50, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Douceurs"]},
+    {"Plat": "Dôme rubis", "description_geo": "Mousse framboise avec coulis au cœur, sur biscuit Joconde, enrobée de chocolat noir et glaçage rouge rubis. Parfait pour conclure le repas.", "prix": 7.90, "tags_meteo": ["Chaud"], "is_featured": True, "Menu": ["Douceurs"]},
+    {"Plat": "Tiramisu au café", "description_geo": "Tiramisu au café – Biscuits imbibés de café, crème mascarpone onctueuse, saupoudré de cacao, sans alcool.", "prix": 4.90, "tags_meteo": ["Froid"], "is_featured": False, "Menu": ["Douceurs"]},
+    {"Plat": "Crème Brûlée au Café", "description_geo": "Crème onctueuse avec une fine couche de caramel croquant, parfumée au café.", "prix": 4.50, "tags_meteo": ["Froid"], "is_featured": False, "Menu": ["Douceurs"]},
+    {"Plat": "Glaces (2 boules au choix)", "description_geo": "Glaces (2 boules au choix) surmontées de crème chantilly onctueuse (vanille, chocolat, rhum raisin, mangue, fraise, café, caramel).", "prix": 4.90, "tags_meteo": ["Chaud"], "is_featured": False, "Menu": ["Douceurs"]}
 ]
 
 def populate_table():
-    print(f"Insertion de {len(MENU_REEL)} plats bilingues dans Airtable...")
+    import time
+    print(f"Insertion de {len(MENU_REEL)} plats bilingues avec catégories dans Airtable...")
     for item in MENU_REEL:
         plat_fr = item["Plat"]
         plat_en = ""
@@ -162,14 +165,16 @@ def populate_table():
                 "tags_meteo": item["tags_meteo"],
                 "prix": item["prix"],
                 "is_featured": item["is_featured"],
+                "Menu": item.get("Menu", []),
                 "producteur_local": "Producteur du Sud-Ouest"
             }
         }
         res = requests.post(BASE_URL, headers=HEADERS, json=payload)
         if res.status_code == 200:
-            print(f"✅ Ajouté (Bilingue): {plat_fr}")
+            print(f"✅ Ajouté: {plat_fr} ({', '.join(item.get('Menu', []))})")
         else:
             print(f"❌ Erreur sur {plat_fr}: {res.text}")
+        time.sleep(0.25) # Rate limit respect (5 req/sec = 0.2s pause)
 
 if __name__ == "__main__":
     clear_table()

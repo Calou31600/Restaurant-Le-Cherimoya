@@ -133,6 +133,6 @@ def admin_upload_image():
 
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut
-    print("🚀 Serveur Le Chérimoya démarré sur http://localhost:5000")
-    print("🔑 Dashboard accessible sur http://localhost:5000/admin")
+    print("Serveur Le Cherimoya demarre sur http://localhost:5000")
+    print("Dashboard accessible sur http://localhost:5000/admin")
     app.run(debug=True, port=5000)

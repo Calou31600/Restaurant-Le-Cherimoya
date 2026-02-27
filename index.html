@@ -49,10 +49,9 @@
         </header>
 
         <section id="menu" style="padding-top: 4rem; padding-bottom: 4rem;">
-            <div style="text-align: center;" class="fade-in">
-                <h2 style="margin-bottom: 1rem;" data-i18n="menu_title">L'Inspiration du Moment</h2>
-                <p data-i18n="menu_subtitle"
-                    style="color: var(--text-dim); font-style: italic; font-family: var(--font-heading); font-size: 1.2rem;">
+            <div class="menu-header fade-in">
+                <h2 data-i18n="menu_title">L'Inspiration du Moment</h2>
+                <p class="menu-subtitle" data-i18n="menu_subtitle">
                     Une sélection dictée par le climat commingeois.</p>
             </div>
             <div class="menu-filters fade-in">
@@ -65,12 +64,15 @@
                 <button class="filter-btn" onclick="filterMenu('Formule')" data-i18n="filter_menus">Formules</button>
                 <button class="filter-btn" onclick="filterMenu('Dessert')" data-i18n="filter_desserts">Douceurs</button>
                 <button class="filter-btn" onclick="filterMenu('Boisson')" data-i18n="filter_drinks">Boissons</button>
+                <button class="filter-btn" onclick="filterMenu('Asie')" data-i18n="filter_asia">Asie</button>
+                <button class="filter-btn" onclick="filterMenu('Intolerance')"
+                    data-i18n="filter_intolerance">Intolérence</button>
             </div>
             <div class="menu-grid" id="menu-container">
                 <!-- Plats injectés ici -->
             </div>
+        </section>
     </div>
-    </section>
 
     <!-- SECTION INFOS & AVIS GOOGLE -->
     <section class="info-section fade-in">
@@ -100,33 +102,56 @@
                 "Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La
                 cuisine fusion met brillamment en valeur les produits de notre terroir."
             </p>
-
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="#reservation" class="btn-premium" data-i18n="btn_book">Réserver une table</a>
-            </div>
         </div>
 
         <div class="map-container">
             <div class="map-marker">📍</div>
-            <div
-                style="position: absolute; bottom: 20px; left: 20px; z-index: 10; background: rgba(20,17,15,0.8); padding: 15px; border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(207,168,110,0.2);">
-                <h3
-                    style="font-size: 1.2rem; margin-bottom: 5px; color: var(--text-main); font-family: var(--font-heading);">
-                    Le Chérimoya</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="map_address">Chem. d'Armajou / 3 D817
-                </p>
-                <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="map_city">31800 Villeneuve-de-Rivière
-                </p>
-            </div>
         </div>
     </section>
 
-    <footer
-        style="padding: 4rem 0; text-align: center; color: var(--text-dim); border-top: 1px solid rgba(207, 168, 110, 0.1); margin-top: 4rem;">
+    <!-- Adresse Flottante Persistante -->
+    <div class="floating-address glass hidden">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=Le+Chérimoya+Villeneuve-de-Rivière" target="_blank"
+            style="text-decoration: none; color: inherit; display: block; margin-bottom: 12px;">
+            <h3 data-i18n="footer_title">Le Chérimoya</h3>
+            <p data-i18n="map_address">Chem. d'Armajou / 3 D817</p>
+            <p data-i18n="map_city">31800 Villeneuve-de-Rivière</p>
+        </a>
+        <div style="border-top: 1px solid rgba(207,168,110,0.2); padding-top: 12px;">
+            <a href="tel:+33756094724" class="tel-link"
+                style="text-decoration: none; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)">
+                    <path
+                        d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                </svg>
+                07 56 09 47 24
+            </a>
+        </div>
+    </div>
+
+    <footer id="main-footer"
+        style="padding: 4rem 0; text-align: center; color: var(--text-dim); border-top: 1px solid rgba(207, 168, 110, 0.1); margin-top: 4rem; position: relative; z-index: 10;">
         <h3 style="font-family: var(--font-heading); font-size: 2rem; color: var(--text-main); margin-bottom: 1rem;">
             Le Chérimoya</h3>
-        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;" data-i18n="footer_subtitle">Gastronomie Fusion & Terroir
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;" data-i18n="footer_subtitle">Gastronomie Fusion & Terroir
             Commingeois</p>
+
+        <div class="social-links">
+            <a href="https://www.facebook.com/Lecherimoyarestaurant" target="_blank" class="social-icon"
+                aria-label="Facebook">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 2.04c-5.5 0-10 4.5-10 10 0 5 3.66 9.12 8.44 9.88v-6.99h-2.54v-2.89h2.54v-2.2c0-2.5 1.53-3.89 3.73-3.89 1.06 0 2.16.19 2.16.19v2.38h-1.22c-1.24 0-1.63.77-1.63 1.56v1.96h2.68l-.43 2.89h-2.25v6.99c4.78-.76 8.44-4.88 8.44-9.88 0-5.5-4.5-10-10-10z" />
+                </svg>
+            </a>
+            <a href="https://www.instagram.com/lecherimoya" target="_blank" class="social-icon" aria-label="Instagram">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                </svg>
+            </a>
+        </div>
+
         <p style="font-size: 0.8rem; opacity: 0.6;" data-i18n="footer_copy">&copy; 2026 - Créé avec passion à
             Villeneuve-de-Rivière</p>
     </footer>
@@ -154,6 +179,8 @@
                 filter_menus: "Formules",
                 filter_desserts: "Douceurs",
                 filter_drinks: "Boissons",
+                filter_asia: "Asie",
+                filter_intolerance: "Intolérance",
                 reviews_title: "L'Expérience Chérimoya",
                 reviews_budget: "20–30 €",
                 reviews_type: "Restaurant Français Fusion",
@@ -180,6 +207,8 @@
                 filter_menus: "Set Menus",
                 filter_desserts: "Desserts",
                 filter_drinks: "Drinks",
+                filter_asia: "Asia",
+                filter_intolerance: "Intolerance",
                 reviews_title: "The Chérimoya Experience",
                 reviews_budget: "€20–€30",
                 reviews_type: "French Fusion Restaurant",
@@ -573,6 +602,8 @@
                 if (category === 'Formule') return item.Menu.includes('Formules');
                 if (category === 'Dessert') return item.Menu.includes('Douceurs');
                 if (category === 'Boisson') return item.Menu.includes('Boissons');
+                if (category === 'Asie') return item.Menu.includes('Asie');
+                if (category === 'Intolerance') return item.Menu.includes('Intolérance');
 
                 return false;
             });
@@ -580,6 +611,81 @@
         }
 
         window.onload = loadAppData;
+    </script>
+    <script>
+        // Gestion dynamique de la visibilité de l'adresse flottante
+        const floatingAddress = document.querySelector('.floating-address');
+        const infoSection = document.querySelector('.info-section');
+
+        let isInfoIntersecting = false;
+
+        function updateAddressVisibility() {
+            // Cacher si on est tout en haut (pour ne pas couvrir le titre du Hero)
+            // OU si on survole la section des avis (pour éviter la collision)
+            if (window.scrollY < 400 || isInfoIntersecting) {
+                floatingAddress.classList.add('hidden');
+            } else {
+                floatingAddress.classList.remove('hidden');
+            }
+        }
+
+        if (floatingAddress && infoSection) {
+            const observerOptions = {
+                root: null,
+                threshold: 0,
+                rootMargin: "-30% 0% -30% 0%"
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    isInfoIntersecting = entry.isIntersecting;
+                    updateAddressVisibility();
+                });
+            }, observerOptions);
+
+            observer.observe(infoSection);
+
+            // Écouter le scroll pour l'affichage initial
+            window.addEventListener('scroll', updateAddressVisibility);
+
+            // État initial
+            updateAddressVisibility();
+        }
+    </script>
+
+    <!-- Bouton flottant de réservation -->
+    <div id="floating-btn-wrap" class="floating-reserve-container">
+        <a href="tel:+33756094724" class="btn-premium glass" data-i18n="btn_book"
+            style="box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-width: 2px;">Réserver une table</a>
+    </div>
+
+    <script>
+        // --- Logique du bouton de réservation flottant ---
+        const floatingBtn = document.getElementById('floating-btn-wrap');
+        const footer = document.getElementById('main-footer');
+
+        function handleFloatingBtn() {
+            if (!floatingBtn || !footer) return;
+
+            const footerRect = footer.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+
+            // Si le footer entre dans le viewport
+            if (footerRect.top < viewportHeight) {
+                const overlap = viewportHeight - footerRect.top;
+                floatingBtn.style.bottom = (overlap + 32) + "px";
+                floatingBtn.style.transform = "translateX(-50%) scale(0.95)";
+                floatingBtn.style.opacity = "0.9";
+            } else {
+                floatingBtn.style.bottom = "2rem";
+                floatingBtn.style.transform = "translateX(-50%) scale(1)";
+                floatingBtn.style.opacity = "1";
+            }
+        }
+
+        window.addEventListener('scroll', handleFloatingBtn);
+        window.addEventListener('resize', handleFloatingBtn);
+        handleFloatingBtn();
     </script>
 </body>
 

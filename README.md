@@ -6,6 +6,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 ### Côté Client (Site Public)
 - **Menu Dynamique** : Affichage des plats triés par catégories (Entrées, Plats, Desserts, etc.) et par ordre alphabétique.
+- **Menu Bilingue (Français/Anglais)** : Support multilingue pour l'affichage des plats et de leurs descriptions.
 - **Recommandations Météo (IA)** : Une bannière météo s'affiche en fonction de la température actuelle du restaurant et met en avant les plats les plus réconfortants ou rafraîchissants.
 - **Design Premium** : Interface élégante avec mode sombre (Dark Mode) et effet "Glassmorphism".
 - **Responsive** : Parfaitement adapté à toutes les tailles d'écrans (Mobile, Tablette, Desktop).
@@ -13,7 +14,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 ### Côté Administrateur (Dashboard)
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
 - **Catégories & Tags Météo** : Affecter directement des tags (Chaud, Froid) et des catégories (À Partager, Côté Mer, etc.) à chaque plat.
-- **Upload d'Images Cloudinary** : Possibilité de télécharger de nouvelles photos directement depuis l'interface d'édition.
+- **Upload & Recadrage d'Images** : Intégration de Cropper.js pour recadrer les images (format 4:3) avant le téléchargement sur Cloudinary.
 - **Modales de Sécurité** : Fenêtre de confirmation de suppression nativement intégrée au design du site.
 - **Système de Cache** : La majorité des requêtes sont mises en cache pour garantir des temps de chargements optimaux, et le cache est purgé dynamiquement lors de toute modification.
 

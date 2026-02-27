@@ -72,6 +72,27 @@ def make_reservation():
             return jsonify({"status": "success", "message": message})
         else:
             return jsonify({"status": "error", "message": message}), 400
+
+    @app.route('/api/reservations/action/<record_id>/<status>', methods=['GET'])
+    def handle_reservation_action(record_id, status):
+        """Gère les clics depuis l'email de notification."""
+        success, message = engine.booking.update_reservation_status(record_id, status)
+        
+        # On renvoie une petite page HTML propre pour l'utilisateur (le resto)
+        bg_color = "#28a745" if status == "Confirmée" else "#dc3545"
+        return f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; color: white;">
+            <div style="text-align: center; padding: 40px; border-radius: 10px; background: #2a2a2a; border: 1px solid {bg_color};">
+                <h1 style="color: {bg_color};">{status} !</h1>
+                <p>{message}</p>
+                <p style="font-size: 0.9rem; color: #888;">Le client a été notifié par email.</p>
+                <br>
+                <a href="https://restaurant-le-cherimoya.vercel.app" style="color: white; text-decoration: none; border: 1px solid white; padding: 10px 20px; border-radius: 5px;">Retour au site</a>
+            </div>
+        </body>
+        </html>
+        """
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

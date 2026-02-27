@@ -12,6 +12,7 @@ class BookingManager:
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
+        self.base_url = "https://restaurant-le-cherimoya.vercel.app"
 
     def is_service_accessible(self, service_type, target_date_str):
         """
@@ -111,21 +112,63 @@ class BookingManager:
         try:
             res = requests.post(url, headers=self.headers, json={"records": [{"fields": fields}], "typecast": True})
             if res.status_code == 200:
-                self.send_email_notification(fields)
+                record_id = res.json()['records'][0]['id']
+                self.send_email_notification(fields, record_id)
                 return True, "Votre demande de réservation a bien été envoyée."
             return False, f"Erreur serveur: {res.text}"
         except Exception as e:
             return False, "Erreur réseau lors de la réservation."
 
-    def send_email_notification(self, booking_data):
-        """Envoie une notification par mail au restaurant."""
-        # Note : Pour que cela fonctionne sur Vercel, il faut configurer des variables SMTP
-        # ou utiliser un service comme SendGrid. Pour l'instant on log l'intention.
-        print(f"NOTIFICATION EMAIL: Nouvelle réservation de {booking_data['Nom']} pour {booking_data['Couverts']} personnes le {booking_data['Date']} à {booking_data['Heure']}")
-        
-        # Exemple d'implémentation SMTP (nécessite SMTP_USER et SMTP_PASS dans .env)
+    def update_reservation_status(self, record_id, status):
+        """Met à jour le statut dans Airtable et notifie le client."""
+        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
+        try:
+            # 1. Récupérer les infos de la résa
+            res_get = requests.get(url, headers=self.headers)
+            if res_get.status_code != 200: return False, "Réservation introuvable."
+            data = res_get.json()['fields']
+            
+            # 2. Update Airtable
+            res_patch = requests.patch(url, headers=self.headers, json={"fields": {"Statut": status}})
+            if res_patch.status_code == 200:
+                self.send_client_response(data, status)
+                return True, f"Réservation {status.lower()}ée avec succès."
+            return False, "Erreur lors de la mise à jour."
+        except Exception as e:
+            return False, str(e)
+
+    def send_client_response(self, booking_data, status):
+        """Envoie un mail de confirmation ou de refus au client."""
         import smtplib
         from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        if not smtp_user or not smtp_pass or not booking_data.get('Email'): return
+
+        subject = "Votre réservation au Chérimoya"
+        if status == "Confirmée":
+            body = f"Bonjour {booking_data['Nom']},\n\nNous avons le plaisir de vous confirmer votre réservation pour {booking_data['Couverts']} personnes le {booking_data['Date']} à {booking_data['Heure']}.\n\nÀ très bientôt au Chérimoya !\n3 R.D. 817, Villeneuve-de-Rivière"
+        else:
+            body = f"Bonjour {booking_data['Nom']},\n\nNous sommes au regret de ne pas pouvoir honorer votre demande de réservation pour le {booking_data['Date']} à {booking_data['Heure']}.\n\nNous espérons vous recevoir une prochaine fois.\nL'équipe du Chérimoya"
+
+        try:
+            msg = MIMEText(body)
+            msg['Subject'] = subject
+            msg['From'] = f"Le Chérimoya <{smtp_user}>"
+            msg['To'] = booking_data['Email']
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+        except Exception as e:
+            print(f"Erreur envoi client: {e}")
+
+    def send_email_notification(self, booking_data, record_id):
+        """Envoie une notification riche avec boutons au restaurant."""
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
         
         smtp_user = os.getenv("SMTP_USER")
         smtp_pass = os.getenv("SMTP_PASS")
@@ -133,29 +176,40 @@ class BookingManager:
 
         if smtp_user and smtp_pass:
             try:
-                body = f"""
-                Nouvelle réservation reçue !
-                
-                Nom : {booking_data['Nom']}
-                Téléphone : {booking_data['Telephone']}
-                Email : {booking_data['Email']}
-                Date : {booking_data['Date']}
-                Heure : {booking_data['Heure']}
-                Couverts : {booking_data['Couverts']}
-                
-                Gérer sur Airtable : https://airtable.com/{self.base_id}
-                """
-                msg = MIMEText(body)
-                msg['Subject'] = f"Nouvelle Réservation - {booking_data['Nom']}"
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = f"🔔 Nouvelle Réservation - {booking_data['Nom']}"
                 msg['From'] = smtp_user
                 msg['To'] = restaurant_email
+
+                confirm_url = f"{self.base_url}/api/reservations/action/{record_id}/Confirmée"
+                refuse_url = f"{self.base_url}/api/reservations/action/{record_id}/Annulée"
+
+                html = f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <h2 style="color: #cfa86e;">Nouvelle demande de réservation !</h2>
+                    <p><b>Nom :</b> {booking_data['Nom']}</p>
+                    <p><b>Couverts :</b> {booking_data['Couverts']}</p>
+                    <p><b>Date :</b> {booking_data['Date']} à {booking_data['Heure']}</p>
+                    <p><b>Contact :</b> {booking_data.get('Telephone', 'N/A')} / {booking_data.get('Email', 'N/A')}</p>
+                    <hr>
+                    <div style="margin-top: 20px;">
+                        <a href="{confirm_url}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 10px;">CONFIRMER</a>
+                        <a href="{refuse_url}" style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">REFUSER</a>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 30px;">
+                        Gérer sur Airtable : <a href="https://airtable.com/{self.base_id}">Accéder à la base</a>
+                    </p>
+                </body>
+                </html>
+                """
+                msg.attach(MIMEText(html, 'html'))
 
                 with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                     server.login(smtp_user, smtp_pass)
                     server.send_message(msg)
-                print("Email de notification envoyé avec succès.")
             except Exception as e:
-                print(f"Erreur lors de l'envoi du mail : {e}")
+                print(f"Erreur notification: {e}")
 
 if __name__ == "__main__":
     manager = BookingManager()

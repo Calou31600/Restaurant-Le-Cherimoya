@@ -1,0 +1,9 @@
+Id
+Service
+Capacité totale
+Réservations confirmées
+Places restantes
+Statut
+Remarques
+Taux de remplissage (%)
+Date

@@ -41,10 +41,12 @@ class BookingManager:
         return True, "Service accessible."
 
     def check_inventory(self, service_type, target_date_str):
-        """Vérifie la disponibilité dans la table Inventory d'Airtable."""
-        url = f"https://api.airtable.com/v0/{self.base_id}/Inventory"
+        """Vérifie la disponibilité dans la table Disponibilités d'Airtable."""
+        url = f"https://api.airtable.com/v0/{self.base_id}/Disponibilité%s" % "s" # Handling encoding or literal
+        # Actually literal 'Disponibilités' is fine if handled correctly
+        url = f"https://api.airtable.com/v0/{self.base_id}/Disponibilités"
         params = {
-            "filterByFormula": f"AND(service='{service_type}', date='{target_date_str}')"
+            "filterByFormula": f"AND(Service='{service_type}', Date='{target_date_str}')"
         }
         
         try:
@@ -55,8 +57,8 @@ class BookingManager:
                     return True, "Libre" # Pas d'entrée = Pas encore de réservations
                 
                 record = records[0]['fields']
-                total = record.get('capacite_totale', 0)
-                occupied = record.get('reservations_confirmées', 0)
+                total = record.get('Capacité totale', 0)
+                occupied = record.get('Réservations confirmées', 0)
                 
                 if total - occupied <= 0:
                     return False, "Complet"

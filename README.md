@@ -12,13 +12,15 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Menu Bilingue (Français/Anglais)** : Support multilingue pour l'affichage des plats et de leurs descriptions.
 - **Gestion des Allergènes** : Affichage conditionnel et intelligent d'icônes (Lactose, Gluten, Cacahuéte) permettant de repérer au premier coup d'œil les plats ciblés.
 - **Recommandations Météo (IA)** : Une bannière météo s'affiche en fonction de la température actuelle du restaurant et met en avant les plats les plus réconfortants ou rafraîchissants.
-- **Système de Réservation** : Formulaire intégré permettant de choisir la date, le nombre de couverts, le service (Midi/Soir) et l'horaire.
+- **Système de Réservation Intelligent** : Formulaire intégré avec vérification en temps réel des disponibilités (via Airtable) et respect de la "règle des 2 heures" (clôture automatique des réservations en ligne 2h avant le service).
+- **Avis Google Dynamiques** : Récupération automatique de la note, du nombre d'avis et des commentaires clients via l'API Google Places (avec système de cache pour la performance).
 - **Optimisation SEO, AEO & GEO** : Implémentation du format JSON-LD, de balises sémantiques HTML5, Open Graph, Meta descriptions engageantes, Sitemap et Robots.txt pour une parfaite visibilité et compréhension par les moteurs de recherche et IA génératives.
 - **Design Premium** : Interface élégante avec mode sombre (Dark Mode) et effet "Glassmorphism".
 - **Responsive** : Parfaitement adapté à toutes les tailles d'écrans (Mobile, Tablette, Desktop).
 
 ### Côté Administrateur (Dashboard)
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
+- **Gestion des Réservations** : Les demandes de réservations arrivent directement dans une table Airtable dédiée pour une gestion simplifiée.
 - **Catégories & Tags Météo** : Affecter directement des tags (Chaud, Froid) et des catégories (À Partager, Côté Mer, etc.) à chaque plat.
 - **Upload & Recadrage d'Images** : Intégration de Cropper.js pour recadrer les images (format 4:3) avant le téléchargement sur Cloudinary.
 - **Modales de Sécurité** : Fenêtre de confirmation de suppression nativement intégrée au design du site.
@@ -28,9 +30,10 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 - **Frontend** : HTML5, Vanilla CSS (Variables, Flexbox/Grid), JavaScript natif (Fetch API).
 - **Backend** : Python 3 avec [Flask](https://flask.palletsprojects.com/).
-- **Base de Données** : [Airtable](https://airtable.com/). Le site est synchronisé avec une table `Dynamic_Menu`.
+- **Base de Données** : [Airtable](https://airtable.com/). Le site est synchronisé avec les tables `Dynamic_Menu`, `Disponibilités` et `Reservations`.
 - **Hébergement Images** : [Cloudinary](https://cloudinary.com/).
 - **API Météo** : [OpenWeather API](https://openweathermap.org/) pour la météo en temps réel de Villeneuve-de-Rivière.
+- **API Google** : [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview) pour les avis clients.
 
 ## ⚙️ Installation & Lancement en local
 
@@ -59,7 +62,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
    CLOUDINARY_URL=votre_url_cloudinary
    AIRTABLE_API_KEY=votre_api_key_airtable
    AIRTABLE_BASE_ID=votre_base_id_airtable
-   CACHE_TIMEOUT=3600
+   GOOGLE_API_KEY=votre_clef_google_places
    RESTAURANT_LAT=43.1215
    RESTAURANT_LON=0.6678
    ```

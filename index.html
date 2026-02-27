@@ -51,8 +51,8 @@
                             style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Email</label>
-                        <input type="email" id="bk-email"
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Email *</label>
+                        <input type="email" id="bk-email" required
                             style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
                     </div>
                     <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
@@ -578,9 +578,9 @@
             const phone = document.getElementById('bk-phone').value;
             const email = document.getElementById('bk-email').value;
 
-            if (!phone && !email) {
+            if (!email) {
                 status.style.color = "#ff4d4d";
-                status.innerText = "Veuillez fournir un numéro de téléphone ou une adresse email.";
+                status.innerText = "Veuillez fournir une adresse email pour recevoir la confirmation.";
                 btn.innerText = "Confirmer la réservation";
                 btn.disabled = false;
                 return;

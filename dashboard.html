@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin | Le Chérimoya</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        :root {
+            --admin-bg: #0d0d0d;
+            --admin-card: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: var(--admin-bg);
+            padding-top: 2rem;
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 1rem;
+        }
+
+        .admin-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .admin-card {
+            background: var(--admin-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 100px;
+            gap: 1.5rem;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .admin-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .admin-img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .admin-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .admin-info p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-price input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--accent);
+            padding: 5px 10px;
+            width: 80px;
+            border-radius: 4px;
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+        }
+
+        .btn-save {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-save:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .btn-save:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        #loading {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+            padding: 5rem;
+        }
+
+        .upload-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .admin-modal {
+            background: var(--bg-base);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: inherit;
+            margin-bottom: 1.2rem;
+            margin-top: 5px;
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero-bg"></div>
+    <div class="dynamic-overlay"></div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h2 style="margin-bottom:0">Administration Menu</h2>
+                <p class="terroir-badge" style="margin-top:0.5rem; border:none; padding:0">Le Chérimoya Control Center
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn-save" onclick="openAddModal()" style="font-size: 1rem; padding: 10px 20px;">+ Ajouter
+                    un plat</button>
+                <a href="/" class="filter-btn"
+                    style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center;">Voir
+                    le site</a>
+            </div>
+        </div>
+
+        <div id="loading">Chargement du menu...</div>
+        <div id="admin-grid" class="admin-grid"></div>
+    </div>
+
+    <div id="edit-overlay" class="upload-overlay">
+        <div class="admin-modal">
+            <h3 id="modal-title"
+                style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                Fiche Produit</h3>
+            <div style="display: flex; gap: 2.5rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <img id="edit-current-img" src=""
+                        style="width: 100%; border-radius: 8px; margin-bottom: 1rem; object-fit: cover; max-height: 250px; border: 1px solid rgba(255,255,255,0.1);">
+                    <label>Nouvelle photo (optionnel)</label>
+                    <input type="file" id="edit-file" class="form-control" accept="image/*">
+                </div>
+                <div style="flex: 2; min-width: 300px;">
+                    <label>Nom du plat</label>
+                    <input type="text" id="edit-name" class="form-control">
+
+                    <label>Description (optimisée IA/Tags locaux)</label>
+                    <textarea id="edit-desc" class="form-control" rows="4"></textarea>
+
+                    <label style="margin-top: 1rem; display: block;">Catégories (Menu)</label>
+                    <div id="edit-categories"
+                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                        <!-- Cases à cocher générées dynamiquement ou statiquement -->
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="À Partager" class="cat-checkbox" style="margin-right: 8px;"> À
+                            Partager</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Entrées" class="cat-checkbox" style="margin-right: 8px;">
+                            Entrées</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Côté Terre" class="cat-checkbox" style="margin-right: 8px;"> Côté
+                            Terre</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Côté Mer" class="cat-checkbox" style="margin-right: 8px;"> Côté
+                            Mer</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Formules" class="cat-checkbox" style="margin-right: 8px;">
+                            Formules</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Douceurs" class="cat-checkbox" style="margin-right: 8px;">
+                            Douceurs</label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                type="checkbox" value="Boissons" class="cat-checkbox" style="margin-right: 8px;">
+                            Boissons</label>
+                    </div>
+
+                    <label style="margin-top: 1rem; display: block;">Tags Météo (Recommandation IA)</label>
+                    <div id="edit-meteo"
+                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Froid" class="meteo-checkbox" style="margin-right: 8px;">
+                            Froid
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Chaud" class="meteo-checkbox" style="margin-right: 8px;">
+                            Chaud
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Pluie" class="meteo-checkbox" style="margin-right: 8px;">
+                            Pluie
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 2rem; align-items: center;">
+                        <div>
+                            <label>Prix (€)</label>
+                            <input type="number" step="0.5" id="edit-price" class="form-control"
+                                style="width: 120px; font-size: 1.2rem; font-weight: bold; color: var(--accent);">
+                        </div>
+                        <div style="padding-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="edit-featured"
+                                    style="width: 22px; height: 22px; margin-right: 12px; accent-color: var(--accent);">
+                                <span
+                                    style="font-size:1.1rem; font-weight:bold; color: var(--accent); letter-spacing: 0.05em;">PLAT
+                                    SIGNATURE</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="delete-btn-container" style="display: none;">
+                <div
+                    style="display:flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <!-- Bouton de suppression -->
+                    <button onclick="deleteCurrentItem()"
+                        style="background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: 0.3s;"
+                        onmouseover="this.style.background='rgba(255,77,77,0.1)'"
+                        onmouseout="this.style.background='transparent'">
+                        🗑️ Supprimer ce plat
+                    </button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content: flex-end; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;"
+                id="action-buttons-container">
+
+                <div style="display:flex; gap: 1rem;">
+                    <button class="filter-btn" onclick="closeEditModal()">Annuler</button>
+                    <button class="btn-save" id="btn-save-all" style="font-size: 1.1rem; padding: 12px 25px;">Mise à
+                        jour de la base de données</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmation Suppression -->
+    <div id="delete-overlay" class="upload-overlay" style="z-index: 4000;">
+        <div class="admin-modal" style="max-width: 450px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <h3 style="margin-top: 0; margin-bottom: 1rem; color: #ff4d4d;">Zone de Danger</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1rem;">
+                Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT le plat :<br>
+                <strong id="delete-item-name"
+                    style="color: var(--accent); font-size: 1.2rem; display: block; margin-top: 0.8rem;"></strong>
+            </p>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">
+                Cette action est irréversible dans la base de données.
+            </p>
+            <div style="display:flex; gap: 1rem; justify-content: center;">
+                <button class="filter-btn" onclick="closeDeleteModal()">Annuler</button>
+                <button class="btn-save" onclick="confirmDeleteAction()"
+                    style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">Oui,
+                    Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMenu = [];
+        let currentUploadId = null;
+
+        async function fetchMenu() {
+            try {
+                const res = await fetch('/api/admin/menu');
+                currentMenu = await res.json();
+                renderAdmin();
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading').innerText = "Erreur de chargement.";
+            }
+        }
+
+        function renderAdmin() {
+            const grid = document.getElementById('admin-grid');
+            grid.innerHTML = currentMenu.map(item => {
+                const f = item.fields;
+                const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+                const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
+
+                return `
+                    <div class="admin-card" onclick="openEditModal('${item.id}')" style="grid-template-columns: 80px 1fr 100px; cursor: pointer;">
+                        <img src="${imgSrc}" class="admin-img" style="pointer-events: none;">
+                        <div class="admin-info" style="pointer-events: none;">
+                            <h4>${f.Plat} ${signatureBadge}</h4>
+                            <p style="color: var(--accent); font-size: 0.8rem; margin-bottom: 0.2rem;">${(f.Menu || []).join(' • ')} ${(f.tags_meteo && f.tags_meteo.length > 0) ? ' | 🌩️ ' + f.tags_meteo.join(', ') : ''}</p>
+                            <p>${f.description_geo || 'Pas de description'}</p>
+                        </div>
+                        <div class="admin-price" style="pointer-events: none; text-align: right; font-size: 1.2rem; font-weight: bold; color: var(--accent);">
+                            ${f.prix || 0} €
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let currentEditId = null;
+
+        function openEditModal(id) {
+            const item = currentMenu.find(i => i.id === id);
+            if (!item) return;
+            const f = item.fields;
+            currentEditId = id;
+            document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
+
+            // Afficher le bouton supprimer et ajuster le container
+            document.getElementById('delete-btn-container').style.display = 'block';
+            document.getElementById('action-buttons-container').style.justifyContent = 'space-between';
+            document.getElementById('action-buttons-container').style.borderTop = 'none';
+            document.getElementById('action-buttons-container').style.marginTop = '0';
+            document.getElementById('action-buttons-container').style.paddingTop = '0';
+            document.getElementById('delete-btn-container').appendChild(document.getElementById('action-buttons-container'));
+
+            document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+            document.getElementById('edit-name').value = f.Plat || '';
+            document.getElementById('edit-desc').value = f.description_geo || '';
+            document.getElementById('edit-price').value = f.prix || 0;
+            document.getElementById('edit-featured').checked = !!f.is_featured;
+            document.getElementById('edit-file').value = '';
+
+            // Gestion des catégories
+            const currentCats = f.Menu || [];
+            document.querySelectorAll('.cat-checkbox').forEach(cb => {
+                cb.checked = currentCats.includes(cb.value);
+            });
+
+            // Gestion des tags météo
+            const currentMeteo = f.tags_meteo || [];
+            document.querySelectorAll('.meteo-checkbox').forEach(cb => {
+                cb.checked = currentMeteo.includes(cb.value);
+            });
+
+            document.getElementById('edit-overlay').style.display = 'flex';
+        }
+
+        function openAddModal() {
+            currentEditId = null;
+            document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
+
+            // Cacher le bouton supprimer et ajuster le container
+            document.getElementById('delete-btn-container').style.display = 'none';
+            document.querySelector('.admin-modal').appendChild(document.getElementById('action-buttons-container'));
+            document.getElementById('action-buttons-container').style.justifyContent = 'flex-end';
+            document.getElementById('action-buttons-container').style.borderTop = '1px solid rgba(255,255,255,0.1)';
+            document.getElementById('action-buttons-container').style.marginTop = '2rem';
+            document.getElementById('action-buttons-container').style.paddingTop = '1.5rem';
+
+            document.getElementById('edit-current-img').src = 'assets/dish1.png';
+            document.getElementById('edit-name').value = '';
+            document.getElementById('edit-desc').value = '';
+            document.getElementById('edit-price').value = 0;
+            document.getElementById('edit-featured').checked = false;
+            document.getElementById('edit-file').value = '';
+
+            document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
+
+            document.getElementById('edit-overlay').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-overlay').style.display = 'none';
+        }
+
+        document.getElementById('btn-save-all').onclick = async () => {
+            const btn = document.getElementById('btn-save-all');
+            btn.disabled = true;
+            btn.innerText = "Mise à jour en cours...";
+
+            try {
+                // Récupération des catégories cochées
+                const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+                // Récupération des tags météo cochés
+                const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
+
+                const fieldsToUpdate = {
+                    Plat: document.getElementById('edit-name').value,
+                    description_geo: document.getElementById('edit-desc').value,
+                    prix: parseFloat(document.getElementById('edit-price').value),
+                    is_featured: document.getElementById('edit-featured').checked,
+                    Menu: checkedCats,
+                    tags_meteo: checkedMeteo
+                };
+
+                const fileInput = document.getElementById('edit-file');
+                if (fileInput.files.length > 0) {
+                    btn.innerText = "Upload de la photo...";
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) {
+                        fieldsToUpdate.Photo = [{ url: uploadData.url }];
+                    }
+                }
+
+                btn.innerText = "Enregistrement Airtable...";
+
+                let apiUrl = '/api/admin/menu';
+                let apiMethod = 'POST';
+
+                if (currentEditId) {
+                    apiUrl = `/api/admin/menu/${currentEditId}`;
+                    apiMethod = 'PATCH';
+                }
+
+                const res = await fetch(apiUrl, {
+                    method: apiMethod,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields: fieldsToUpdate })
+                });
+
+                if (res.ok) {
+                    btn.innerText = "✅ Succès";
+                    setTimeout(() => {
+                        closeEditModal();
+                        document.getElementById('loading').style.display = 'block';
+                        document.getElementById('admin-grid').innerHTML = '';
+                        btn.disabled = false;
+                        btn.innerText = "Mise à jour de la base de données";
+                        fetchMenu();
+                    }, 1000);
+                } else {
+                    const errorDetail = await res.text();
+                    throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la mise à jour : " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Mise à jour de la base de données";
+            }
+        };
+
+        function deleteCurrentItem() {
+            if (!currentEditId) return;
+            const item = currentMenu.find(i => i.id === currentEditId);
+            if (!item) return;
+
+            document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
+            document.getElementById('delete-overlay').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-overlay').style.display = 'none';
+        }
+
+        async function confirmDeleteAction() {
+            closeDeleteModal();
+            try {
+                const res = await fetch(`/api/admin/menu/${currentEditId}`, {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    closeEditModal();
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('admin-grid').innerHTML = '';
+                    fetchMenu(); // Recharger la grille
+                } else {
+                    const errText = await res.text();
+                    alert("Erreur lors de la suppression : " + errText);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur réseau lors de la suppression.");
+            }
+        }
+
+        fetchMenu();
+    </script>
+</body>
+
+</html>

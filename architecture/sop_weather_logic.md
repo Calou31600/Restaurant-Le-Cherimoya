@@ -1,25 +1,33 @@
-# SOP : Implémentation Weather-Driven Menu & Header
+# SOP: Weather-Driven Menu Logic (`sop_weather_logic.md`)
 
 ## Objectif
-Modifier dynamiquement l'affichage du site web (Header et Plats Signature mis en avant) en fonction des conditions météorologiques renvoyées par l'API OpenWeather pour Villeneuve-de-Rivière (Latitude : 43.1215, Longitude : 0.6678).
+Adapter dynamiquement le menu du restaurant et l'affichage du site web en fonction des conditions météorologiques réelles de Villeneuve-de-Rivière via l'API OpenWeather.
 
-## Inputs (Entrées)
-- Payload JSON renvoyé par le script `tools/weather_engine.py` (via API OpenWeather).
-- Température mesurée (`temp` en °C).
-- Identifiant météo (`weather.id`) pour caractériser Pluie, Neige, Ciel Clair.
+## Algorithme de Décision
 
-## Logique de Décision (Rules)
-1.  **Tag = "Froid"** : Si Température < 12.0 °C.
-    - *Action UI* : Thème "Chaleureux/Réconfort", mise en avant des plats taggés `Froid` dans Airtable.
-2.  **Tag = "Chaud"** : Si Température >= 22.0 °C.
-    - *Action UI* : Thème "Frais/Terrasse", mise en avant des plats taggés `Chaud` ou Rafraîchissants dans Airtable.
-3.  **Tag = "Pluie"** : Si l'identifiant météo commence par `2`, `3` ou `5` (Orage, Bruine, Pluie).
-    - *Action UI* : Message d'accueil insistant sur "l'abri chaleureux".
+### 1. Détection des Conditions
+Le système interroge OpenWeather API toutes les heures.
+- **Température (T)** : Mesurée en Celsius.
+- **Condition (C)** : Etat du ciel (Pluie, Soleil, Nuages).
 
-## Outputs (Sorties)
-- Payload JSON généré par `weather_engine.py` et sauvegardé dans `.tmp/current_weather_state.json`.
-- Ce fichier est lu par l'injection Frontend pour déterminer le rendu du DOM.
+### 2. Règles d'Adaptation
+A. **Scénario FROID (T < 12°C)** :
+   - Mise en avant des "Plats signatures réconfortants".
+   - Modification du Header : Tons chauds, ambiance cocooning.
+   - Tag Airtable cible : `Froid`.
 
-## Edge Cases (Cas aux limites)
-- **Time Out API OpenWeather** : Le système applique par défaut l'état "Neutre" (ni chaud ni froid) afin de ne pas bloquer le chargement du site.
-- **Cache** : Pour économiser les crédits API, les données météo doivent être mises en cache localement (`.tmp/weather_cache.json`) pendant au minimum 1 heure avant une nouvelle requête.
+B. **Scénario CHAUD (T > 25°C)** :
+   - Mise en avant des plats frais, terrasses et cocktails.
+   - Tag Airtable cible : `Chaud`.
+
+C. **Scénario PLUIE (Conditions = Rain/Drizzle)** :
+   - Message d'accueil : "Venez vous mettre à l'abri au coin du feu".
+   - Tag Airtable cible : `Pluie`.
+
+## Intégration Airtable
+- Le script `weather_engine.py` filtrera la table `Dynamic_Menu` pour extraire les records ayant le tag correspondant à la météo actuelle.
+- Si aucun plat n'a le tag spécifique, le menu par défaut (`is_featured = True`) est affiché.
+
+## Variables de Contrôle
+- `THRESHOLD_COLD`: 12
+- `THRESHOLD_HOT`: 25

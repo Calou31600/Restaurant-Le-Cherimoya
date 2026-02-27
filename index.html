@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Chérimoya | Gastronomie & Terroir Commingeois</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="index.css">
+
+    <!-- JSON-LD SEO (DYNAMIQUE) -->
+    <script type="application/ld+json" id="seo-json-ld"></script>
+</head>
+
+<body>
+    <div id="formula-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeFormulaModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div class="lang-switcher fade-in" style="position: absolute; top: 1rem; right: 2rem; z-index: 1000;">
+        <button id="lang-fr" onclick="setLanguage('fr')" class="active"
+            style="background: none; border: 1px solid var(--accent); color: var(--text); padding: 5px 10px; cursor: pointer; border-radius: 4px; font-family: var(--font-body);">FR</button>
+        <button id="lang-en" onclick="setLanguage('en')"
+            style="background: none; border: 1px solid var(--text-dim); color: var(--text-dim); padding: 5px 10px; cursor: pointer; border-radius: 4px; font-family: var(--font-body); margin-left: 5px;">EN</button>
+    </div>
+
+    <div class="hero-bg"></div>
+    <div class="dynamic-overlay" id="bg-overlay"></div>
+
+    <div class="container">
+        <header class="fade-in">
+            <div class="hero-content">
+                <span class="terroir-badge" data-i18n="badge_loc">Villeneuve-de-Rivière</span>
+                <h1 id="welcome-title" data-i18n="title_welcome">Chef Thuong vous accueille</h1>
+                <p id="welcome-subtitle" data-i18n="subtitle_welcome"
+                    style="font-size: 1.4rem; color: var(--text-dim); margin-top: 1rem; font-family: var(--font-heading); font-style: italic;">
+                    L'excellence du terroir local, dictée par la nature.</p>
+                <div id="weather-info"
+                    style="margin-top: 2rem; font-weight: 500; font-size: 0.9rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase;">
+                    Récupération de l'atmosphère...
+                </div>
+
+                <a href="#menu" class="btn-premium" data-i18n="btn_discover">Découvrir la Carte</a>
+            </div>
+        </header>
+
+        <section id="menu" style="padding-top: 4rem; padding-bottom: 4rem;">
+            <div style="text-align: center;" class="fade-in">
+                <h2 style="margin-bottom: 1rem;" data-i18n="menu_title">L'Inspiration du Moment</h2>
+                <p data-i18n="menu_subtitle"
+                    style="color: var(--text-dim); font-style: italic; font-family: var(--font-heading); font-size: 1.2rem;">
+                    Une sélection dictée par le climat commingeois.</p>
+            </div>
+            <div class="menu-filters fade-in">
+                <button class="filter-btn active" onclick="filterMenu('all')" data-i18n="filter_all">Toute la
+                    Carte</button>
+                <button class="filter-btn" onclick="filterMenu('Aperitif')" data-i18n="filter_share">À Partager</button>
+                <button class="filter-btn" onclick="filterMenu('Entree')" data-i18n="filter_starters">Entrées</button>
+                <button class="filter-btn" onclick="filterMenu('Terre')" data-i18n="filter_meat">Côté Terre</button>
+                <button class="filter-btn" onclick="filterMenu('Mer')" data-i18n="filter_sea">Côté Mer</button>
+                <button class="filter-btn" onclick="filterMenu('Formule')" data-i18n="filter_menus">Formules</button>
+                <button class="filter-btn" onclick="filterMenu('Dessert')" data-i18n="filter_desserts">Douceurs</button>
+                <button class="filter-btn" onclick="filterMenu('Boisson')" data-i18n="filter_drinks">Boissons</button>
+            </div>
+            <div class="menu-grid" id="menu-container">
+                <!-- Plats injectés ici -->
+            </div>
+    </div>
+    </section>
+
+    <!-- SECTION INFOS & AVIS GOOGLE -->
+    <section class="info-section fade-in">
+        <div class="google-review-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;" data-i18n="reviews_title">L'Expérience Chérimoya
+                    </h2>
+                    <div class="review-meta">
+                        <span class="budget" data-i18n="reviews_budget">20–30 €</span>
+                        <span data-i18n="reviews_type">Restaurant Français Fusion</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 1rem;">
+                <span class="score">4,3</span>
+                <div>
+                    <div class="stars">★★★★<span style="color: rgba(255,255,255,0.2)">★</span></div>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="reviews_count">Basé sur 64 avis
+                        Google</p>
+                </div>
+            </div>
+
+            <p data-i18n="reviews_quote"
+                style="font-style: italic; color: var(--text-main); line-height: 1.8; margin-top: 1.5rem; border-left: 2px solid var(--accent); padding-left: 1rem;">
+                "Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La
+                cuisine fusion met brillamment en valeur les produits de notre terroir."
+            </p>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="#reservation" class="btn-premium" data-i18n="btn_book">Réserver une table</a>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div class="map-marker">📍</div>
+            <div
+                style="position: absolute; bottom: 20px; left: 20px; z-index: 10; background: rgba(20,17,15,0.8); padding: 15px; border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(207,168,110,0.2);">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 5px; color: var(--text-main); font-family: var(--font-heading);">
+                    Le Chérimoya</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="map_address">Chem. d'Armajou / 3 D817
+                </p>
+                <p style="color: var(--text-dim); font-size: 0.9rem;" data-i18n="map_city">31800 Villeneuve-de-Rivière
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer
+        style="padding: 4rem 0; text-align: center; color: var(--text-dim); border-top: 1px solid rgba(207, 168, 110, 0.1); margin-top: 4rem;">
+        <h3 style="font-family: var(--font-heading); font-size: 2rem; color: var(--text-main); margin-bottom: 1rem;">
+            Le Chérimoya</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;" data-i18n="footer_subtitle">Gastronomie Fusion & Terroir
+            Commingeois</p>
+        <p style="font-size: 0.8rem; opacity: 0.6;" data-i18n="footer_copy">&copy; 2026 - Créé avec passion à
+            Villeneuve-de-Rivière</p>
+    </footer>
+    </div>
+
+    <!-- Script Application -->
+    <script>
+        let currentLang = localStorage.getItem('lang') || 'fr';
+        let fullMenuData = [];
+        let currentWeatherTag = "Normal";
+
+        const translations = {
+            fr: {
+                badge_loc: "Villeneuve-de-Rivière",
+                title_welcome: "Chef Thuong vous accueille",
+                subtitle_welcome: "L'excellence du terroir local, dictée par la nature.",
+                btn_discover: "Découvrir la Carte",
+                menu_title: "L'Inspiration du Moment",
+                menu_subtitle: "Une sélection dictée par le climat commingeois.",
+                filter_all: "Toute la Carte",
+                filter_share: "À Partager",
+                filter_starters: "Entrées",
+                filter_meat: "Côté Terre",
+                filter_sea: "Côté Mer",
+                filter_menus: "Formules",
+                filter_desserts: "Douceurs",
+                filter_drinks: "Boissons",
+                reviews_title: "L'Expérience Chérimoya",
+                reviews_budget: "20–30 €",
+                reviews_type: "Restaurant Français Fusion",
+                reviews_count: "Basé sur 64 avis Google",
+                reviews_quote: "\"Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La cuisine fusion met brillamment en valeur les produits de notre terroir.\"",
+                btn_book: "Réserver une table",
+                map_address: "Chem. d'Armajou / 3 D817",
+                map_city: "31800 Villeneuve-de-Rivière",
+                footer_subtitle: "Gastronomie Fusion & Terroir Commingeois",
+                footer_copy: "&copy; 2026 - Créé avec passion à Villeneuve-de-Rivière"
+            },
+            en: {
+                badge_loc: "Villeneuve-de-Rivière",
+                title_welcome: "Chef Thuong welcomes you",
+                subtitle_welcome: "The excellence of local terroir, dictated by nature.",
+                btn_discover: "Discover the Menu",
+                menu_title: "Current Inspiration",
+                menu_subtitle: "A selection inspired by the Commingeois climate.",
+                filter_all: "Full Menu",
+                filter_share: "To Share",
+                filter_starters: "Starters",
+                filter_meat: "Meat & Poultry",
+                filter_sea: "Seafood",
+                filter_menus: "Set Menus",
+                filter_desserts: "Desserts",
+                filter_drinks: "Drinks",
+                reviews_title: "The Chérimoya Experience",
+                reviews_budget: "€20–€30",
+                reviews_type: "French Fusion Restaurant",
+                reviews_count: "Based on 64 Google reviews",
+                reviews_quote: "\"A wonderful discovery in the Comminges. Refined dishes, perfectly cooked meats, and impeccable service.\"",
+                btn_book: "Book a table",
+                map_address: "Chem. d'Armajou / 3 D817",
+                map_city: "31800 Villeneuve-de-Rivière, France",
+                footer_subtitle: "Fusion Gastronomy & Commingeois Terroir",
+                footer_copy: "&copy; 2026 - Crafted with passion in Villeneuve-de-Rivière",
+                modal_starter: "Starter",
+                modal_main: "Main course of your choice",
+                modal_dessert: "Dessert of your choice",
+                modal_or: "OR",
+                nem_title: "4 crispy chicken spring rolls",
+                nem_desc: "Crispy chicken spring rolls wrapped in lettuce leaves, served with traditional dipping sauce",
+                shrimp_rice_title: "Shrimp fried rice",
+                shrimp_rice_desc: "Traditional Vietnamese fried rice with egg, peeled shrimp, onions and carrots",
+                chicken_rice_title: "Chicken fried rice",
+                chicken_rice_desc: "Tender chicken breast, lightly stir-fried, served with fragrant steamed rice, soft scrambled egg, and crisp fresh vegetables.",
+                tiramisu_title: "Coffee Tiramisu",
+                creme_brulee_title: "Crème brûlée",
+                kid_main: "Main course of your choice",
+                kid_ice: "1 scoop of ice cream",
+                kid_chicken: "Crispy chicken",
+                kid_chicken_desc: "Marinated chicken breast, breaded and fried to a crisp, served with French fries",
+                kid_burger: "Beef burger",
+                kid_burger_desc: "Beef burger topped with cheddar cheese, lettuce and tomato, served with French fries",
+                kid_pasta: "Carbonara pasta",
+                kid_pasta_desc: "Pasta with carbonara sauce, white chicken breast and egg",
+                kid_teriyaki: "Chicken breast teriyaki sauce",
+                kid_teriyaki_desc: "Thinly sliced chicken breast skewers, grilled and topped with teriyaki sauce, served with French fries"
+            }
+        };
+
+        const modalTranslations = {
+            fr: {
+                starter: "Entrée",
+                main: "Plat au choix",
+                dessert: "Dessert au choix",
+                or: "OU",
+                nem_title: "Nems de poulet 4 pièces",
+                nem_desc: "Nems de poulet croustillants enroulés dans des feuilles de salade, servis avec sauce traditionnelle",
+                shrimp_rice_title: "Riz sauté vietnamienne",
+                shrimp_rice_desc: "Riz sauté à la vietnamienne, avec œufs, crevettes décortiquées, oignons et carottes",
+                chicken_rice_title: "Riz sauté au poulet",
+                chicken_rice_desc: "Filet de poulet délicatement sauté, accompagné de riz blanc parfumé, d'œufs brouillés et de légumes frais.",
+                tiramisu_title: "Tiramisu",
+                creme_brulee_title: "Crème brûlée",
+                kid_main: "Plat au choix",
+                kid_ice: "1 boule de glace",
+                kid_chicken: "Poulet croquant",
+                kid_chicken_desc: "Blanc de poulet mariné, pané et croustillant, servi avec des frites",
+                kid_burger: "Burger au bœuf",
+                kid_burger_desc: "Burger au bœuf garni de cheddar, salade et tomate, servi avec des frites",
+                kid_pasta: "Pâtes carbonara",
+                kid_pasta_desc: "Pâtes à la sauce carbonara avec blanc de poulet et œuf",
+                kid_teriyaki: "Poulet sauce teriyaki",
+                kid_teriyaki_desc: "Blanc de poulet émincé, grillé sur brochettes et nappé de sauce teriyaki, servi avec frites"
+            },
+            en: {
+                starter: "Starter",
+                main: "Main course of your choice",
+                dessert: "Dessert of your choice",
+                or: "OR",
+                nem_title: "4 crispy chicken spring rolls",
+                nem_desc: "Crispy chicken spring rolls wrapped in lettuce leaves, served with traditional dipping sauce",
+                shrimp_rice_title: "Shrimp fried rice",
+                shrimp_rice_desc: "Traditional Vietnamese fried rice with egg, peeled shrimp, onions and carrots",
+                chicken_rice_title: "Chicken fried rice",
+                chicken_rice_desc: "Tender chicken breast, lightly stir-fried, served with fragrant steamed rice, soft scrambled egg, and crisp fresh vegetables.",
+                tiramisu_title: "Coffee Tiramisu",
+                creme_brulee_title: "Crème brûlée",
+                kid_main: "Main course of your choice",
+                kid_ice: "1 scoop of ice cream",
+                kid_chicken: "Crispy chicken",
+                kid_chicken_desc: "Marinated chicken breast, breaded and fried to a crisp, served with French fries",
+                kid_burger: "Beef burger",
+                kid_burger_desc: "Beef burger topped with cheddar cheese, lettuce and tomato, served with French fries",
+                kid_pasta: "Carbonara pasta",
+                kid_pasta_desc: "Pasta with carbonara sauce, white chicken breast and egg",
+                kid_teriyaki: "Chicken breast teriyaki sauce",
+                kid_teriyaki_desc: "Thinly sliced chicken breast skewers, grilled and topped with teriyaki sauce, served with French fries"
+            }
+        };
+
+        function openFormulaModal() {
+            const t = modalTranslations[currentLang];
+            const modal = document.getElementById('formula-modal');
+            const body = document.getElementById('modal-body');
+
+            body.innerHTML = `
+                <div class="formula-detail-section">
+                    <h4>${t.starter}</h4>
+                    <div class="formula-item">
+                        <img src="assets/menu/nems.png" class="formula-item-img" alt="Nems" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.nem_title}</strong>
+                            <span>${t.nem_desc}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="formula-detail-section">
+                    <h4>${t.main}</h4>
+                    <div class="formula-item">
+                        <img src="assets/menu/siu_mai.png" class="formula-item-img" alt="Option 1" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.shrimp_rice_title}</strong>
+                            <span>${t.shrimp_rice_desc}</span>
+                        </div>
+                    </div>
+                    <div class="formula-or">${t.or}</div>
+                    <div class="formula-item">
+                        <img src="assets/menu/joue_boeuf.png" class="formula-item-img" alt="Option 2" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.chicken_rice_title}</strong>
+                            <span>${t.chicken_rice_desc}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="formula-detail-section">
+                    <h4>${t.dessert}</h4>
+                    <div class="formula-item">
+                        <img src="assets/menu/poire_trompe_loeil.png" class="formula-item-img" alt="Dessert 1" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.tiramisu_title}</strong>
+                        </div>
+                    </div>
+                    <div class="formula-or">${t.or}</div>
+                    <div class="formula-item">
+                        <img src="assets/menu/poire_trompe_loeil.png" class="formula-item-img" alt="Dessert 2" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.creme_brulee_title}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openKidModal() {
+            const t = modalTranslations[currentLang];
+            const modal = document.getElementById('formula-modal');
+            const body = document.getElementById('modal-body');
+
+            body.innerHTML = `
+                <div class="formula-detail-section">
+                    <h4>${t.kid_main}</h4>
+                    <div class="formula-item">
+                        <img src="assets/menu/salade_poulet.png" class="formula-item-img" alt="Kid Chicken" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.kid_chicken}</strong>
+                            <span>${t.kid_chicken_desc}</span>
+                        </div>
+                    </div>
+                    <div class="formula-or">${t.or}</div>
+                    <div class="formula-item">
+                        <img src="assets/menu/assiette_charcuterie.png" class="formula-item-img" alt="Kid Burger" loading="lazy">
+                        <div class="formula-item-text">
+                            <strong>${t.kid_burger}</strong>
+                            <span>${t.kid_burger_desc}</span>
+                        </div>
+                    </div>
+                    <div class="formula-or">${t.or}</div>
+                    <div class="formula-item">
+                        <img src="assets/menu/siu_mai.png" class="formula-item-img" alt="Kid Pasta">
+                        <div class="formula-item-text">
+                            <strong>${t.kid_pasta}</strong>
+                            <span>${t.kid_pasta_desc}</span>
+                        </div>
+                    </div>
+                    <div class="formula-or">${t.or}</div>
+                    <div class="formula-item">
+                        <img src="assets/menu/joue_boeuf.png" class="formula-item-img" alt="Kid Teriyaki">
+                        <div class="formula-item-text">
+                            <strong>${t.kid_teriyaki}</strong>
+                            <span>${t.kid_teriyaki_desc}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="formula-detail-section">
+                    <h4>Dessert</h4>
+                    <div class="formula-item">
+                        <img src="assets/menu/poire_trompe_loeil.png" class="formula-item-img" alt="Kid Dessert">
+                        <div class="formula-item-text">
+                            <strong>${t.kid_ice}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFormulaModal() {
+            const modal = document.getElementById('formula-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 400);
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('formula-modal');
+            if (event.target == modal) {
+                closeFormulaModal();
+            }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+
+            // Update switcher UI
+            document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
+            document.getElementById('lang-fr').style.borderColor = lang === 'fr' ? 'var(--accent)' : 'var(--text-dim)';
+            document.getElementById('lang-fr').style.color = lang === 'fr' ? 'var(--text)' : 'var(--text-dim)';
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+            document.getElementById('lang-en').style.borderColor = lang === 'en' ? 'var(--accent)' : 'var(--text-dim)';
+            document.getElementById('lang-en').style.color = lang === 'en' ? 'var(--text)' : 'var(--text-dim)';
+
+            // Translate static text elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Re-render menu if data is loaded
+            if (fullMenuData.length > 0) {
+                // If a filter is currently active, we need to respect it. 
+                // For simplicity here, we re-render the full menu or we could find the active filter class.
+                const activeFilterBtn = document.querySelector('.filter-btn.active');
+                if (activeFilterBtn) {
+                    // small hack: we trigger click on active button to re-run filterMenu logic
+                    activeFilterBtn.click();
+                } else {
+                    renderMenu(fullMenuData);
+                }
+            }
+        }
+
+        async function loadAppData() {
+            const weatherInfo = document.getElementById('weather-info');
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                updateUI(data);
+
+                // Setup Language
+                setLanguage(currentLang);
+
+                // Injection du JSON-LD pour le SEO
+                document.getElementById('seo-json-ld').innerHTML = data.json_ld;
+                console.log("✅ Données réelles chargées depuis le moteur intelligent.");
+            } catch (err) {
+                console.error("❌ Erreur de chargement:", err);
+                weatherInfo.innerText = "Mode Hors-ligne (Données simulées)";
+                updateUI(mockData);
+                setLanguage(currentLang);
+            }
+        }
+
+        const mockData = {
+            météo_tag: "Normal",
+            ui_style: "Standard Premium",
+            welcome_message: "L'excellence du terroir Commingeois (Offline)",
+            menu: [
+                { Plat: "Agneau du Comminges", description_geo: "Agneau élevé en plein air, cuit 7 heures aux herbes sauvages", prix: 32, is_featured: true },
+                { Plat: "Truite de l'Ourse", description_geo: "Truite fumée au bois de hêtre, légumes oubliés du maraîcher", prix: 28, is_featured: false }
+            ]
+        };
+
+        function updateUI(data) {
+            const title = document.getElementById('welcome-subtitle');
+            const menuContainer = document.getElementById('menu-container');
+            const weatherInfo = document.getElementById('weather-info');
+
+            // Do not override innerText completely if we handle it with i18n, but for dynamic weather it's ok
+            // title is now handled by i18n partly, but weather info is dynamic
+            weatherInfo.innerText = currentLang === 'fr' ? `Ambiance: ${data.ui_style}` : `Atmosphere: ${data.ui_style}`;
+            currentWeatherTag = data.météo_tag || "Normal";
+
+            // Changement de style dynamique riche (nuances subtiles sur un fond sombre)
+            if (data.météo_tag === "Froid") {
+                document.documentElement.style.setProperty('--weather-overlay', 'linear-gradient(135deg, rgba(30, 15, 10, 0.92) 0%, rgba(10, 5, 5, 0.96) 100%)');
+                document.documentElement.style.setProperty('--accent', '#d48a4c'); // Cuivre
+            } else if (data.météo_tag === "Chaud") {
+                document.documentElement.style.setProperty('--weather-overlay', 'linear-gradient(135deg, rgba(10, 25, 20, 0.92) 0%, rgba(5, 15, 15, 0.96) 100%)');
+                document.documentElement.style.setProperty('--accent', '#96c2a1'); // Vert sauge
+            } else if (data.météo_tag === "Pluie") {
+                document.documentElement.style.setProperty('--weather-overlay', 'linear-gradient(135deg, rgba(15, 20, 30, 0.92) 0%, rgba(5, 5, 15, 0.96) 100%)');
+                document.documentElement.style.setProperty('--accent', '#9ba7c4'); // Bleu gris
+            } else {
+                document.documentElement.style.setProperty('--weather-overlay', 'rgba(20, 17, 15, 0.88)');
+                document.documentElement.style.setProperty('--accent', '#cfa86e'); // Or signature
+            }
+
+            // Génération du menu
+            if (data.menu && data.menu.length > 0) {
+                fullMenuData = data.menu;
+                renderMenu(fullMenuData);
+            } else {
+                menuContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--text-dim);'>Notre chef élabore actuellement la nouvelle carte, inspirée par les éléments...</p>";
+            }
+        }
+
+        function renderMenu(menuItems) {
+            const menuContainer = document.getElementById('menu-container');
+
+            // Tri hybride: Si tag météo est présent, il a la priorité absolue, puis tri alphabétique.
+            const sortedItems = [...menuItems].sort((a, b) => {
+                const aMatch = a.tags_meteo && a.tags_meteo.includes(currentWeatherTag);
+                const bMatch = b.tags_meteo && b.tags_meteo.includes(currentWeatherTag);
+
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+
+                // Si tous les deux ont le tag ou aucun ne l'a, tri alphabétique normal
+                return a.Plat.localeCompare(b.Plat, 'fr', { sensitivity: 'base' });
+            });
+
+            menuContainer.innerHTML = sortedItems.map((item, index) => {
+                let imgSrc = 'assets/dish1.png';
+                if (item.Photo && item.Photo.length > 0) {
+                    // Optimisation Cloudinary: autoformat, autoquality, width 500px
+                    imgSrc = item.Photo[0].url.replace('/upload/', '/upload/f_auto,q_auto,w_500/');
+                } else {
+                    const isDessert = item.Plat.toLowerCase().includes("trompe") || item.Plat.toLowerCase().includes("tiramisu") || item.Plat.toLowerCase().includes("café");
+                    imgSrc = isDessert ? 'assets/dish2.png' : 'assets/dish1.png';
+                }
+                const tagHtml = (item.is_featured) ? '<span class="tag-badge">Signature</span>' : '';
+
+                const displayName = (currentLang === 'en' && item.Plat_EN) ? item.Plat_EN : item.Plat;
+                const displayDesc = (currentLang === 'en' && item.description_geo_EN) ? item.description_geo_EN : item.description_geo;
+
+                const isFormula = item.Plat.includes("Formule Vietnamienne");
+                const isKid = item.Plat.includes("Menu Enfant");
+                const cardClass = (isFormula || isKid) ? "menu-card glass fade-in clickable-card" : "menu-card glass fade-in";
+
+                let onclickAttr = "";
+                if (isFormula) onclickAttr = `onclick="openFormulaModal()"`;
+                if (isKid) onclickAttr = `onclick="openKidModal()"`;
+
+                return `
+                <div class="${cardClass}" style="animation-delay: ${index * 0.1}s" ${onclickAttr}>
+                    ${tagHtml}
+                    <div class="img-container">
+                        <img src="${imgSrc}" class="menu-card-img" alt="${displayName}" loading="lazy">
+                    </div>
+                    <div class="menu-card-content">
+                        <h3>${displayName}</h3>
+                        <p>${displayDesc}</p>
+                        <div class="price">${item.prix}€</div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function filterMenu(category) {
+            // Update active button
+            if (event && event.target) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+
+            if (category === 'all') {
+                renderMenu(fullMenuData);
+                return;
+            }
+
+            const filtered = fullMenuData.filter(item => {
+                // S'il n'y a pas de catégories définies dans Airtable, on l'affiche par défaut si on demande "all" (déjà géré ci-dessus),
+                // sinon on l'écarte pour les filtres spécifiques
+                if (!item.Menu || !Array.isArray(item.Menu)) return false;
+
+                if (category === 'Aperitif') return item.Menu.includes('À Partager');
+                if (category === 'Entree') return item.Menu.includes('Entrées');
+                if (category === 'Terre') return item.Menu.includes('Côté Terre');
+                if (category === 'Mer') return item.Menu.includes('Côté Mer');
+                if (category === 'Formule') return item.Menu.includes('Formules');
+                if (category === 'Dessert') return item.Menu.includes('Douceurs');
+                if (category === 'Boisson') return item.Menu.includes('Boissons');
+
+                return false;
+            });
+            renderMenu(filtered);
+        }
+
+        window.onload = loadAppData;
+    </script>
+</body>
+
+</html>

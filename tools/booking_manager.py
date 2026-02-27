@@ -19,8 +19,11 @@ class BookingManager:
         service_type: 'Midi' ou 'Soir'
         target_date_str: 'YYYY-MM-DD'
         """
-        now = datetime.now()
         target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+        
+        # Règle : Fermé le Lundi (0) et le Mardi (1)
+        if target_date.weekday() in [0, 1]:
+            return False, "Le restaurant est fermé le lundi et le mardi."
         
         # Heures de début de service fixes par SOP
         service_times = {
@@ -54,28 +57,45 @@ class BookingManager:
             if response.status_code == 200:
                 records = response.json().get('records', [])
                 if not records:
-                    return True, "Libre" # Pas d'entrée = Pas encore de réservations
+                    return True, f"Disponible (50 places)"
                 
                 record = records[0]['fields']
-                total = record.get('Capacité totale', 0)
+                total = record.get('Capacité totale', 50)
                 occupied = record.get('Réservations confirmées', 0)
                 
-                if total - occupied <= 0:
+                available = total - occupied
+                if available <= 0:
                     return False, "Complet"
-                return True, f"Disponible ({total - occupied} places)"
+                return True, f"Disponible ({available} places)"
             return False, f"Erreur Airtable: {response.status_code}"
         except Exception as e:
             return False, f"Exception: {e}"
 
     def submit_reservation(self, name, phone, date_str, time_str, service, covers):
         """Valide et enregistre la réservation dans Airtable."""
+        num_covers = int(covers)
+        if num_covers > 50:
+            return False, "Pour les groupes de plus de 50 personnes, merci de nous contacter directement par téléphone."
+            
         ok_rules, msg_rules = self.is_service_accessible(service, date_str)
         if not ok_rules:
             return False, msg_rules
             
+        # On vérifie si les places demandées sont disponibles
         ok_inv, msg_inv = self.check_inventory(service, date_str)
         if not ok_inv:
             return False, msg_inv
+            
+        # Extraction du nombre de places dispo depuis le message (ex: "Disponible (45 places)")
+        import re
+        try:
+            available_match = re.search(r'\((\d+) places\)', msg_inv)
+            if available_match:
+                available = int(available_match.group(1))
+                if num_covers > available:
+                    return False, f"Désolé, il ne reste que {available} places disponibles pour ce service."
+        except:
+            pass
             
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
         fields = {

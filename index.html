@@ -60,7 +60,7 @@
                         <div style="flex: 1;">
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Couverts
                                 *</label>
-                            <input type="number" id="bk-covers" min="1" max="15" value="2" required
+                            <input type="number" id="bk-covers" min="1" max="50" value="2" required
                                 style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
                         </div>
                     </div>
@@ -507,7 +507,20 @@
 
             // Set min date to today
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('bk-date').setAttribute('min', today);
+            const dateInput = document.getElementById('bk-date');
+            dateInput.setAttribute('min', today);
+
+            // Listener to warn about Mon/Tue
+            dateInput.addEventListener('change', function () {
+                const day = new Date(this.value).getUTCDay();
+                const status = document.getElementById('bk-status');
+                if ([1, 2].includes(day)) { // 1=Mon, 2=Tue
+                    status.style.color = "#ff4d4d";
+                    status.innerText = "Le restaurant est fermé le lundi et le mardi.";
+                } else {
+                    status.innerText = "";
+                }
+            });
 
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';

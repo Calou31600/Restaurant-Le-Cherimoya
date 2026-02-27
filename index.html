@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Chérimoya | Gastronomie & Terroir Commingeois</title>
+    <meta name="description"
+        content="Découvrez Le Chérimoya, restaurant gastronomique fusion à Villeneuve-de-Rivière par la Cheffe Thuong. L'excellence du terroir local, dictée par la nature.">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.lecherimoya.fr/">
+    <meta property="og:title" content="Le Chérimoya | Gastronomie Fusion">
+    <meta property="og:description"
+        content="L'excellence du terroir local à Villeneuve-de-Rivière, dictée par la nature.">
+    <meta property="og:image"
+        content="https://res.cloudinary.com/dgthsjtqn/image/upload/v1/restaurant_cherimoya/terroir/facade.jpg">
 
     <!-- CSS -->
     <link rel="stylesheet" href="index.css">
@@ -31,11 +41,14 @@
     <div class="hero-bg"></div>
     <div class="dynamic-overlay" id="bg-overlay"></div>
 
-    <div class="container">
+    <main class="container">
         <header class="fade-in">
             <div class="hero-content">
                 <span class="terroir-badge" data-i18n="badge_loc">Villeneuve-de-Rivière</span>
-                <h1 id="welcome-title" data-i18n="title_welcome">Chef Thuong vous accueille</h1>
+                <h1 class="sr-only"
+                    style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
+                    Restaurant Le Chérimoya - Gastronomie Fusion à Villeneuve-de-Rivière</h1>
+                <h2 id="welcome-title" class="hero-title" data-i18n="title_welcome">Chef Thuong vous accueille</h2>
                 <p id="welcome-subtitle" data-i18n="subtitle_welcome"
                     style="font-size: 1.4rem; color: var(--text-dim); margin-top: 1rem; font-family: var(--font-heading); font-style: italic;">
                     L'excellence du terroir local, dictée par la nature.</p>
@@ -48,9 +61,9 @@
             </div>
         </header>
 
-        <section id="menu" style="padding-top: 4rem; padding-bottom: 4rem;">
+        <section aria-labelledby="menu-title" id="menu" style="padding-top: 4rem; padding-bottom: 4rem;">
             <div class="menu-header fade-in">
-                <h2 data-i18n="menu_title">L'Inspiration du Moment</h2>
+                <h2 id="menu-title" data-i18n="menu_title">L'Inspiration du Moment</h2>
                 <p class="menu-subtitle" data-i18n="menu_subtitle">
                     Une sélection dictée par le climat commingeois.</p>
             </div>
@@ -70,15 +83,15 @@
                 <!-- Plats injectés ici -->
             </div>
         </section>
-    </div>
+    </main>
 
     <!-- SECTION INFOS & AVIS GOOGLE -->
     <section class="info-section fade-in">
         <div class="google-review-card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;" data-i18n="reviews_title">L'Expérience Chérimoya
-                    </h2>
+                    <h3 style="font-size: 2rem; margin-bottom: 0.5rem;" data-i18n="reviews_title">L'Expérience Chérimoya
+                    </h3>
                     <div class="review-meta">
                         <span class="budget" data-i18n="reviews_budget">20–30 €</span>
                         <span data-i18n="reviews_type">Restaurant Français Fusion</span>

@@ -85,7 +85,8 @@ h4 {
     font-weight: 600;
 }
 
-h1 {
+h1,
+.hero-title {
     font-size: 4.5rem;
     letter-spacing: 0.02em;
     margin-bottom: 0.5rem;
@@ -93,7 +94,7 @@ h1 {
     text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
-h2 {
+h2:not(.hero-title) {
     font-size: 3rem;
     margin-bottom: 4rem;
     position: relative;
@@ -101,7 +102,7 @@ h2 {
     color: var(--text-main);
 }
 
-h2::after {
+h2:not(.hero-title)::after {
     content: '';
     position: absolute;
     bottom: -1.2rem;

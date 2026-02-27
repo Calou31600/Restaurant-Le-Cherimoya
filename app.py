@@ -64,8 +64,8 @@ def make_reservation():
         service = data.get('service')
         covers = data.get('covers')
         
-        if not all([name, phone, email, date_str, time_str, service, covers]):
-            return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires."}), 400
+        if not all([name, date_str, time_str, service, covers]) or not (phone or email):
+            return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires (le nom et au moins un moyen de contact)."}), 400
             
         success, message = engine.booking.submit_reservation(name, phone, email, date_str, time_str, service, covers)
         if success:

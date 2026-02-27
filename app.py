@@ -71,10 +71,15 @@ def login_google():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return "Erreur de configuration : Les clés Google OAuth (ID ou SECRET) sont manquantes sur le serveur. Veuillez vérifier les variables d'environnement sur Vercel.", 500
     
-    redirect_uri = url_for('authorize', _external=True)
-    # Sur Vercel, on peut avoir besoin d'utiliser https de force
-    if not request.host.startswith('localhost'):
-        redirect_uri = redirect_uri.replace('http://', 'https://')
+    # Utiliser une URI de redirection fixe définie dans les variables d'environnement
+    # Cela évite les problèmes de mismatch avec Vercel qui peut générer l'URL différemment
+    if os.environ.get("REDIRECT_URI"):
+        redirect_uri = os.environ.get("REDIRECT_URI")
+    else:
+        redirect_uri = url_for('authorize', _external=True)
+        if not request.host.startswith('localhost'):
+            redirect_uri = redirect_uri.replace('http://', 'https://')
+    
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/authorize')

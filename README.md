@@ -1,6 +1,9 @@
 # Restaurant Le Chérimoya - Site & Dashboard Administrateur
 
-Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du **Restaurant Le Chérimoya**. Ce projet full-stack propose une expérience utilisateur moderne pour les clients et un outil complet et intuitif pour la gestion de la carte du restaurant.
+Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du **Restaurant Le Chérimoya**, situé au **3 R.D. 817, 31800 Villeneuve-de-Rivière**. Ce projet full-stack propose une expérience utilisateur moderne pour les clients et un outil complet et intuitif pour la gestion de la carte du restaurant.
+
+📞 **Contact & Réservation** : 07 56 09 47 24
+
 
 ## 🌟 Fonctionnalités Principales
 
@@ -9,6 +12,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Menu Bilingue (Français/Anglais)** : Support multilingue pour l'affichage des plats et de leurs descriptions.
 - **Gestion des Allergènes** : Affichage conditionnel et intelligent d'icônes (Lactose, Gluten, Cacahuéte) permettant de repérer au premier coup d'œil les plats ciblés.
 - **Recommandations Météo (IA)** : Une bannière météo s'affiche en fonction de la température actuelle du restaurant et met en avant les plats les plus réconfortants ou rafraîchissants.
+- **Système de Réservation** : Formulaire intégré permettant de choisir la date, le nombre de couverts, le service (Midi/Soir) et l'horaire.
 - **Optimisation SEO, AEO & GEO** : Implémentation du format JSON-LD, de balises sémantiques HTML5, Open Graph, Meta descriptions engageantes, Sitemap et Robots.txt pour une parfaite visibilité et compréhension par les moteurs de recherche et IA génératives.
 - **Design Premium** : Interface élégante avec mode sombre (Dark Mode) et effet "Glassmorphism".
 - **Responsive** : Parfaitement adapté à toutes les tailles d'écrans (Mobile, Tablette, Desktop).

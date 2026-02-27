@@ -60,5 +60,14 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
    - `setup_full_airtable.py` : Configure automatiquement les tables de réservation.
    - `check_missing_photos.py` : Identifie les plats sans images.
 
+## 🔐 Sécurité & Administration
+L'accès au Dashboard est sécurisé par **Google OAuth2**.
+Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est autorisé à se connecter.
+
+**Identifiants requis dans le `.env` pour l'admin :**
+- `GOOGLE_CLIENT_ID` : Obtenu sur Google Cloud Console.
+- `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
+- `FLASK_SECRET_KEY` : Une clé aléatoire pour sécuriser les sessions.
+
 ---
-*Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026.*
+*Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, session, redirect, url_for
 from flask_cors import CORS
 import os
 import sys
 import cloudinary
 import cloudinary.uploader
+from authlib.integrations.flask_client import OAuth
+from functools import wraps
 
 # Ajouter le dossier tools au path pour importer les moteurs
 sys.path.append(os.path.join(os.getcwd(), 'tools'))
@@ -11,9 +13,32 @@ sys.path.append(os.path.join(os.getcwd(), 'tools'))
 from main_engine import MainEngine
 
 app = Flask(__name__, static_folder='.')
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_unsecure")
 CORS(app)
 
 engine = MainEngine()
+
+# Configuration Google OAuth
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
+ADMIN_EMAIL = "lecherimoyarestaurant@gmail.com"
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session or session['user'].get('email') != ADMIN_EMAIL:
+            return redirect(url_for('login_page'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Configuration Cloudinary pour l'upload depuis le Dashboard
 cloudinary_url = os.environ.get("CLOUDINARY_URL", "")
@@ -31,7 +56,34 @@ if cloudinary_url.startswith("cloudinary://"):
 def index():
     return send_from_directory('.', 'index.html')
 
+@app.route('/login')
+def login_page():
+    return send_from_directory('.', 'login.html')
+
+@app.route('/login/google')
+def login_google():
+    redirect_uri = url_for('authorize', _external=True)
+    # Sur Vercel, on peut avoir besoin d'utiliser https de force
+    if not request.host.startswith('localhost'):
+        redirect_uri = redirect_uri.replace('http://', 'https://')
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def authorize():
+    token = google.authorize_access_token()
+    user = token.get('userinfo')
+    if user and user.get('email') == ADMIN_EMAIL:
+        session['user'] = user
+        return redirect(url_for('admin'))
+    return "Accès refusé. Seul l'administrateur peut accéder à cette page.", 403
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
 @app.route('/admin')
+@admin_required
 def admin():
     return send_from_directory('.', 'dashboard.html')
 
@@ -106,6 +158,7 @@ def handle_reservation_action(record_id, action):
 # --- ROUTES ADMIN ---
 
 @app.route('/api/admin/menu', methods=['GET'])
+@admin_required
 def admin_get_menu():
     """Liste tous les plats pour le dashboard."""
     try:
@@ -117,6 +170,7 @@ def admin_get_menu():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/menu/<record_id>', methods=['PATCH'])
+@admin_required
 def admin_update_item(record_id):
     """Met à jour un plat dans Airtable."""
     try:
@@ -135,6 +189,7 @@ def admin_update_item(record_id):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/menu/<record_id>', methods=['DELETE'])
+@admin_required
 def admin_delete_item(record_id):
     """Supprime un plat dans Airtable."""
     try:
@@ -152,6 +207,7 @@ def admin_delete_item(record_id):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/menu', methods=['POST'])
+@admin_required
 def admin_create_item():
     """Ajoute un nouveau plat dans Airtable."""
     try:
@@ -171,6 +227,7 @@ def admin_create_item():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/upload', methods=['POST'])
+@admin_required
 def admin_upload_image():
     """Upload une image vers Cloudinary."""
     try:

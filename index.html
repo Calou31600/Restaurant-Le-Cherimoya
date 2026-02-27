@@ -65,8 +65,6 @@
                 <button class="filter-btn" onclick="filterMenu('Dessert')" data-i18n="filter_desserts">Douceurs</button>
                 <button class="filter-btn" onclick="filterMenu('Boisson')" data-i18n="filter_drinks">Boissons</button>
                 <button class="filter-btn" onclick="filterMenu('Asie')" data-i18n="filter_asia">Asie</button>
-                <button class="filter-btn" onclick="filterMenu('Intolerance')"
-                    data-i18n="filter_intolerance">Intolérence</button>
             </div>
             <div class="menu-grid" id="menu-container">
                 <!-- Plats injectés ici -->
@@ -180,7 +178,6 @@
                 filter_desserts: "Douceurs",
                 filter_drinks: "Boissons",
                 filter_asia: "Asie",
-                filter_intolerance: "Intolérance",
                 reviews_title: "L'Expérience Chérimoya",
                 reviews_budget: "20–30 €",
                 reviews_type: "Restaurant Français Fusion",
@@ -208,7 +205,6 @@
                 filter_desserts: "Desserts",
                 filter_drinks: "Drinks",
                 filter_asia: "Asia",
-                filter_intolerance: "Intolerance",
                 reviews_title: "The Chérimoya Experience",
                 reviews_budget: "€20–€30",
                 reviews_type: "French Fusion Restaurant",
@@ -555,6 +551,22 @@
                 const displayName = (currentLang === 'en' && item.Plat_EN) ? item.Plat_EN : item.Plat;
                 const displayDesc = (currentLang === 'en' && item.description_geo_EN) ? item.description_geo_EN : item.description_geo;
 
+                // Gestion des icônes d'intolérances
+                const intolerances = item.intolerances || [];
+                const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
+
+                const styleLactose = intolerances.includes("Lactose") ? `filter: ${icRedFilter};` : "opacity: 0.8;";
+                const styleGluten = intolerances.includes("Gluten") ? `filter: ${icRedFilter};` : "opacity: 0.8;";
+                const styleCaca = intolerances.includes("Cacahuète") ? `filter: ${icRedFilter};` : "opacity: 0.8;";
+
+                const intolerancesHtml = `
+                    <span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap;">
+                        <span title="Lactose" style="display: inline-block; transition: 0.3s; ${styleLactose}">🥛</span>
+                        <span title="Gluten" style="display: inline-block; transition: 0.3s; ${styleGluten}">🌾</span>
+                        <span title="Cacahuète" style="display: inline-block; transition: 0.3s; ${styleCaca}">🥜</span>
+                    </span>
+                `;
+
                 const isFormula = item.Plat.includes("Formule Vietnamienne");
                 const isKid = item.Plat.includes("Menu Enfant");
                 const cardClass = (isFormula || isKid) ? "menu-card glass fade-in clickable-card" : "menu-card glass fade-in";
@@ -570,7 +582,10 @@
                         <img src="${imgSrc}" class="menu-card-img" alt="${displayName}" loading="lazy">
                     </div>
                     <div class="menu-card-content">
-                        <h3>${displayName}</h3>
+                        <h3 style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>${displayName}</span>
+                            ${intolerancesHtml}
+                        </h3>
                         <p>${displayDesc}</p>
                         <div class="price">${item.prix}€</div>
                     </div>
@@ -603,7 +618,6 @@
                 if (category === 'Dessert') return item.Menu.includes('Douceurs');
                 if (category === 'Boisson') return item.Menu.includes('Boissons');
                 if (category === 'Asie') return item.Menu.includes('Asie');
-                if (category === 'Intolerance') return item.Menu.includes('Intolérance');
 
                 return false;
             });

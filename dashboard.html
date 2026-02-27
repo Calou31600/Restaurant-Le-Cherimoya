@@ -260,10 +260,26 @@
                             style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
                                 type="checkbox" value="Asie" class="cat-checkbox" style="margin-right: 8px;">
                             Asie</label>
+                    </div>
+
+                    <label style="margin-top: 1rem; display: block;">Intolérances</label>
+                    <div id="edit-intolerances"
+                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
                         <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Intolérance" class="cat-checkbox" style="margin-right: 8px;">
-                            Intolérance</label>
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Lactose" class="intolerance-checkbox"
+                                style="margin-right: 8px;"> Lactose
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Gluten" class="intolerance-checkbox"
+                                style="margin-right: 8px;"> Gluten
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                            <input type="checkbox" value="Cacahuète" class="intolerance-checkbox"
+                                style="margin-right: 8px;"> Cacahuète
+                        </label>
                     </div>
 
                     <label style="margin-top: 1rem; display: block;">Tags Météo (Recommandation IA)</label>
@@ -434,6 +450,12 @@
                 cb.checked = currentCats.includes(cb.value);
             });
 
+            // Gestion des intolérances
+            const currentIntolerances = f.intolerances || [];
+            document.querySelectorAll('.intolerance-checkbox').forEach(cb => {
+                cb.checked = currentIntolerances.includes(cb.value);
+            });
+
             // Gestion des tags météo
             const currentMeteo = f.tags_meteo || [];
             document.querySelectorAll('.meteo-checkbox').forEach(cb => {
@@ -459,6 +481,7 @@
             currentCroppedBlob = null;
 
             document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.intolerance-checkbox').forEach(cb => cb.checked = false);
             document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
 
             document.getElementById('edit-overlay').style.display = 'flex';
@@ -476,6 +499,8 @@
             try {
                 // Récupération des catégories cochées
                 const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+                // Récupération des intolérances cochées
+                const checkedIntolerances = Array.from(document.querySelectorAll('.intolerance-checkbox:checked')).map(cb => cb.value);
                 // Récupération des tags météo cochés
                 const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
 
@@ -485,6 +510,7 @@
                     prix: parseFloat(document.getElementById('edit-price').value),
                     is_featured: document.getElementById('edit-featured').checked,
                     Menu: checkedCats,
+                    intolerances: checkedIntolerances,
                     tags_meteo: checkedMeteo
                 };
 

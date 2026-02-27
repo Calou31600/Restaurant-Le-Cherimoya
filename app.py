@@ -72,7 +72,7 @@ def admin_update_item(record_id):
         fields = request.json.get('fields', {})
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
         import requests
-        res = requests.patch(url, headers=engine.headers, json={"fields": fields})
+        res = requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
         if res.status_code == 200:
             # Invalider le cache pour que le changement soit visible
             engine._cache.pop("menu", None)
@@ -108,7 +108,7 @@ def admin_create_item():
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu"
         import requests
         # Airtable requiert un objet 'records' de type array pour les POST
-        res = requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}]})
+        res = requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
         if res.status_code == 200:
             # Invalider le cache pour que le changement soit visible
             engine._cache.pop("menu", None)

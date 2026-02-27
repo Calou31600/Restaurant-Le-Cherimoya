@@ -218,11 +218,17 @@
                     <input type="file" id="edit-file" class="form-control" accept="image/*">
                 </div>
                 <div style="flex: 2; min-width: 300px;">
-                    <label>Nom du plat</label>
+                    <label>Nom du plat (FR)</label>
                     <input type="text" id="edit-name" class="form-control">
 
-                    <label>Description (optimisée IA/Tags locaux)</label>
+                    <label>Nom du plat (EN)</label>
+                    <input type="text" id="edit-name-en" class="form-control" placeholder="Optionnel">
+
+                    <label>Description (FR)</label>
                     <textarea id="edit-desc" class="form-control" rows="4"></textarea>
+
+                    <label>Description (EN)</label>
+                    <textarea id="edit-desc-en" class="form-control" rows="4" placeholder="Optionnel"></textarea>
 
                     <label style="margin-top: 1rem; display: block;">Catégories (Menu)</label>
                     <div id="edit-categories"
@@ -438,7 +444,9 @@
 
             document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
             document.getElementById('edit-name').value = f.Plat || '';
+            document.getElementById('edit-name-en').value = f.Plat_EN || '';
             document.getElementById('edit-desc').value = f.description_geo || '';
+            document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
             document.getElementById('edit-price').value = f.prix || 0;
             document.getElementById('edit-featured').checked = !!f.is_featured;
             document.getElementById('edit-file').value = '';
@@ -474,7 +482,9 @@
 
             document.getElementById('edit-current-img').src = 'assets/dish1.png';
             document.getElementById('edit-name').value = '';
+            document.getElementById('edit-name-en').value = '';
             document.getElementById('edit-desc').value = '';
+            document.getElementById('edit-desc-en').value = '';
             document.getElementById('edit-price').value = 0;
             document.getElementById('edit-featured').checked = false;
             document.getElementById('edit-file').value = '';
@@ -506,7 +516,9 @@
 
                 const fieldsToUpdate = {
                     Plat: document.getElementById('edit-name').value,
+                    Plat_EN: document.getElementById('edit-name-en').value,
                     description_geo: document.getElementById('edit-desc').value,
+                    description_geo_EN: document.getElementById('edit-desc-en').value,
                     prix: parseFloat(document.getElementById('edit-price').value),
                     is_featured: document.getElementById('edit-featured').checked,
                     Menu: checkedCats,

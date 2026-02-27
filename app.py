@@ -18,12 +18,18 @@ CORS(app)
 
 engine = MainEngine()
 
-# Configuration Google OAuth
+# Configuration Google OAuth - Récupération avec nettoyage (strip)
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
+
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    print("⚠️ ERREUR : GOOGLE_CLIENT_ID ou SECRET manquant dans les variables d'environnement !")
+
 oauth = OAuth(app)
 google = oauth.register(
     name='google',
-    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
-    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile'

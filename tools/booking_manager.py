@@ -20,6 +20,7 @@ class BookingManager:
         service_type: 'Midi' ou 'Soir'
         target_date_str: 'YYYY-MM-DD'
         """
+        now = datetime.now()
         target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
         
         # Règle : Fermé le Lundi (0) et le Mardi (1)

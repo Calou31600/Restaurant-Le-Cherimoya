@@ -46,7 +46,7 @@
   "name": "Le Chérimoya",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "Villeneuve-de-Rivière",
+    "streetAddress": "3 R.D. 817",
     "addressLocality": "Villeneuve-de-Rivière",
     "postalCode": "31800",
     "addressRegion": "Haute-Garonne",

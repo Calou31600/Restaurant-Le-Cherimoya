@@ -52,6 +52,28 @@ def get_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/reservations', methods=['POST'])
+def make_reservation():
+    try:
+        data = request.json
+        name = data.get('name')
+        phone = data.get('phone')
+        date_str = data.get('date')
+        time_str = data.get('time')
+        service = data.get('service')
+        covers = data.get('covers')
+        
+        if not all([name, phone, date_str, time_str, service, covers]):
+            return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires."}), 400
+            
+        success, message = engine.booking.submit_reservation(name, phone, date_str, time_str, service, covers)
+        if success:
+            return jsonify({"status": "success", "message": message})
+        else:
+            return jsonify({"status": "error", "message": message}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # --- ROUTES ADMIN ---
 
 @app.route('/api/admin/menu', methods=['GET'])

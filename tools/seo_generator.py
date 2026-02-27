@@ -17,14 +17,14 @@ class SEOManager:
             ],
             "@id": "https://www.lecherimoya.fr",
             "url": "https://www.lecherimoya.fr",
-            "telephone": "+335XXXXXXXX", # À compléter avec le vrai numéro
+            "telephone": "+33756094724",
             "priceRange": "$$$",
             "menu": "https://www.lecherimoya.fr/carte",
             "servesCuisine": ["Fusion", "Gastronomique", "Terroir"],
             "acceptsReservations": "True",
             "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "Villeneuve-de-Rivière",
+                "streetAddress": "3 R.D. 817",
                 "addressLocality": "Villeneuve-de-Rivière",
                 "postalCode": "31800",
                 "addressRegion": "Haute-Garonne",

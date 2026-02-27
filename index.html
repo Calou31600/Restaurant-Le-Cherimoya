@@ -31,6 +31,68 @@
         </div>
     </div>
 
+    <div id="booking-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px; padding: 2rem;">
+            <span class="close-modal" onclick="closeBookingModal()">&times;</span>
+            <h3
+                style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-main); text-align: center;">
+                Réserver une table</h3>
+            <div id="booking-body">
+                <form id="booking-form" onsubmit="submitBooking(event)">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Nom complet
+                            *</label>
+                        <input type="text" id="bk-name" required
+                            style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Téléphone
+                            *</label>
+                        <input type="tel" id="bk-phone" required
+                            style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Date *</label>
+                            <input type="date" id="bk-date" required
+                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; color-scheme: dark;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Couverts
+                                *</label>
+                            <input type="number" id="bk-covers" min="1" max="15" value="2" required
+                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Service
+                                *</label>
+                            <select id="bk-service" required onchange="updateTimeSlots()"
+                                style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                                <option value="">Choisir</option>
+                                <option value="Midi">Midi</option>
+                                <option value="Soir">Soir</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Heure
+                                *</label>
+                            <select id="bk-time" required
+                                style="width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                                <option value="">Choisir un service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" id="bk-submit-btn" class="btn-premium"
+                        style="width: 100%; display: block; text-align: center; border: none; cursor: pointer; padding: 12px;">Confirmer
+                        la réservation</button>
+                    <p id="bk-status" style="margin-top: 1rem; text-align: center; font-size: 0.9rem;"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="lang-switcher fade-in" style="position: absolute; top: 1rem; right: 2rem; z-index: 1000;">
         <button id="lang-fr" onclick="setLanguage('fr')" class="active"
             style="background: none; border: 1px solid var(--accent); color: var(--text); padding: 5px 10px; cursor: pointer; border-radius: 4px; font-family: var(--font-body);">FR</button>
@@ -126,7 +188,7 @@
         <a href="https://www.google.com/maps/dir/?api=1&destination=Le+Chérimoya+Villeneuve-de-Rivière" target="_blank"
             style="text-decoration: none; color: inherit; display: block; margin-bottom: 12px;">
             <h3 data-i18n="footer_title">Le Chérimoya</h3>
-            <p data-i18n="map_address">Chem. d'Armajou / 3 D817</p>
+            <p data-i18n="map_address">3 R.D. 817</p>
             <p data-i18n="map_city">31800 Villeneuve-de-Rivière</p>
         </a>
         <div style="border-top: 1px solid rgba(207,168,110,0.2); padding-top: 12px;">
@@ -198,7 +260,7 @@
                 reviews_count: "Basé sur 64 avis Google",
                 reviews_quote: "\"Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La cuisine fusion met brillamment en valeur les produits de notre terroir.\"",
                 btn_book: "Réserver une table",
-                map_address: "Chem. d'Armajou / 3 D817",
+                map_address: "3 R.D. 817",
                 map_city: "31800 Villeneuve-de-Rivière",
                 footer_subtitle: "Gastronomie Fusion & Terroir Commingeois",
                 footer_copy: "&copy; 2026 - Créé avec passion à Villeneuve-de-Rivière"
@@ -225,7 +287,7 @@
                 reviews_count: "Based on 64 Google reviews",
                 reviews_quote: "\"A wonderful discovery in the Comminges. Refined dishes, perfectly cooked meats, and impeccable service.\"",
                 btn_book: "Book a table",
-                map_address: "Chem. d'Armajou / 3 D817",
+                map_address: "3 R.D. 817",
                 map_city: "31800 Villeneuve-de-Rivière, France",
                 footer_subtitle: "Fusion Gastronomy & Commingeois Terroir",
                 footer_copy: "&copy; 2026 - Crafted with passion in Villeneuve-de-Rivière",
@@ -429,8 +491,107 @@
 
         window.onclick = function (event) {
             const modal = document.getElementById('formula-modal');
+            const bookingModal = document.getElementById('booking-modal');
             if (event.target == modal) {
                 closeFormulaModal();
+            }
+            if (event.target == bookingModal) {
+                closeBookingModal();
+            }
+        }
+
+        // --- LOGIQUE RÉSERVATION ---
+        function openBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.style.display = 'flex';
+
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bk-date').setAttribute('min', today);
+
+            setTimeout(() => modal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+
+            // Reset status
+            document.getElementById('bk-status').innerText = '';
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 400);
+        }
+
+        function updateTimeSlots() {
+            const service = document.getElementById('bk-service').value;
+            const timeSelect = document.getElementById('bk-time');
+            timeSelect.innerHTML = '';
+
+            let times = [];
+            if (service === 'Midi') {
+                times = ['12:00', '12:30', '13:00', '13:30'];
+            } else if (service === 'Soir') {
+                times = ['19:30', '20:00', '20:30', '21:00'];
+            }
+
+            if (times.length === 0) {
+                timeSelect.innerHTML = '<option value="">Choisir le service d\'abord</option>';
+            } else {
+                times.forEach(t => {
+                    timeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                });
+            }
+        }
+
+        async function submitBooking(e) {
+            e.preventDefault();
+            const btn = document.getElementById('bk-submit-btn');
+            const status = document.getElementById('bk-status');
+
+            btn.innerText = "Envoi...";
+            btn.disabled = true;
+            status.innerText = "";
+            status.style.color = "var(--text-main)";
+
+            const numCovers = parseInt(document.getElementById('bk-covers').value) || 2;
+            const data = {
+                name: document.getElementById('bk-name').value,
+                phone: document.getElementById('bk-phone').value,
+                date: document.getElementById('bk-date').value,
+                time: document.getElementById('bk-time').value,
+                service: document.getElementById('bk-service').value,
+                covers: numCovers
+            };
+
+            try {
+                const response = await fetch('/api/reservations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    status.style.color = "#96c2a1"; // Vert
+                    status.innerText = result.message;
+                    setTimeout(closeBookingModal, 2500);
+                    // Reset form
+                    document.getElementById('booking-form').reset();
+                    updateTimeSlots();
+                } else {
+                    status.style.color = "#ff4d4d"; // Rouge
+                    status.innerText = result.message || "Erreur de validation. Veuillez vérifier vos informations.";
+                }
+            } catch (err) {
+                status.style.color = "#ff4d4d";
+                status.innerText = "Erreur de réseau. Veuillez réessayer ou nous appeler directement.";
+            } finally {
+                btn.innerText = "Confirmer la réservation";
+                btn.disabled = false;
             }
         }
 
@@ -703,8 +864,8 @@
 
     <!-- Bouton flottant de réservation -->
     <div id="floating-btn-wrap" class="floating-reserve-container">
-        <a href="tel:+33756094724" class="btn-premium glass" data-i18n="btn_book"
-            style="box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-width: 2px;">Réserver une table</a>
+        <button onclick="openBookingModal()" class="btn-premium glass" data-i18n="btn_book"
+            style="box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-width: 2px;">Réserver une table</button>
     </div>
 
     <script>

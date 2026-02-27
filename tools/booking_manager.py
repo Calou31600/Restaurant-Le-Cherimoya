@@ -65,6 +65,34 @@ class BookingManager:
         except Exception as e:
             return False, f"Exception: {e}"
 
+    def submit_reservation(self, name, phone, date_str, time_str, service, covers):
+        """Valide et enregistre la réservation dans Airtable."""
+        ok_rules, msg_rules = self.is_service_accessible(service, date_str)
+        if not ok_rules:
+            return False, msg_rules
+            
+        ok_inv, msg_inv = self.check_inventory(service, date_str)
+        if not ok_inv:
+            return False, msg_inv
+            
+        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
+        fields = {
+            "Nom": name,
+            "Telephone": phone,
+            "Date": date_str,
+            "Heure": time_str,
+            "Service": service,
+            "Couverts": int(covers),
+            "Statut": "À confirmer"
+        }
+        try:
+            res = requests.post(url, headers=self.headers, json={"records": [{"fields": fields}], "typecast": True})
+            if res.status_code == 200:
+                return True, "Votre demande de réservation a bien été envoyée."
+            return False, f"Erreur serveur: {res.text}"
+        except Exception as e:
+            return False, "Erreur réseau lors de la réservation."
+
 if __name__ == "__main__":
     manager = BookingManager()
     # Test simulation

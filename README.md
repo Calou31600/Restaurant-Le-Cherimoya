@@ -22,6 +22,8 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
 - **Upload & Recadrage d'Images** : Intégration de Cropper.js et hébergement optimisé sur Cloudinary.
 - **Gestion de l'Inventaire** : Synchronisation des tables `Disponibilites` et `Reservations` pour éviter le surbooking.
+- **Engine de Génération d'Images (IA)** : Un outil de génération d'images haute qualité (Gemini Image Generation) a été intégré pour assurer une couverture à 100% des visuels du menu.
+- **Batch Image Sync** : Script d'automatisation (`tools/batch_update_images.py`) pour l'upload groupé vers Cloudinary et la synchronisation avec Airtable.
 
 ## 🛠️ Stack Technique
 

@@ -785,15 +785,38 @@
                 return a.Plat.localeCompare(b.Plat, 'fr', { sensitivity: 'base' });
             });
 
-            menuContainer.innerHTML = sortedItems.map((item, index) => {
-                let imgSrc = 'assets/dish1.png';
-                if (item.Photo && item.Photo.length > 0) {
-                    // Optimisation Cloudinary: autoformat, autoquality, width 500px
-                    imgSrc = item.Photo[0].url.replace('/upload/', '/upload/f_auto,q_auto,w_500/');
+            function resolveImg(item) {
+                let src = 'assets/dish1.png';
+                const photo = item.Photo;
+
+                if (photo) {
+                    if (Array.isArray(photo) && photo.length > 0 && photo[0].url) {
+                        src = photo[0].url;
+                    } else if (typeof photo === 'string') {
+                        if (photo.startsWith('http')) {
+                            src = photo;
+                        } else if (photo.includes('(') && photo.includes(')')) {
+                            const match = photo.match(/\((https?:\/\/[^)]+)\)/);
+                            if (match) src = match[1];
+                        }
+                    }
+                    // Apply Cloudinary optimization if applicable
+                    if (src.includes('cloudinary.com')) {
+                        src = src.replace('/upload/', '/upload/f_auto,q_auto,w_600/');
+                    }
                 } else {
-                    const isDessert = item.Plat.toLowerCase().includes("trompe") || item.Plat.toLowerCase().includes("tiramisu") || item.Plat.toLowerCase().includes("café");
-                    imgSrc = isDessert ? 'assets/dish2.png' : 'assets/dish1.png';
+                    const isDessert = item.Plat.toLowerCase().includes("trompe") ||
+                        item.Plat.toLowerCase().includes("tiramisu") ||
+                        item.Plat.toLowerCase().includes("café") ||
+                        item.Plat.toLowerCase().includes("douceur") ||
+                        item.Plat.toLowerCase().includes("tarte");
+                    src = isDessert ? 'assets/dish2.png' : 'assets/dish1.png';
                 }
+                return src;
+            }
+
+            menuContainer.innerHTML = sortedItems.map((item, index) => {
+                const imgSrc = resolveImg(item);
                 const tagHtml = (item.is_featured) ? '<span class="tag-badge">Signature</span>' : '';
 
                 const displayName = (currentLang === 'en' && item.Plat_EN) ? item.Plat_EN : item.Plat;

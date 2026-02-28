@@ -1,0 +1,875 @@
+[
+  {
+    "id": "rec0PX3eDQ1qy0CI5",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Grosses gambas grillées 3pc",
+      "description_geo": "Gambas fraîches grillées au beurre et à l’ail, accompagnées de légumes grillés et riz parfumé.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€29.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "eizue64bjaenw2dsarbl.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/osbwe4f3FqPnspxv_4wDtg/BdXwXYzZ4SzpOS7Jzv8NZ0SAVR4jfdBRi-uE0mT9QRDQiUJjjT9TjwUuW0jJB6O_i-VEmMQd3WgFrkRqmZXLJQxKrH1nSqk0bT-5okRqN_hc5rEu89mwH5Su0l1iCDW12cDbkWZbejV358oYNgXmcg/FOgpuQTt5j9mf90TGQCvy9BYWWBvf7YlRs_DFJsA5uk)",
+      "Plat_EN": "large grilled prawns 3pc",
+      "description_geo_EN": "Fresh prawns grilled with butter and garlic, served with grilled vegetables and fragrant rice",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "rec6PPT2QyPfqoIEf",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Paradis asiatique",
+      "description_geo": "Sirop d'hibiscus, fleur d'hibiscus comestible, citron vert, prosecco, limonade.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€11.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "wwchsymejnso12hv7liw.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/XyOHq1o6U51n_cdURdyrEw/7giIxvm2kTCN1rRsmuDJ9iiMWrdH07EeBlAcq9L2zMb3zT_H9vMWqOzc-gpej4FVn8RltDBWDchLOOLgUTnMAJDWlCyNvIo2bM0_IuKgUC61mRei4ACqjNKT66QtRpaoBoZ5020IJy1d90AJ5t0fug/A_Np7G9VYg-06G7OcpgL4UMljwkOCWP-TZWhNiK-FKA)",
+      "Plat_EN": "Asian Paradise",
+      "description_geo_EN": "Hibiscus syrup, edible hibiscus flower, lime, prosecco, lemonade.",
+      "Menu": [
+        "Boissons",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recA8pJ1frWeSNvt6",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "L'exotique",
+      "description_geo": "Jus de banane, jus de maracuja, jus de pomme, sirop de vanille citron vert.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€9.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "[\n    {\n        \"url\": \"https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275255/restaurant_cherimoya/menu/lexotique_cocktail.png\"\n    }\n]",
+      "Plat_EN": "The Exotic Mocktail",
+      "description_geo_EN": "Banana juice, passion fruit juice, apple juice, vanilla syrup, lime.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recC0yYEvPpr8pC00",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Formule Vietnamienne",
+      "description_geo": "Entrée, Plat et Dessert au choix (Nems, Tiramisu, etc.)",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€26.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Vietnamese Set Menu",
+      "description_geo_EN": "Starter, Main course of your choice (Shrimp or Chicken fried rice), and Dessert (Tiramisu or Crème brûlée)",
+      "Menu": [
+        "Formules",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recDcAjOld0ia7ruq",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Côtes d’agneau grillés aux herbes",
+      "description_geo": "Carré d’agneau mariné aux herbes, grillé et nappé de sauce maison, servi avec purée de pommes de terre et légumes grillés.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€20.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "jun1q53j9wmtfhccknln.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/gpGZk-so7flZIXwsSEe_jQ/1-cHrJvQJV4mZrpA_zL3pSGpgwzffA6cPjlHWIXPVK-83VOKejvOZdCPyYqcqCGAvJdSX3zEjuuuW7yVPWaYiSw4ez96NG6krN4QKrrwL6FDhjSg7kw2fW92Zjv8Sh-Y1VjNllaHIja-kv_3VCrgKA/kD6NVv5EQ2DnXBkSCe38f0pZLhZQS_7fp8Z2q6jOT_w)",
+      "Plat_EN": "Herb-grilled lamb chops",
+      "description_geo_EN": "Lamb chops marinated with herbs, grilled and finished with homemade sauce, served with mashed potatoes and grilled vegetables",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recE12iQbWRelOVAr",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Tiramisu au café",
+      "description_geo": "Tiramisu au café – Biscuits imbibés de café, crème mascarpone onctueuse, saupoudré de cacao, sans alcool.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€4.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "kh4tli1ibjg3dud5rstn.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/m61AbAYYMYJtuwVTEfTsZw/Wi0laq8vBOrMHIjzp-bTIvbsnJanUcP2t2Xjky7N5bLF4m4UJPg6bPvO8EFeDLMwzeCfChEJ14p9Ify0h11kAu_1Af5HcjeuYN6uyK5MIb49S_ydH-S1mj_FSB5xDWUGOwVuOY0ZhMb_GHt6LXfwPA/t9bOFvyh1vFikGhb55ZeZh4LFryFhjAlJpEVuAiA5_M)",
+      "Plat_EN": "Coffee Tiramisu",
+      "description_geo_EN": "Coffee-soaked ladyfingers layered with creamy mascarpone, dusted with cocoa, alcohol-free.",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "recEROy06gvYcCBTZ",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Filet de poulet au cheddar",
+      "description_geo": "Filet de poulet grillé garni d’une fine couche de cheddar, accompagné de sauce aux champignons maison et de pâtes fraîches.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€17.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Chicken breast with cheddar",
+      "description_geo_EN": "Grilled chicken breast topped with a thin layer of Cheddar, paired with homemade mushroom sauce and fresh pasta",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recFZjyPkibfGyssJ",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Poire en trompe-l'œil",
+      "description_geo": "Mousse poire onctueuse with insert de compotée, façonnée comme une vraie poire.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€6.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "psqbvpwiugl12dctp7e4.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/WhCWCk1zb-ZmHuOEyJsEbQ/Ih9Nf-L1mKk4RDxdgDmq8JstuYGN--n3yE01lCKg5h5N0MQdiRYnvf-hza8YOODHgZ9weoCt2kvZe8Iwl3TqvNqN6S4d0GzKNivzRTJ3eBqDmd33djlr6HW7I-RNzsozQlFHR6f0buxMP3ucCa9KwQ/o1npvSJv8C6-stEa_OROgRkkc3qN_8vY8pCplNDRMrE)",
+      "Plat_EN": "Pear Illusion Dessert",
+      "description_geo_EN": "Silky pear mousse with compote insert, crafted to look like a real pear.",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "recIImYCU29TMjGQD",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Assiette de charcuterie et fromages",
+      "description_geo": "Une assiette raffinée de jambon ibérique savoureux, de coppa tendre et d’une sélection de fromages – idéale à partager.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€15.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "imfgtxwrnwyx5f886gge.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/uGqF91IgWZ0taJu7nCHqAg/QNYL_324CxBvXwPtvNP9idHjq65-_bszqY9ZaeS_LgnyDAJY6BndfifGu4IAuyAGc9AKNvHGFQqlSpTS-_KqO-rOX2YQpMl1-o7lyXfWiXj4eYCVBldPmHPOOFaMTx-qelZd1ipTJN2D-tubi3rPGw/P5xaCjw3ECPgKqxBn3rKs6qw652artGZkyh4kEGuIM8)",
+      "Plat_EN": "Cold cuts and cheese platter",
+      "description_geo_EN": "A refined platter of flavourful Iberian ham, tender coppa and a selection of cheeses – perfect for sharing or as a starter.",
+      "Menu": [
+        "À Partager"
+      ]
+    }
+  },
+  {
+    "id": "recKBDI1NLFYde6eT",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Le délice",
+      "description_geo": "Jus de litchi, creme de framboise, jus de citron, jus de pomme.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€11.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "The Delight Mocktail",
+      "description_geo_EN": "Lychee juice, raspberry cream, lemon juice, apple juice.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recKtjes53xVBWIxJ",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Mojito",
+      "description_geo": "Sucre en poudre, citron vert, rhum cubain, perrier, angostura.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€10.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "zm0nw82vkbp8iqlqhnat.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/y35ejR12dkX5d-lOQ1plZg/ye0fnFbFREp5aEfX3uRwDIFC-eJiHODFxp0sdAkoeU_FNUZJ2xODwb_1FQXPiDn-qwsULrRepdNc2DHwSyyfQdk2e27bZBvcRRu6CxPZ9IRQMALxoLC_yY6x0w5DkQeHKKnZm9v4SAsyB29T6pGMfg/E0tCnN2PKzgP96vC9EBXZbJvJxYNDyp6JCe69Lg5CRI)",
+      "Plat_EN": "Mojito",
+      "description_geo_EN": "Powdered sugar, lime, Cuban rum, Perrier, angostura.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recLk79OYAWWJXCvE",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Virgin colada",
+      "description_geo": "Jus d'ananas, creme de coco.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€7.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "bvuug7b2pctuwituvjym.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/L0pbKwrE2zAAVkWDeRTMTg/DP2NV2PlzWoLmJXRMsFvaL496vOINRFEtI9lrvpxLlDwLmMDF6swL-sOlQIElkFX-BxqJMhgcx_OTFfbI_JdWIxeBquYplFXvPivCM1a9b6QMsUEoGan5R8GB5hsXsNrVJ5mNNhZcnx8GfRlEW1Fvw/zdJ_wc1L2aFsRFD49aMq1trRK-SV4b8iKUAlQNuwCIU)",
+      "Plat_EN": "Virgin Colada",
+      "description_geo_EN": "Pineapple juice, coconut cream.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recMin0TQ8OikHKzB",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Filet de canard sauce fait maison",
+      "description_geo": "Magret de canard grillé nappé sauce fait maison, servi avec des frites.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€18.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Duck breast with homemade sauce",
+      "description_geo_EN": "Grilled duck breast topped with homemade sauce, served with French fries",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recN3kr5pIFWdM1Ds",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Siu mai vapeur 5pc",
+      "description_geo": "Délicates bouchées vapeur, farcies au porc tendre et crevettes fraîches, servie avec une sauce douce aux notes légèrement caramélisées.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€6.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "dmpnocfqw9ugnh6una4u.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/wYeSfoRi5Xo7xytIYfi5jA/wA93x0zQsLdo1Y3H8Kv6lfWkHrRzNdaOlnw1WmD-Wq0lhnCncMNMipu7XNRn3pPNmghYftpECU8vNw-19OgQ-2OFg-BfvkRbM4bYmM3bJrr4wF2sln6_G0iAr832X9BdzEVuDLH7K3Mi8eCXtXDV8w/zhpm_WyaLDoj80SLfQchf-P5iJebM0Y9P7chxmX41wA)",
+      "Plat_EN": "5 pc Steamed siu mai",
+      "description_geo_EN": "Delicate steamed dumplings filled with tender pork and fresh shrimp, served with a sweet sauce with subtle caramelized notes.",
+      "Menu": [
+        "Entrées",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recOMBr21w56Jx3uT",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Saumon sauce teriyaki",
+      "description_geo": "Filet de saumon grillé, nappé de sauce Teriyaki, accompagné de riz et légumes grillés.",
+      "tags_meteo": [
+        "Chaud",
+        "Froid"
+      ],
+      "prix": "€18.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "gdhlum9l1rchckxowjp7.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/KVTd4F0E49g6q8K4Dz8ofg/Ib_be9UwnrkxgiL9GK-FtIEbAYcK0ReZPV4y9bQYUOywZw_m3yL5Hrj_GCfGR7XKK1wFVccSPeFLAPf1ZAPdnk1a_ufGs174ol5SePtZAuJqGYQBXBXcYk8cdha6j_Z1sg9Z1Wy2R236Cr-F6dT5hA/jtl4KaEnKqv6AyGz-tTM8g2wss_BiYkqMHP9OaUKjoo)",
+      "Plat_EN": "Salmon with teriyaki sauce",
+      "description_geo_EN": "Grilled salmon fillet glazed with Teriyaki sauce, served with rice and grilled vegetables",
+      "Menu": [
+        "Côté Mer",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recPBHYvVd4AsAPog",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Américano",
+      "description_geo": "Vermouth Italien, bitter campari, perrier.",
+      "tags_meteo": [
+        "Froid",
+        "Chaud"
+      ],
+      "prix": "€10.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "mnskaoqqzinsjbuiolai.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/FR8TaOcbpjeh6aWOjI8XpQ/dlVFQtihuGIedHU4L__sCiIWgGch09cLCLOWbWsjUMWWmkbloefULspHLl-3n7YxjBkyUx2r89g-sYY0DERHT4m4lXspMvFnkDEEGHQmfu0s-2zCZSEbnwSJllKADHzCtuAhgOd1EYIPlJaPSz7Jzw/weWtrRyxWywMcwtg8qyxljeeGlzMROeOBAVmzW52xtI)",
+      "Plat_EN": "Americano",
+      "description_geo_EN": "Italian vermouth, campari bitter, perrier.",
+      "Menu": [
+        "Boissons"
+      ],
+      "intolerances": "Lactose"
+    }
+  },
+  {
+    "id": "recRCTOyr5RgzJnK5",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Pâtes aux fruits de mer",
+      "description_geo": "Pâtes cuisinées avec crevettes, moules, calamars noix de saint-jacques, et sauce tomate fait maison.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€19.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "rxlpydjwp7yqm72mwlu4.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/hZKgsshIhD5JDl1QqyF-8A/Svs0JBeDSnmRGG1D4nqItN4w8t8X29ogCkGZVZmQ61X2Q6u91o3hMeY5UdCuXlJUkUya3peQ64DMSe4QRVkNoPqy2DI_S-8j3rqn7MToWHOGnYuzX-lOyD8e7KL-lKbbNLWYdhjLwf1GXMNFDybktA/-w211J9Qbk0MTYIOMVr-6F-2_ss718PvJmfjGp--CHk)",
+      "Plat_EN": "Seafood pasta",
+      "description_geo_EN": "Pasta cooked with shrimp, mussels, squid and homemade tomato sauce",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "recRa7f0KjeIH1aNH",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Riz sauté aux fruits de mer",
+      "description_geo": "Riz parfumé associé aux crevettes, calamars et moules, noix de saint-jacques avec une touche de persil.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€19.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "zsbbeuiin18xjry95kwb.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/ESfUoy7g6URh5QensiKYcA/v96P5-0aIiFwk4lN4OkKYpN2qsSrg5uIME0RUnn--dSOJD2jkMBdwtEFkl9ELl-X6-5ekHiheEzxqpV3048BBNFiPaSrK2__hdGOL7Yw22qSCoKyEDnkXol0wdM8aGUmBJHQ6P5YtoKQjzGgjHv2ww/oRofPplQVDVMn69ifMnsK2RHPiFfGe_e2oW4nuTShAs)",
+      "Plat_EN": "Seafood fried rice",
+      "description_geo_EN": "Fragrant rice with shrimp, squid, mussels, scallops and a hint of parsley",
+      "Menu": [
+        "Côté Mer",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recRmalXVL10IsW0m",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Pina colada",
+      "description_geo": "Crème de coco, ananas, rhum blanc.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€9.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "o7x5bhe2tbm8h3bynfgx.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/dzwbytLjyLQaVSwk4rEwjQ/jfnAJW8KamnSLQqW2oXLNaZRDDlmw33I-Hyd1L1PCz0TCoMzThnqJKH5R7Ya23FoEW9Vji3PCdXpZM4ekWqZAchDkOoLI8iZzE_wZH5qAXroZpTT39R_Lp4UypYWCIqwAJfPcltlPQWhV7ZZ7_zfkg/WJWVHEAS7_LutoF9HvwPc2ypKof8E-d2Pyc-Iohu2yQ)",
+      "Plat_EN": "Pina Colada",
+      "description_geo_EN": "Coconut cream, pineapple, white rum – a tropical cocktail, sweet and creamy",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recS3Lr5YPWWwEhfR",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "4 nems poulet croustillants",
+      "description_geo": "Assiette de nems croustillants, roulés dans des feuilles de salade, servis avec sauce traditionnelle.",
+      "tags_meteo": [
+        "Froid",
+        "Chaud"
+      ],
+      "prix": "€6.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "g4cah9seodll3zf1zwiw.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/38UgtchDqtDXaEo3p1x0gw/4kijmkAXWMvj925j6k2dBYB2Rz_GVPoJ2S4soxrlj02Twl9TBVLS_CMnh2KD4jzkoodZJ5mdRYY9xK1IOR12W4tRaI3yREShLUNY5YxikREh9nT4GGoGelBKSCa4O-Ly_vQMrZxyb3GtirSPoABsKw/cbp2PuOT_dfWb4Iau8Zt_BFffH1ZNw3PuECJ_wJIUog)",
+      "Plat_EN": "4 crispy spring rolls",
+      "description_geo_EN": "Plate of crispy spring rolls, wrapped in lettuce leaves, served with traditional dipping sauce",
+      "Menu": [
+        "À Partager",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recSym1QfrDkJbzNx",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Poulet sauce teriyaki",
+      "description_geo": "Blanc de poulet émincé, grillé sur brochettes et nappé de sauce teriyaki, servi avec riz parfumé et légumes grillés.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€17.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Chicken breast teriyaki sauce",
+      "description_geo_EN": "Thinly sliced chicken breast skewers, grilled and topped with teriyaki sauce, served with fragrant rice and grilled vegetables",
+      "Menu": [
+        "Côté Terre",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recTUncXFGvuoSzvR",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Salade de camembert roti",
+      "description_geo": "Camembert roti au miel, accompagné de sa salade verte, jambon et olives",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€11.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "mpydcw2vpkoqszrlqume.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/r9Zl4qUNkul1VT-CLlu_RQ/EbsEhMzeLJr7zDSgEJoAtnWV1biORwdbJ9tnAiFUXmbPtDrXfPdfzA4K4_JMR_bxut69Z8NViSM22YgyeWVjRCfEQ1rZkXO0rrY1sfCVs5vAxeeYeU6WW7QrWpUYU6TwJ8jnSefIIxRxvs1W0u00Fw/d1PW64re0kwgui1UHpcOYpiqSOTbFOTItW9isHpP2MQ)",
+      "Plat_EN": "Baked camembert salad",
+      "description_geo_EN": "Baked camembert with honey, served with fresh greens, prosciutto and olives",
+      "Menu": [
+        "Entrées"
+      ]
+    }
+  },
+  {
+    "id": "recUmMXZwJW0lKT17",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Tartelette tatin",
+      "description_geo": "Tarte renversée aux pommes caramélisées sur beurre rehaussé de confitures, servie tiède.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€4.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "z0xijbiz04dv9qhglj1w.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/9Bt2ZWgkVK1UAqlUSYl-zA/DG7rEgRuIID3uVK7SMnV7RkXmWMh4mqHmAfLt2XfwjdUzprwTpGk7VRVeKTWdIS2OG2Zag1Rd3VnOIdD2doRCOK5Y1H_LJXiFXfr4NmWji6Fex8R0RaPdQafFrvOil0J01yzBrffudLl8LGctYwyCQ/UNrS2VKpcHloNdfUULV5y38D9oUUU91GnTLuGHtLQBI)",
+      "Plat_EN": "Tarte Tatin",
+      "description_geo_EN": "Upside-down caramelized apple tart on butter enriched with jam, served warm.",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "recVtIRMWIZpnjGBq",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Tataki de bœuf 250gr",
+      "description_geo": "Bœuf grillé tendre, tranché finement et mariné avec sauce fait maison, servi avec purée de pommes de terre et légumes grillés.",
+      "tags_meteo": [
+        "Chaud",
+        "Froid"
+      ],
+      "prix": "€18.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Beef tataki",
+      "description_geo_EN": "Tender grilled beef, thinly sliced and marinated with homemade sauce, served with mashed potatoes and grilled vegetables",
+      "Menu": [
+        "Côté Terre",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recVuzKE8OkrTv9lw",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Filet de bar au beurre",
+      "description_geo": "Filet de bar délicatement nappée de sauce beurre accompagnée de riz parfumé et légumes grillés.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€19.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "obn4ilurvzedktngrkew.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/l-4zJPkBJTC6ru0Rik4vSw/gbosEKSe4tEXOHukr98gY9CtK8w0w9L3deBu09KWov0yFDoTvW_-jcInNQ-BadQ_CQ_0vQG5cXCfRQolGxqsxFJ5x-NyZ_oMZG6uuotJg3TEH_m16YDQLpL3YOiEnPBlajHYyGXLg5Wx2bVkTR6cUQ/-Spo5l3il6Ed9QzRAOelRBD2I7gjNVgru-q_X52jxxU)",
+      "Plat_EN": "Lemon butter sea bass fillet",
+      "description_geo_EN": "Sea bass fillet elegantly glazed butter sauce, served with fragrant rice and grilled vegetables",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "recWdcN4W128XgQf2",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Sunset boulevard",
+      "description_geo": "Orange, cranberry, liqueur de pêche, liqueur de mûre, vodka.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€11.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "elmwg6n98qcmtptnvqt1.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/eEl2J9wkOIuBbBGM82W9QA/Yr2_RNJ5Rms1-t4Hin1Fkp_xM4dPrsPUtvu2d5aCKov7UQqYCcGKOw-xZfUzctH7mF20dOJlbwZ0v0D8AhROqoDVwXuR4A2PbOoBV6dd-u_gfFcgqaOxK6aJxawkXLhK9Jpf_mX2JQGRNexai8QenQ/lviHvUP-EGbiZhUeZGeUvs2a2baQlYgIv5HsdhPiLTc)",
+      "Plat_EN": "Sunset Boulevard",
+      "description_geo_EN": "Orange, cranberry, peach liqueur, blackberry liqueur, vodka.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recXlExab7xKDQCpc",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Côte de bœuf 400g",
+      "description_geo": "Côte de bœuf, sauce maison, accompagnée de frites et de légumes grillés.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€26.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Rib steak with homemade sauce",
+      "description_geo_EN": "Rib steak with homemade sauce, served with French fries and grilled vegetables",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recZjHxCXv8tZC6rd",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Filet de canard sauce caramel balsamique",
+      "description_geo": "Magret de canard grillé accompagné d'une sauce caramel balsamique onctueuse, servi avec purée de pomme de terre et légumes grillés.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€18.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "zmujijmvnfqvwjol5i3r.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/KxJ9Y_MvvXYv9F1oQi-IGQ/SfiDWprnk0qORWQaAlbTeLAf1ndFqKfK-KYNZtW1HTuF-9wEWige7kvLH2VqMME37LI46oBcn5IDCgog0gUZrK5Wiq3cX5hdQNusQ9J4ujQ66AvWGjujHbeW5WFKpq049o9mJTx7V64_-lcEC3ELBg/sunckM7U_DJ1DxwhT909TGCuzcs7_nn07C9KZioaVHY)",
+      "Plat_EN": "Grilled Duck Breast with Balsamic Caramel Sauce",
+      "description_geo_EN": "Grilled duck breast paired with a rich balsamic caramel sauce, served with mashed potatoes and grilled vegetables",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recZr9NlZMYOSn6fd",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Salade de poulet croustillant",
+      "description_geo": "Filet de poulet croustillant, salade verte et sauce maison",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€9.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "libaakeucenoesuuxqry.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/9E01AA2G7JJaAf6o6PZqWQ/Mxc2UnuP2PAJhH3q9t4h7Q5qST19z_NfMT9St4rU3FhpR5dNWefhfVsvHeq-Y8ZI6EbPlOVcwaHTmBaNRaxfjHHN1z5o1E4MoxxkhxJsd7HktNeD0p74S20P021N25GLez-gXTUoq7hPAvJ123YzMQ/1O-CEY3vSZ6p56VIJStyxXX3hrT0aHrtfMgBYnFNf4M)",
+      "Plat_EN": "Crispy Chicken Salad",
+      "description_geo_EN": "Crispy chicken breast harmonized with fresh greens and homemade dressing",
+      "Menu": [
+        "Entrées"
+      ]
+    }
+  },
+  {
+    "id": "reccftcMJECjPqCpT",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Assiette de fruits de mer",
+      "description_geo": "Gambas, crevettes, sole, calamars, moules fraîches, noix de saint-jacques, délicatement harmonisés.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€45.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "rvpxidnk47oyeddpt9ft.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/CouwQmqGvs5toWC05DfhpQ/hGLNMWp_g6-RkUzVtFcv6keAm70xqkW1AD2O5Y4Hq-2HIXrt1bAwsEuLviMRk9zt9LFWVO24_iL7mE00N2x0HdRw2CiNNMZtDtTbTumBGiAsbNJ-Mvz8T1zWao8S0cY5Pr6YHVF5R-nQOOAtpYmL0w/F924wPJinP3EdZiugwXbrYdLNI9DBrMPrUx4jGAjo2I)",
+      "Plat_EN": "Seafood platter",
+      "description_geo_EN": "Gambas, shrimp, squid, and fresh mussels, scallops elegantly presented on the plate",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "recfNn9uTsNypJABP",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Crème Brûlée au Café",
+      "description_geo": "Crème onctueuse avec une fine couche de caramel croquant, parfumée au café.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€4.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "mauz2gfu6lacgnjp22j5.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/63zQFmoNUrp-a3NmPQv0Pw/wU4rt4zp_TA0wjDONtFCCRo2GOZyrt6hqHURzLcdJFRM1nX5VpKFQzJ9zIucDmXUXrkT0dhjfPgLh50WDOG0I5FNUX1RsQG1BwzIjMAJ7dyHhQpcvJeKFwc1EUrOYXrNsWHtnr7PUYEuPeVS26kYTg/sMtusuvFurb9j7JJ818Lq6M8Yj3PBbgPeYbBLS3dZqc)",
+      "Plat_EN": "Coffee Crème Brûlée",
+      "description_geo_EN": "Smooth custard topped with a crisp caramel layer, delicately flavored with coffee",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "rech4T2BjB6576smZ",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Glaces (2 boules au choix)",
+      "description_geo": "Glaces (2 boules au choix) surmontées de crème chantilly onctueuse.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€4.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Ice Creams (2 scoops of your choice)",
+      "description_geo_EN": "Topped with smooth whipped cream Chantilly (vanilla, chocolate, rhum raisin, mangue, fraise, café, caramel).",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "rechMKN7ZfYJn9F5N",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Crevettes sautées beurre ail",
+      "description_geo": "Crevettes sautées au beurre et à l’ail, accompagnées de riz et légumes grillés.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€17.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Garlic butter shrimp",
+      "description_geo_EN": "Shrimp quickly sautéed with garlic butter, served with rice and grilled vegetables",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "recifFS4H8mdXi5i4",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Menu Enfant",
+      "description_geo": "Plat au choix (Burger, Poulet, Pâtes) + 1 boule de glace",
+      "tags_meteo": [
+        "Froid",
+        "Chaud",
+        "Pluie"
+      ],
+      "prix": "€12.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Kids' Menu",
+      "description_geo_EN": "Main course of your choice (Crispy chicken, Beef burger, Carbonara pasta, or Teriyaki chicken) + 1 scoop of ice cream",
+      "Menu": [
+        "Formules"
+      ]
+    }
+  },
+  {
+    "id": "recj7sAXRf9lBjT6V",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Nana fizz",
+      "description_geo": "Gin perrier, sirop de surce de canne, citron vert, sirop de framboise.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€11.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "i8xkmn94kczaf7ytfqzp.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/OLtOduGyINHmBUbmsrhZfQ/_RmguVnoKWKUL-BumxqqZ6HBRDYn7KMJa9kJkKYS75YZjGOyuuZUfM9cRrZVorLw3AphfjvvC39z32aHuiIrT81zOv8SCsEJYy2vTdRK8rwwU5kYhTC4E1AvpBoLiH6yIlt120EORHxUR7Uf63UJ2g/YbqxdYi5uD7-ZUN9dcOg68vrLagMIpNdlXuQJ4C4CIs)",
+      "Plat_EN": "Nana Fizz",
+      "description_geo_EN": "Gin perrier, sirop de surce de canne, citron vert, sirop de framboise.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recl4OLyF6P1WiYXw",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Plateau de fromages mixtes",
+      "description_geo": "Assiette de fromages du moment, une sélection de fromages de saison pour découvrir différentes saveurs et textures.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€12.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "vrvp7p5gxyirornqwquv.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/oBzE6pgRVZ4abV0EBwxJhw/g1FOPzKMR1tnHNWkcbiTwr8vFYaXtWMEpBVfCcAD8CzHAWp_QE9XV8_rDR79TiJ1YhIzPKG__jP8HZv6AfsxBtl_UB2IS9ss6jllbb47-bdFI7vUSv8vySAtIbSN37lQ_bnj-lumNc41VmHe02pI2g/K26CuJyUnFyEP3kcKdPU6mjFc0jfD_QXv4_hhTyXyMI)",
+      "Plat_EN": "Assorted cheeses",
+      "description_geo_EN": "Cheese plate of the day, a selection of seasonal cheeses to enjoy a variety of flavors and textures.",
+      "Menu": [
+        "À Partager"
+      ]
+    }
+  },
+  {
+    "id": "recm3DdYL2enpofsU",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Salade de nems",
+      "description_geo": "Nems croustillants, salade verte et sauce maison",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€9.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "pyk2bqpta4aufizo42ic.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/-5RBM8kZh64yfvC03iP0jg/aQlAFV4YRaajcT5-32nrkhfDlGMT7XSkZsYlFIpKl6GYx1Vk7iA_WtXUVpsZciONqIU2dH7auyp6p6pmsrUEdF_5TQ3uiAHFDgkdRE1NKesEmNRNroqpI34cdpcAAKn2DVism7PEe8vWffKdCPi0WA/Xx7x0W1zWUwJanRjdBXwMRGdGR9RwIgiUn0EbT9iTt4)",
+      "Plat_EN": "Spring roll salad",
+      "description_geo_EN": "Crispy spring rolls harmonized with green salads and homemade dressing",
+      "Menu": [
+        "Entrées",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recmF9QRRpLnx0ffL",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Prohibition",
+      "description_geo": "Jus d'orange, jus d'ananas, citron, sirop de framboise.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€8.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Plat_EN": "Prohibition Mocktail",
+      "description_geo_EN": "Orange juice, pineapple juice, lemon, raspberry syrup",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recmvqJp5ONJoLOLA",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Joue de bœuf confite au four",
+      "description_geo": "Joue de bœuf mijotée au vin, aux herbes et légumes, nappée d’une sauce riche et servie avec pâtes fraîches.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€22.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "iemryb5liud088xwuz2s.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/a22eUlkOz6jtdT9F3-Nd9g/8fdItHog0_0ksPbHkKX9mE3RDNf8gVANuWfqtDD5KgC5wYd8tttXIeZ32tRxMzBI1O0njETaV3r_lr6P8iIYfTtdFBVGjKSUKIDZHsh0IETEtxQv1aeO-K_lB3e2S8u4JMNX_vXySOtDy1nfnRwwEg/8Vm-Gr4bRlj_IBiSBfk-IdlLOCyhwtKxXcmYB4UuP6M)",
+      "Plat_EN": "Candied beef cheeks",
+      "description_geo_EN": "Candied beef cheeks with wine, herbs and vegetables, finished with a rich sauce and served with fresh pasta",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "reco8DRMWScKmjVyM",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Faux filet de bœuf 250gr",
+      "description_geo": "Faux filet de bœuf grillée, servie avec sauce maison et frites.",
+      "tags_meteo": [
+        "Froid"
+      ],
+      "prix": "€18.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "mrdnk4bfk35m0tbkssca.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/ZzoDaghlN2ZkoGT474cCaw/zhgVte6IVSfqm0_YwobdYpsHHTWE5M9vglwLkMPN3ko6T6hn_VFlh-idQBGL_xOZTP0F8wKlTVrl9Wdb0Grr06hr0zR8jm-viCx0EPjcsTWMU1rS3-CVyq7uyK1y8dW2mOg8a35nKPAcYx6ZbIky3A/VI0EopjUj_Ffjl9PKgsDPtdFlxXuQfp3_nKkfeOco4Y)",
+      "Plat_EN": "Striploin steak",
+      "description_geo_EN": "Grilled beef entrecôte, served with homemade sauce and French fries",
+      "Menu": [
+        "Côté Terre"
+      ]
+    }
+  },
+  {
+    "id": "recoA2pp24rcnkHun",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Virgin mojito",
+      "description_geo": "Sirop de sucre de canne, perrier, citron vert, menthe frais.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€8.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "fsht03rvnidng8nyo6ad.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/7oBi8kACkJqd8FknjfqkWA/IYhCK3Kdk3hm84Y0K0RTVQc-jBkbL9Wd-a3ZT3VLl_Z1jHRZxVe6AFO9FwvvpiqNZTlM34t5vmAQ-Cu0-1EEfH-AYURoRYVgpFkSsYW6x2s6hm-6vue--SJrJE4oi53PimF5xlKky_aYBaD5vBo_Qw/Z7dLTrHwq5KbBjxZ6evspa-s8wfG1ElJZSOm_rCwQs8)",
+      "Plat_EN": "Virgin Mojito",
+      "description_geo_EN": "Cane sugar syrup, perrier, citron vert, menthe frais.",
+      "Menu": [
+        "Boissons"
+      ]
+    }
+  },
+  {
+    "id": "recscJ2Id4YB7gH7b",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Moules à la crème beurre",
+      "description_geo": "Moules sautées à la sauce beurre-crème, servies avec des frites.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€16.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "vzdr0jmjbqrwzg8hn16n.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/dwJcCcEf0s8k-ljBSPxJ1A/S-DmMYz_YAOflpk-Cpu7713xZdZZhIgeRJKaWgbVqFZhuyBveAky8NkKXmoOzr2bX0czhmEtN4O1WgkuaSMLACj3WjFCRFnsgWnS75A5WdSopJ284NtehVU8Kg71-4OkYT8S0y2slDAN5OKnDsKO1g/GK4gKH5iAwWb6mVDXtMsD7x_9SfxaiFovpLX5pbQV5o)",
+      "Plat_EN": "Mussels in butter cream sauce",
+      "description_geo_EN": "Mussels sautéed in butter cream sauce, served with French fries",
+      "Menu": [
+        "Côté Mer"
+      ]
+    }
+  },
+  {
+    "id": "recvXMJvnZuiRCXDv",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Ha Kao aux crevettes 5 pc",
+      "description_geo": "Délicats raviolis vapeur, garnis de crevettes fraîches, à la texture fine, servis avec une sauce légèrement sucrée.",
+      "tags_meteo": [
+        "Froid",
+        "Pluie"
+      ],
+      "prix": "€6.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "hpgzatone6wuwmxvt4cz.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/5S8qJfXL5MB3X3ejnOZFUg/CwZaqNEJ2FmOrzKfgi_3375Go3UxXIB619T-q6Gezm4UjL8KizXVTCC5gBkqJZ85EN4RhumK3PcKGgH_Wa8BhZEuZcmpJK3IwZpTYYxn3a1NvRFCaGZrbu1O5f2fQ53hOrTtqD-GYfSEPx9AoyIVpA/ULObzClzQlU18RLAKrNERhXZ2BabO9prkZQEWgR4LRg)",
+      "Plat_EN": "5pc Shrimp Ha Kao",
+      "description_geo_EN": "Delicate steamed dumplings filled with fresh shrimp, with a fine and translucent texture, served with a lightly sweet sauce.",
+      "Menu": [
+        "Entrées",
+        "Asie"
+      ]
+    }
+  },
+  {
+    "id": "recw3lv8y7801mwld",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Tropézienne",
+      "description_geo": "Brioche moelleuse garnie de crème mousseline, douce et délicate.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€4.50",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "cpac0qeizl0yh7p586nz.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/Zsr1c0hSjQ_Y0sZM08h64Q/ZYKv9AHqkaMKnCKG47KiDpmrbWHKupF3-oq4TQl6E81OMnl0pMu1xQhPVjWtfJWwv0VmAuozsNAw0iye92eAfVltyZ7q5gxXYvygR_Fm0GwdjOmOKZ_Qj3VCGV6_siLpp45jT4ggL5roYncUpRpoHQ/L8TwIhhyrcxdW3-aa4QQP7ghNF_0AONaprNO2JJ38eA)",
+      "Plat_EN": "Tropézienne Tart",
+      "description_geo_EN": "Soft brioche filled with smooth mousseline cream, lightly sweet and delicate.",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  },
+  {
+    "id": "recx62iKOkl104hKf",
+    "createdTime": "2026-02-27T21:00:00.000Z",
+    "fields": {
+      "Plat": "Dôme rubis",
+      "description_geo": "Mousse framboise avec coulis au cœur, sur biscuit Joconde, enrobée de chocolat noir et glaçage rouge rubis.",
+      "tags_meteo": [
+        "Chaud"
+      ],
+      "prix": "€7.90",
+      "producteur_local": "Producteur local du Terroir",
+      "Photo": "lzaefsrbpixowtchxmpu.png (https://v5.airtableusercontent.com/v3/u/50/50/1772236800000/lDvcEf3VfRQgGEWoCAHhow/TZUvk1R8s9g4-HZw7hHWO2MJsBCbsGLfPpEnJ_UKpffnSa2S-JPqWU1pvnEd7KfIraP3AFsY5nwSqOo4kU3ZhsBgM-KMoPUDxDMLmRIrZcrsy4QEuBpG5cHkMDUj5SqcpSkF4L0FZjVUzSh6fUeXQQ/5O6gvK0aLRdENHO_8W23zFUtVfAlumH3v24LsCqvvQE)",
+      "Plat_EN": "Ruby Dome",
+      "description_geo_EN": "Raspberry mousse with coulis center, on Joconde biscuit, encased in dark chocolate with ruby-red glaze. A perfect finale to your meal.",
+      "Menu": [
+        "Douceurs"
+      ]
+    }
+  }
+]

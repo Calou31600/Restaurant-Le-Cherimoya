@@ -22,17 +22,24 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
 - **Upload & Recadrage d'Images** : Intégration de Cropper.js et hébergement optimisé sur Cloudinary.
 - **Gestion de l'Inventaire** : Synchronisation des tables `Disponibilites` et `Reservations` pour éviter le surbooking.
-- **Engine de Génération d'Images (IA)** : Un outil de génération d'images haute qualité (Gemini Image Generation) a été intégré pour assurer une couverture à 100% des visuels du menu.
-- **Batch Image Sync** : Script d'automatisation (`tools/batch_update_images.py`) pour l'upload groupé vers Cloudinary et la synchronisation avec Airtable.
+- **Engine de Génération d'Images (IA)** : Intégration de Google Gemini Image Generation pour créer des visuels gastronomiques sur-mesure. Ce système garantit une charte graphique cohérente ("Vibe") sur l'ensemble du menu.
+- **Batch Image Sync (`tools/batch_update_images.py`)** : Script de synchronisation automatisé pour l'import massif des visuels vers Cloudinary et la mise à jour déterministe d'Airtable (`typecast: true`).
+- **Filtrage Intelligent** : Le frontend (`index.html`) détecte et ignore les URLs Airtable temporaires expirées pour garantir un affichage permanent et de haute qualité.
 
 ## 🛠️ Stack Technique
 
-- **Frontend** : HTML5, Vanilla CSS, JS natif.
+- **Frontend** : HTML5, Vanilla CSS, JS natif, Cropper.js.
 - **Backend** : Python 3 / Flask.
-- **Bases de Données** : Airtable (Tables : `Dynamic_Menu`, `Disponibilites`, `Reservations`).
-- **Images** : Cloudinary.
-- **Notifications** : SMTP Gmail (Automatisations emails).
+- **IA Gėnérative** : Google Gemini (Images & SEO).
+- **Bases de Données** : Airtable (Architecture A.N.T.).
+- **Images** : Cloudinary (Transformation à la volée `f_auto,q_auto`).
 - **Météo** : OpenWeather API.
+
+## ⚙️ Maintenance & Évolutions
+
+- **Ajout de Plats** : Après avoir ajouté un plat dans Airtable, lancer `tools/batch_update_images.py` pour générer et synchroniser automatiquement le visuel.
+- **SEO** : Le fichier `googlec1c6060347935c2d.html` permet le suivi en temps réel sur Google Search Console.
+- **Sitemap** : Toujours vérifier `sitemap.xml` après une modification structurelle majeure.
 
 ## ⚙️ Installation & Lancement en local
 

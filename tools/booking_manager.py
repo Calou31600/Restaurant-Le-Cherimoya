@@ -231,6 +231,58 @@ class BookingManager:
         else:
             print("ERREUR : SMTP_USER ou SMTP_PASS manquant dans les variables d'environnement.")
 
+    def send_review_request(self, client_email, client_name):
+        """Envoie un mail demandant un avis Google au client."""
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        if not smtp_user or not smtp_pass or not client_email: return False, "Configuration SMTP manquante."
+
+        place_id = "ChIJw6L9_VP9qBIRmpyHeIKMEXo"
+        review_url = f"https://search.google.com/local/writereview?placeid={place_id}"
+
+        subject = "Votre avis nous intéresse - Le Chérimoya"
+        html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+            <div style="background-color: #1a1a1a; padding: 30px; border-radius: 10px; color: white; text-align: center;">
+                <h2 style="color: #cfa86e;">Merci de votre visite au Chérimoya !</h2>
+                <p style="font-size: 1.1rem;">Bonjour {client_name},</p>
+                <p>Nous espérons que vous avez passé un excellent moment en notre compagnie.</p>
+                <p>Votre satisfaction est notre priorité. Pourriez-vous prendre 30 secondes pour nous laisser un avis sur Google ?</p>
+                <div style="margin: 30px 0;">
+                    <a href="{review_url}" style="background-color: #cfa86e; color: black; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1rem;">LAISSER UN AVIS</a>
+                </div>
+                <p style="font-size: 0.9rem; color: #888;">Cela nous aide énormément à faire connaître notre cuisine de terroir et de fusion.</p>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+                <p style="font-size: 0.8rem; color: #666;">
+                    Cordialement,<br>
+                    L'équipe du Chérimoya<br>
+                    3 R.D. 817, 31800 Villeneuve-de-Rivière
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = f"Le Chérimoya <{smtp_user}>"
+            msg['To'] = client_email
+            msg.attach(MIMEText(html, 'html'))
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            return True, "Demande d'avis envoyée avec succès."
+        except Exception as e:
+            print(f"Erreur envoi demande avis: {e}")
+            return False, str(e)
+
 if __name__ == "__main__":
     manager = BookingManager()
     # Test simulation

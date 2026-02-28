@@ -1,7 +1,0 @@
-Plat
-description_geo
-tags_meteo
-prix
-producteur_local
-Plat_EN
-description_geo_EN

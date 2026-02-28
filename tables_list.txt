@@ -1,6 +1,0 @@
-Plats
-Producteurs
-Disponibilités
-Identité Restaurant
-Dynamic_Menu
-Entities

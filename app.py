@@ -253,6 +253,70 @@ def admin_upload_image():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# --- CRM CLIENTS ---
+
+@app.route('/api/admin/clients', methods=['GET'])
+@admin_required
+def admin_get_clients():
+    """Liste tous les clients."""
+    try:
+        clients = engine.get_clients()
+        return jsonify(clients)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/clients/sync', methods=['POST'])
+@admin_required
+def admin_sync_clients():
+    """Synchronise les clients à partir des réservations."""
+    try:
+        success, message = engine.sync_clients_from_reservations()
+        if success:
+            return jsonify({"status": "success", "message": message})
+        return jsonify({"error": message}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/clients/send-review', methods=['POST'])
+@admin_required
+def admin_send_review():
+    """Envoie une demande d'avis à un client."""
+    try:
+        data = request.json
+        email = data.get('email')
+        name = data.get('name')
+        record_id = data.get('id') # ID Airtable du client
+
+        if not email or not name:
+            return jsonify({"error": "Email et nom requis."}), 400
+
+        success, message = engine.booking.send_review_request(email, name)
+        if success:
+            # Mettre à jour la date d'envoi dans Airtable
+            if record_id:
+                today = datetime.now().strftime('%Y-%m-%d')
+                url = f"https://api.airtable.com/v0/{engine.base_id}/Clients/{record_id}"
+                requests.patch(url, headers=engine.headers, json={"fields": {"Dernier_Avis_Envoye": today}})
+            
+            return jsonify({"status": "success", "message": message})
+        return jsonify({"error": message}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/clients/<record_id>', methods=['PATCH'])
+@admin_required
+def admin_update_client(record_id):
+    """Met à jour les informations d'un client (ex: notes)."""
+    try:
+        fields = request.json.get('fields', {})
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Clients/{record_id}"
+        res = requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
+        if res.status_code == 200:
+            return jsonify({"status": "success", "data": res.json()})
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut
     print("Serveur Le Cherimoya demarre sur http://localhost:5000")

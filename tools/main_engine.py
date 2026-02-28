@@ -118,6 +118,71 @@ class MainEngine:
             "reviews": reviews
         }
 
+    def get_clients(self):
+        """Récupère tous les clients depuis la table Clients."""
+        url = f"https://api.airtable.com/v0/{self.base_id}/Clients"
+        try:
+            response = requests.get(url, headers=self.headers, timeout=5)
+            if response.status_code == 200:
+                return response.json().get('records', [])
+            return []
+        except Exception as e:
+            print(f"Erreur Airtable Clients: {e}")
+            return []
+
+    def sync_clients_from_reservations(self):
+        """
+        Synchronise les clients à partir de la table Reservations.
+        Dédoublonnage basé sur l'email.
+        """
+        # 1. Récupérer toutes les réservations confirmées
+        res_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
+        params = {"filterByFormula": "{Statut}='Confirmée'"}
+        try:
+            res_response = requests.get(res_url, headers=self.headers, params=params)
+            reservations = res_response.json().get('records', [])
+            
+            # 2. Récupérer les clients actuels pour dédoublonnage
+            current_clients = self.get_clients()
+            client_emails = {c['fields'].get('Email'): c['id'] for c in current_clients if c['fields'].get('Email')}
+            
+            # 3. Traiter les réservations
+            for res_record in reservations:
+                fields = res_record['fields']
+                email = fields.get('Email')
+                if not email: continue
+                
+                nom = fields.get('Nom')
+                tel = fields.get('Telephone')
+                date_res = fields.get('Date')
+                
+                if email in client_emails:
+                    # Client existant : Mise à jour de la date de visite
+                    client_id = client_emails[email]
+                    client_record = next((c for c in current_clients if c['id'] == client_id), None)
+                    if client_record:
+                        old_date = client_record['fields'].get('Derniere_Visite', '')
+                        # On ne met à jour que si la date de résa est plus récente ou différente
+                        if date_res != old_date:
+                            requests.patch(f"https://api.airtable.com/v0/{self.base_id}/Clients/{client_id}", 
+                                           headers=self.headers, 
+                                           json={"fields": {"Derniere_Visite": date_res}})
+                else:
+                    # Nouveau client : Création
+                    new_client_fields = {
+                        "Nom": nom,
+                        "Email": email,
+                        "Telephone": tel,
+                        "Nb_Reservations": 1,
+                        "Derniere_Visite": date_res
+                    }
+                    requests.post(f"https://api.airtable.com/v0/{self.base_id}/Clients", 
+                                  headers=self.headers, 
+                                  json={"records": [{"fields": new_client_fields}], "typecast": True})
+            return True, "Synchronisation terminée."
+        except Exception as e:
+            return False, str(e)
+
 if __name__ == "__main__":
     app = MainEngine()
     data = app.build_page_data()

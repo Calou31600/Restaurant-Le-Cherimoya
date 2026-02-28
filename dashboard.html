@@ -176,6 +176,79 @@
             color: var(--text-dim);
             font-weight: 600;
         }
+
+        /* Styles pour les onglet */
+        .admin-nav {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab {
+            padding: 1rem 0;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-weight: 600;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .nav-tab.active {
+            color: var(--accent);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Styles Table Clients */
+        .client-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .client-table th,
+        .client-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .client-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .client-table tr:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 
@@ -189,244 +262,398 @@
                 <h2 style="margin-bottom:0">Administration Menu</h2>
                 <p class="terroir-badge" style="margin-top:0.5rem; border:none; padding:0">Le Chérimoya Control Center
                 </p>
-                <p id="menu-count"
-                    style="font-size: 0.85rem; color: var(--accent); margin-top: 0.2rem; opacity: 0.9; font-weight: 500;">
-                    Chargement du nombre de plats...</p>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-save" id="btn-add-item" onclick="openAddModal()"
+                        style="font-size: 1rem; padding: 10px 20px;">+ Ajouter
+                        un plat</button>
+                    <button class="filter-btn" id="btn-sync-clients" onclick="syncClients()"
+                        style="display: none; padding: 10px 20px;">🔄 Synchroniser Clients</button>
+                    <a href="/" class="filter-btn"
+                        style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center;">Voir
+                        le site</a>
+                </div>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn-save" onclick="openAddModal()" style="font-size: 1rem; padding: 10px 20px;">+ Ajouter
-                    un plat</button>
-                <a href="/" class="filter-btn"
-                    style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center;">Voir
-                    le site</a>
+
+            <div class="admin-nav">
+                <div class="nav-tab active" onclick="switchTab('menu')">MENU GASTRONOMIQUE</div>
+                <div class="nav-tab" onclick="switchTab('clients')">CRM CLIENTS & AVIS</div>
+            </div>
+
+            <div id="loading">Chargement...</div>
+
+            <div id="menu-tab" class="tab-content active">
+                <div id="admin-grid" class="admin-grid"></div>
+            </div>
+
+            <div id="clients-tab" class="tab-content">
+                <div class="admin-grid">
+                    <table class="client-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Contact</th>
+                                <th>Réservations</th>
+                                <th>Dernière Visite</th>
+                                <th>Envoi Mail</th>
+                                <th>Statut Avis</th>
+                                <th>Note</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clients-tbody">
+                            <!-- Clients injectés ici -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div id="loading">Chargement du menu...</div>
-        <div id="admin-grid" class="admin-grid"></div>
-    </div>
-
-    <div id="edit-overlay" class="upload-overlay">
-        <div class="admin-modal">
-            <h3 id="modal-title"
-                style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
-                Fiche Produit</h3>
-            <div style="display: flex; gap: 2.5rem; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 250px;">
-                    <img id="edit-current-img" src=""
-                        style="width: 100%; border-radius: 8px; margin-bottom: 1rem; object-fit: cover; max-height: 250px; border: 1px solid rgba(255,255,255,0.1);">
-                    <label>Nouvelle photo (optionnel)</label>
-                    <input type="file" id="edit-file" class="form-control" accept="image/*">
-                </div>
-                <div style="flex: 2; min-width: 300px;">
-                    <label>Nom du plat (FR)</label>
-                    <input type="text" id="edit-name" class="form-control">
-
-                    <label>Nom du plat (EN)</label>
-                    <input type="text" id="edit-name-en" class="form-control" placeholder="Optionnel">
-
-                    <label>Description (FR)</label>
-                    <textarea id="edit-desc" class="form-control" rows="4"></textarea>
-
-                    <label>Description (EN)</label>
-                    <textarea id="edit-desc-en" class="form-control" rows="4" placeholder="Optionnel"></textarea>
-
-                    <label style="margin-top: 1rem; display: block;">Catégories (Menu)</label>
-                    <div id="edit-categories"
-                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-                        <!-- Cases à cocher générées dynamiquement ou statiquement -->
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="À Partager" class="cat-checkbox" style="margin-right: 8px;"> À
-                            Partager</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Entrées" class="cat-checkbox" style="margin-right: 8px;">
-                            Entrées</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Côté Terre" class="cat-checkbox" style="margin-right: 8px;"> Côté
-                            Terre</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Côté Mer" class="cat-checkbox" style="margin-right: 8px;"> Côté
-                            Mer</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Formules" class="cat-checkbox" style="margin-right: 8px;">
-                            Formules</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Douceurs" class="cat-checkbox" style="margin-right: 8px;">
-                            Douceurs</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Boissons" class="cat-checkbox" style="margin-right: 8px;">
-                            Boissons</label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
-                                type="checkbox" value="Asie" class="cat-checkbox" style="margin-right: 8px;">
-                            Asie</label>
+        <div id="edit-overlay" class="upload-overlay">
+            <div class="admin-modal">
+                <h3 id="modal-title"
+                    style="margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                    Fiche Produit</h3>
+                <div style="display: flex; gap: 2.5rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <img id="edit-current-img" src=""
+                            style="width: 100%; border-radius: 8px; margin-bottom: 1rem; object-fit: cover; max-height: 250px; border: 1px solid rgba(255,255,255,0.1);">
+                        <label>Nouvelle photo (optionnel)</label>
+                        <input type="file" id="edit-file" class="form-control" accept="image/*">
                     </div>
+                    <div style="flex: 2; min-width: 300px;">
+                        <label>Nom du plat (FR)</label>
+                        <input type="text" id="edit-name" class="form-control">
 
-                    <label style="margin-top: 1rem; display: block;">Intolérances</label>
-                    <div id="edit-intolerances"
-                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Lactose" class="intolerance-checkbox"
-                                style="margin-right: 8px;"> Lactose
-                        </label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Gluten" class="intolerance-checkbox"
-                                style="margin-right: 8px;"> Gluten
-                        </label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Cacahuète" class="intolerance-checkbox"
-                                style="margin-right: 8px;"> Cacahuète
-                        </label>
-                    </div>
+                        <label>Nom du plat (EN)</label>
+                        <input type="text" id="edit-name-en" class="form-control" placeholder="Optionnel">
 
-                    <label style="margin-top: 1rem; display: block;">Tags Météo (Recommandation IA)</label>
-                    <div id="edit-meteo"
-                        style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Froid" class="meteo-checkbox" style="margin-right: 8px;">
-                            Froid
-                        </label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Chaud" class="meteo-checkbox" style="margin-right: 8px;">
-                            Chaud
-                        </label>
-                        <label
-                            style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
-                            <input type="checkbox" value="Pluie" class="meteo-checkbox" style="margin-right: 8px;">
-                            Pluie
-                        </label>
-                    </div>
+                        <label>Description (FR)</label>
+                        <textarea id="edit-desc" class="form-control" rows="4"></textarea>
 
-                    <div style="display: flex; gap: 2rem; align-items: center;">
-                        <div>
-                            <label>Prix (€)</label>
-                            <input type="number" step="0.5" id="edit-price" class="form-control"
-                                style="width: 120px; font-size: 1.2rem; font-weight: bold; color: var(--accent);">
+                        <label>Description (EN)</label>
+                        <textarea id="edit-desc-en" class="form-control" rows="4" placeholder="Optionnel"></textarea>
+
+                        <label style="margin-top: 1rem; display: block;">Catégories (Menu)</label>
+                        <div id="edit-categories"
+                            style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <!-- Cases à cocher générées dynamiquement ou statiquement -->
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="À Partager" class="cat-checkbox" style="margin-right: 8px;">
+                                À
+                                Partager</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Entrées" class="cat-checkbox" style="margin-right: 8px;">
+                                Entrées</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Côté Terre" class="cat-checkbox" style="margin-right: 8px;">
+                                Côté
+                                Terre</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Côté Mer" class="cat-checkbox" style="margin-right: 8px;">
+                                Côté
+                                Mer</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Formules" class="cat-checkbox" style="margin-right: 8px;">
+                                Formules</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Douceurs" class="cat-checkbox" style="margin-right: 8px;">
+                                Douceurs</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Boissons" class="cat-checkbox" style="margin-right: 8px;">
+                                Boissons</label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;"><input
+                                    type="checkbox" value="Asie" class="cat-checkbox" style="margin-right: 8px;">
+                                Asie</label>
                         </div>
-                        <div style="padding-top: 0.5rem;">
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="edit-featured"
-                                    style="width: 22px; height: 22px; margin-right: 12px; accent-color: var(--accent);">
-                                <span
-                                    style="font-size:1.1rem; font-weight:bold; color: var(--accent); letter-spacing: 0.05em;">PLAT
-                                    SIGNATURE</span>
+
+                        <label style="margin-top: 1rem; display: block;">Intolérances</label>
+                        <div id="edit-intolerances"
+                            style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Lactose" class="intolerance-checkbox"
+                                    style="margin-right: 8px;"> Lactose
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Gluten" class="intolerance-checkbox"
+                                    style="margin-right: 8px;"> Gluten
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Cacahuète" class="intolerance-checkbox"
+                                    style="margin-right: 8px;"> Cacahuète
                             </label>
                         </div>
+
+                        <label style="margin-top: 1rem; display: block;">Tags Météo (Recommandation IA)</label>
+                        <div id="edit-meteo"
+                            style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Froid" class="meteo-checkbox" style="margin-right: 8px;">
+                                Froid
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Chaud" class="meteo-checkbox" style="margin-right: 8px;">
+                                Chaud
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
+                                <input type="checkbox" value="Pluie" class="meteo-checkbox" style="margin-right: 8px;">
+                                Pluie
+                            </label>
+                        </div>
+
+                        <div style="display: flex; gap: 2rem; align-items: center;">
+                            <div>
+                                <label>Prix (€)</label>
+                                <input type="number" step="0.5" id="edit-price" class="form-control"
+                                    style="width: 120px; font-size: 1.2rem; font-weight: bold; color: var(--accent);">
+                            </div>
+                            <div style="padding-top: 0.5rem;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="edit-featured"
+                                        style="width: 22px; height: 22px; margin-right: 12px; accent-color: var(--accent);">
+                                    <span
+                                        style="font-size:1.1rem; font-weight:bold; color: var(--accent); letter-spacing: 0.05em;">PLAT
+                                        SIGNATURE</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modal-footer"
+                    style="display:flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <!-- Bouton de suppression -->
+                    <button id="delete-btn" onclick="deleteCurrentItem()"
+                        style="display: none; background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: 0.3s; margin-right: auto;"
+                        onmouseover="this.style.background='rgba(255,77,77,0.1)'"
+                        onmouseout="this.style.background='transparent'">
+                        🗑️ Supprimer ce plat
+                    </button>
+                    <div style="display:flex; gap: 1rem;">
+                        <button class="filter-btn" onclick="closeEditModal()">Annuler</button>
+                        <button class="btn-save" id="btn-save-all" style="font-size: 1.1rem; padding: 12px 25px;">Mise à
+                            jour de la base de données</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="modal-footer"
-                style="display:flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
-                <!-- Bouton de suppression -->
-                <button id="delete-btn" onclick="deleteCurrentItem()"
-                    style="display: none; background: transparent; color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: 0.3s; margin-right: auto;"
-                    onmouseover="this.style.background='rgba(255,77,77,0.1)'"
-                    onmouseout="this.style.background='transparent'">
-                    🗑️ Supprimer ce plat
-                </button>
-                <div style="display:flex; gap: 1rem;">
-                    <button class="filter-btn" onclick="closeEditModal()">Annuler</button>
-                    <button class="btn-save" id="btn-save-all" style="font-size: 1.1rem; padding: 12px 25px;">Mise à
-                        jour de la base de données</button>
+        <!-- Modal Confirmation Suppression -->
+        <div id="delete-overlay" class="upload-overlay" style="z-index: 4000;">
+            <div class="admin-modal" style="max-width: 450px; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <h3 style="margin-top: 0; margin-bottom: 1rem; color: #ff4d4d;">Zone de Danger</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1rem;">
+                    Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT le plat :<br>
+                    <strong id="delete-item-name"
+                        style="color: var(--accent); font-size: 1.2rem; display: block; margin-top: 0.8rem;"></strong>
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">
+                    Cette action est irréversible dans la base de données.
+                </p>
+                <div style="display:flex; gap: 1rem; justify-content: center;">
+                    <button class="filter-btn" onclick="closeDeleteModal()">Annuler</button>
+                    <button class="btn-save" onclick="confirmDeleteAction()"
+                        style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">Oui,
+                        Supprimer</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal Confirmation Suppression -->
-    <div id="delete-overlay" class="upload-overlay" style="z-index: 4000;">
-        <div class="admin-modal" style="max-width: 450px; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-            <h3 style="margin-top: 0; margin-bottom: 1rem; color: #ff4d4d;">Zone de Danger</h3>
-            <p style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1rem;">
-                Êtes-vous sûr de vouloir supprimer DÉFINITIVEMENT le plat :<br>
-                <strong id="delete-item-name"
-                    style="color: var(--accent); font-size: 1.2rem; display: block; margin-top: 0.8rem;"></strong>
-            </p>
-            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">
-                Cette action est irréversible dans la base de données.
-            </p>
-            <div style="display:flex; gap: 1rem; justify-content: center;">
-                <button class="filter-btn" onclick="closeDeleteModal()">Annuler</button>
-                <button class="btn-save" onclick="confirmDeleteAction()"
-                    style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3);">Oui,
-                    Supprimer</button>
+        <!-- Modal Recadrage -->
+        <div id="cropper-overlay" class="upload-overlay" style="z-index: 5000;">
+            <div class="admin-modal" style="max-width: 800px; text-align: center;">
+                <h3 style="margin-top: 0; margin-bottom: 1rem;">Recadrer la photo</h3>
+                <div
+                    style="width: 100%; max-height: 60vh; margin-bottom: 1.5rem; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img id="cropper-image" src="" style="max-width: 100%; max-height: 100%; display: block;">
+                </div>
+                <div style="display:flex; gap: 1rem; justify-content: center;">
+                    <button class="filter-btn" onclick="closeCropperModal()">Annuler</button>
+                    <button class="btn-save" onclick="applyCrop()" style="padding: 8px 20px;">Valider le
+                        recadrage</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal Recadrage -->
-    <div id="cropper-overlay" class="upload-overlay" style="z-index: 5000;">
-        <div class="admin-modal" style="max-width: 800px; text-align: center;">
-            <h3 style="margin-top: 0; margin-bottom: 1rem;">Recadrer la photo</h3>
-            <div
-                style="width: 100%; max-height: 60vh; margin-bottom: 1.5rem; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                <img id="cropper-image" src="" style="max-width: 100%; max-height: 100%; display: block;">
-            </div>
-            <div style="display:flex; gap: 1rem; justify-content: center;">
-                <button class="filter-btn" onclick="closeCropperModal()">Annuler</button>
-                <button class="btn-save" onclick="applyCrop()" style="padding: 8px 20px;">Valider le recadrage</button>
-            </div>
-        </div>
-    </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+        <script>
+            let currentMenu = [];
+            let currentClients = [];
+            let activeTab = 'menu';
+            let currentUploadId = null;
+            let cropperInstance = null;
+            let currentCroppedBlob = null;
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script>
-        let currentMenu = [];
-        let currentUploadId = null;
-        let cropperInstance = null;
-        let currentCroppedBlob = null;
+            function switchTab(tab) {
+                activeTab = tab;
+                document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
 
-        async function fetchMenu() {
-            try {
-                const res = await fetch('/api/admin/menu');
-                currentMenu = await res.json();
-                renderAdmin();
-                document.getElementById('loading').style.display = 'none';
-            } catch (err) {
-                console.error(err);
-                document.getElementById('loading').innerText = "Erreur de chargement.";
+                document.querySelector(`.nav-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+                document.getElementById(`${tab}-tab`).classList.add('active');
+
+                // Afficher/Cacher boutons contextuels
+                document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
+                document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
+
+                if (tab === 'menu') fetchMenu();
+                if (tab === 'clients') fetchClients();
             }
-        }
 
-        function renderAdmin() {
-            const grid = document.getElementById('admin-grid');
-            const countElement = document.getElementById('menu-count');
+            async function fetchMenu() {
+                try {
+                    const res = await fetch('/api/admin/menu');
+                    currentMenu = await res.json();
+                    renderAdmin();
+                    document.getElementById('loading').style.display = 'none';
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('loading').innerText = "Erreur de chargement.";
+                }
+            }
 
-            // Mise à jour du compteur
-            const totalPlats = currentMenu.length;
-            countElement.innerText = `${totalPlats} plat${totalPlats > 1 ? 's' : ''} à la carte`;
+            async function fetchClients() {
+                document.getElementById('loading').style.display = 'block';
+                try {
+                    const res = await fetch('/api/admin/clients');
+                    currentClients = await res.json();
+                    renderClients();
+                    document.getElementById('loading').style.display = 'none';
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('loading').innerText = "Erreur de chargement.";
+                }
+            }
 
-            grid.innerHTML = currentMenu.map(item => {
-                const f = item.fields;
-                const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
-                const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
+            function renderClients() {
+                const tbody = document.getElementById('clients-tbody');
+                tbody.innerHTML = currentClients.map(client => {
+                    const f = client.fields;
+                    const lastMail = f.Dernier_Avis_Envoye || "Jamais";
+                    const avisRecu = f.Avis_Recu ? "✅ Reçu" : "⏳ En attente";
+                    const note = f.Note || "-";
 
-                // Gestion des icônes d'intolérances pour le dashboard
-                const intolerances = f.intolerances || [];
-                const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
+                    return `
+                    <tr>
+                        <td><strong>${f.Nom}</strong></td>
+                        <td>
+                            <div style="font-size: 0.85rem;">${f.Email}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim);">${f.Telephone || '-'}</div>
+                        </td>
+                        <td>${f.Nb_Reservations || 0}</td>
+                        <td>${f.Derniere_Visite || '-'}</td>
+                        <td style="font-size: 0.85rem; color: ${f.Dernier_Avis_Envoye ? 'var(--accent)' : 'inherit'}">${lastMail}</td>
+                        <td style="font-weight: bold; color: ${f.Avis_Recu ? '#28a745' : '#f4a261'}">${avisRecu}</td>
+                        <td style="text-align: center;">${note} / 5</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-save btn-small" title="Envoyer le mail de demande" onclick="sendReview('${client.id}', '${f.Email}', '${f.Nom.replace(/'/g, "\\'")}')">📧 Mail</button>
+                                <button class="filter-btn btn-small" title="Marquer comme avis reçu" onclick="markReviewReceived('${client.id}', ${!f.Avis_Recu})">${f.Avis_Recu ? '↩️ Reset' : '🗸 Reçu'}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                }).join('');
+            }
 
-                let iconsHtml = "";
-                if (intolerances.includes("Lactose")) iconsHtml += `<span title="Lactose" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥛</span>`;
-                if (intolerances.includes("Gluten")) iconsHtml += `<span title="Gluten" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🌾</span>`;
-                if (intolerances.includes("Cacahuète")) iconsHtml += `<span title="Cacahuète" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥜</span>`;
+            async function markReviewReceived(id, received) {
+                try {
+                    const res = await fetch(`/api/admin/clients/${id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fields: { Avis_Recu: received } })
+                    });
+                    if (res.ok) {
+                        fetchClients();
+                    } else {
+                        alert("Erreur lors de la mise à jour.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
 
-                const intolerancesHtml = iconsHtml ? `<span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap; transition: 0.3s; display: inline-flex; align-items: center;">${iconsHtml}</span>` : "";
+            async function syncClients() {
+                const btn = document.getElementById('btn-sync-clients');
+                btn.disabled = true;
+                btn.innerText = "Synchronisation...";
+                try {
+                    const res = await fetch('/api/admin/clients/sync', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        fetchClients();
+                    } else {
+                        alert("Erreur: " + data.error);
+                    }
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "🔄 Synchroniser Clients";
+                }
+            }
 
-                return `
+            async function sendReview(id, email, name) {
+                if (!confirm(`Envoyer une demande d'avis à ${name} (${email}) ?`)) return;
+
+                try {
+                    const res = await fetch('/api/admin/clients/send-review', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id, email, name })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        alert("Demande d'avis envoyée !");
+                        fetchClients();
+                    } else {
+                        alert("Erreur: " + data.error);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            function renderAdmin() {
+                const grid = document.getElementById('admin-grid');
+                const countElement = document.getElementById('menu-count');
+
+                // Mise à jour du compteur
+                const totalPlats = currentMenu.length;
+                countElement.innerText = `${totalPlats} plat${totalPlats > 1 ? 's' : ''} à la carte`;
+
+                grid.innerHTML = currentMenu.map(item => {
+                    const f = item.fields;
+                    const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+                    const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
+
+                    // Gestion des icônes d'intolérances pour le dashboard
+                    const intolerances = f.intolerances || [];
+                    const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
+
+                    let iconsHtml = "";
+                    if (intolerances.includes("Lactose")) iconsHtml += `<span title="Lactose" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥛</span>`;
+                    if (intolerances.includes("Gluten")) iconsHtml += `<span title="Gluten" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🌾</span>`;
+                    if (intolerances.includes("Cacahuète")) iconsHtml += `<span title="Cacahuète" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥜</span>`;
+
+                    const intolerancesHtml = iconsHtml ? `<span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap; transition: 0.3s; display: inline-flex; align-items: center;">${iconsHtml}</span>` : "";
+
+                    return `
                     <div class="admin-card" onclick="openEditModal('${item.id}')" style="grid-template-columns: 80px 1fr 100px; cursor: pointer;">
                         <img src="${imgSrc}" class="admin-img" style="pointer-events: none;">
                         <div class="admin-info" style="pointer-events: none;">
@@ -439,266 +666,266 @@
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
+                }).join('');
+            }
 
-        let currentEditId = null;
+            let currentEditId = null;
 
-        function openEditModal(id) {
-            const item = currentMenu.find(i => i.id === id);
-            if (!item) return;
-            const f = item.fields;
-            currentEditId = id;
-            document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
+            function openEditModal(id) {
+                const item = currentMenu.find(i => i.id === id);
+                if (!item) return;
+                const f = item.fields;
+                currentEditId = id;
+                document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
 
-            // Afficher le bouton supprimer
-            document.getElementById('delete-btn').style.display = 'block';
+                // Afficher le bouton supprimer
+                document.getElementById('delete-btn').style.display = 'block';
 
-            document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
-            document.getElementById('edit-name').value = f.Plat || '';
-            document.getElementById('edit-name-en').value = f.Plat_EN || '';
-            document.getElementById('edit-desc').value = f.description_geo || '';
-            document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
-            document.getElementById('edit-price').value = f.prix || 0;
-            document.getElementById('edit-featured').checked = !!f.is_featured;
-            document.getElementById('edit-file').value = '';
-            currentCroppedBlob = null;
+                document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+                document.getElementById('edit-name').value = f.Plat || '';
+                document.getElementById('edit-name-en').value = f.Plat_EN || '';
+                document.getElementById('edit-desc').value = f.description_geo || '';
+                document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
+                document.getElementById('edit-price').value = f.prix || 0;
+                document.getElementById('edit-featured').checked = !!f.is_featured;
+                document.getElementById('edit-file').value = '';
+                currentCroppedBlob = null;
 
-            // Gestion des catégories
-            const currentCats = f.Menu || [];
-            document.querySelectorAll('.cat-checkbox').forEach(cb => {
-                cb.checked = currentCats.includes(cb.value);
-            });
-
-            // Gestion des intolérances
-            const currentIntolerances = f.intolerances || [];
-            document.querySelectorAll('.intolerance-checkbox').forEach(cb => {
-                cb.checked = currentIntolerances.includes(cb.value);
-            });
-
-            // Gestion des tags météo
-            const currentMeteo = f.tags_meteo || [];
-            document.querySelectorAll('.meteo-checkbox').forEach(cb => {
-                cb.checked = currentMeteo.includes(cb.value);
-            });
-
-            document.getElementById('edit-overlay').style.display = 'flex';
-        }
-
-        function openAddModal() {
-            currentEditId = null;
-            document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
-
-            // Cacher le bouton supprimer
-            document.getElementById('delete-btn').style.display = 'none';
-
-            document.getElementById('edit-current-img').src = 'assets/dish1.png';
-            document.getElementById('edit-name').value = '';
-            document.getElementById('edit-name-en').value = '';
-            document.getElementById('edit-desc').value = '';
-            document.getElementById('edit-desc-en').value = '';
-            document.getElementById('edit-price').value = 0;
-            document.getElementById('edit-featured').checked = false;
-            document.getElementById('edit-file').value = '';
-            currentCroppedBlob = null;
-
-            document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.intolerance-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
-
-            document.getElementById('edit-overlay').style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-overlay').style.display = 'none';
-        }
-
-        document.getElementById('btn-save-all').onclick = async () => {
-            const btn = document.getElementById('btn-save-all');
-            btn.disabled = true;
-            btn.innerText = "Mise à jour en cours...";
-
-            try {
-                // Récupération des catégories cochées
-                const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
-                // Récupération des intolérances cochées
-                const checkedIntolerances = Array.from(document.querySelectorAll('.intolerance-checkbox:checked')).map(cb => cb.value);
-                // Récupération des tags météo cochés
-                const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
-
-                const fieldsToUpdate = {
-                    Plat: document.getElementById('edit-name').value,
-                    Plat_EN: document.getElementById('edit-name-en').value,
-                    description_geo: document.getElementById('edit-desc').value,
-                    description_geo_EN: document.getElementById('edit-desc-en').value,
-                    prix: parseFloat(document.getElementById('edit-price').value),
-                    is_featured: document.getElementById('edit-featured').checked,
-                    Menu: checkedCats,
-                    intolerances: checkedIntolerances,
-                    tags_meteo: checkedMeteo
-                };
-
-                const fileInput = document.getElementById('edit-file');
-                let fileToUpload = null;
-
-                // Priorité à l'image recadrée si elle existe, sinon au fichier d'origine s'il y a un bypass
-                if (currentCroppedBlob) {
-                    fileToUpload = currentCroppedBlob;
-                } else if (fileInput.files.length > 0) {
-                    fileToUpload = fileInput.files[0];
-                }
-
-                if (fileToUpload) {
-                    btn.innerText = "Upload de la photo...";
-                    const formData = new FormData();
-                    formData.append('file', fileToUpload, 'menu_image.jpg'); // Toujours fournir un nom propre
-                    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-                    const uploadData = await uploadRes.json();
-                    if (uploadData.url) {
-                        fieldsToUpdate.Photo = [{ url: uploadData.url }];
-                    }
-                }
-
-                btn.innerText = "Enregistrement Airtable...";
-
-                let apiUrl = '/api/admin/menu';
-                let apiMethod = 'POST';
-
-                if (currentEditId) {
-                    apiUrl = `/api/admin/menu/${currentEditId}`;
-                    apiMethod = 'PATCH';
-                }
-
-                const res = await fetch(apiUrl, {
-                    method: apiMethod,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fields: fieldsToUpdate })
+                // Gestion des catégories
+                const currentCats = f.Menu || [];
+                document.querySelectorAll('.cat-checkbox').forEach(cb => {
+                    cb.checked = currentCats.includes(cb.value);
                 });
 
-                if (res.ok) {
-                    btn.innerText = "✅ Succès";
-                    setTimeout(() => {
+                // Gestion des intolérances
+                const currentIntolerances = f.intolerances || [];
+                document.querySelectorAll('.intolerance-checkbox').forEach(cb => {
+                    cb.checked = currentIntolerances.includes(cb.value);
+                });
+
+                // Gestion des tags météo
+                const currentMeteo = f.tags_meteo || [];
+                document.querySelectorAll('.meteo-checkbox').forEach(cb => {
+                    cb.checked = currentMeteo.includes(cb.value);
+                });
+
+                document.getElementById('edit-overlay').style.display = 'flex';
+            }
+
+            function openAddModal() {
+                currentEditId = null;
+                document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
+
+                // Cacher le bouton supprimer
+                document.getElementById('delete-btn').style.display = 'none';
+
+                document.getElementById('edit-current-img').src = 'assets/dish1.png';
+                document.getElementById('edit-name').value = '';
+                document.getElementById('edit-name-en').value = '';
+                document.getElementById('edit-desc').value = '';
+                document.getElementById('edit-desc-en').value = '';
+                document.getElementById('edit-price').value = 0;
+                document.getElementById('edit-featured').checked = false;
+                document.getElementById('edit-file').value = '';
+                currentCroppedBlob = null;
+
+                document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.intolerance-checkbox').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
+
+                document.getElementById('edit-overlay').style.display = 'flex';
+            }
+
+            function closeEditModal() {
+                document.getElementById('edit-overlay').style.display = 'none';
+            }
+
+            document.getElementById('btn-save-all').onclick = async () => {
+                const btn = document.getElementById('btn-save-all');
+                btn.disabled = true;
+                btn.innerText = "Mise à jour en cours...";
+
+                try {
+                    // Récupération des catégories cochées
+                    const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+                    // Récupération des intolérances cochées
+                    const checkedIntolerances = Array.from(document.querySelectorAll('.intolerance-checkbox:checked')).map(cb => cb.value);
+                    // Récupération des tags météo cochés
+                    const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
+
+                    const fieldsToUpdate = {
+                        Plat: document.getElementById('edit-name').value,
+                        Plat_EN: document.getElementById('edit-name-en').value,
+                        description_geo: document.getElementById('edit-desc').value,
+                        description_geo_EN: document.getElementById('edit-desc-en').value,
+                        prix: parseFloat(document.getElementById('edit-price').value),
+                        is_featured: document.getElementById('edit-featured').checked,
+                        Menu: checkedCats,
+                        intolerances: checkedIntolerances,
+                        tags_meteo: checkedMeteo
+                    };
+
+                    const fileInput = document.getElementById('edit-file');
+                    let fileToUpload = null;
+
+                    // Priorité à l'image recadrée si elle existe, sinon au fichier d'origine s'il y a un bypass
+                    if (currentCroppedBlob) {
+                        fileToUpload = currentCroppedBlob;
+                    } else if (fileInput.files.length > 0) {
+                        fileToUpload = fileInput.files[0];
+                    }
+
+                    if (fileToUpload) {
+                        btn.innerText = "Upload de la photo...";
+                        const formData = new FormData();
+                        formData.append('file', fileToUpload, 'menu_image.jpg'); // Toujours fournir un nom propre
+                        const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                        const uploadData = await uploadRes.json();
+                        if (uploadData.url) {
+                            fieldsToUpdate.Photo = [{ url: uploadData.url }];
+                        }
+                    }
+
+                    btn.innerText = "Enregistrement Airtable...";
+
+                    let apiUrl = '/api/admin/menu';
+                    let apiMethod = 'POST';
+
+                    if (currentEditId) {
+                        apiUrl = `/api/admin/menu/${currentEditId}`;
+                        apiMethod = 'PATCH';
+                    }
+
+                    const res = await fetch(apiUrl, {
+                        method: apiMethod,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fields: fieldsToUpdate })
+                    });
+
+                    if (res.ok) {
+                        btn.innerText = "✅ Succès";
+                        setTimeout(() => {
+                            closeEditModal();
+                            document.getElementById('loading').style.display = 'block';
+                            document.getElementById('admin-grid').innerHTML = '';
+                            btn.disabled = false;
+                            btn.innerText = "Mise à jour de la base de données";
+                            fetchMenu();
+                        }, 1000);
+                    } else {
+                        const errorDetail = await res.text();
+                        throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Erreur lors de la mise à jour : " + err.message);
+                    btn.disabled = false;
+                    btn.innerText = "Mise à jour de la base de données";
+                }
+            };
+
+            function deleteCurrentItem() {
+                if (!currentEditId) return;
+                const item = currentMenu.find(i => i.id === currentEditId);
+                if (!item) return;
+
+                document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
+                document.getElementById('delete-overlay').style.display = 'flex';
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-overlay').style.display = 'none';
+            }
+
+            async function confirmDeleteAction() {
+                closeDeleteModal();
+                try {
+                    const res = await fetch(`/api/admin/menu/${currentEditId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
                         closeEditModal();
                         document.getElementById('loading').style.display = 'block';
                         document.getElementById('admin-grid').innerHTML = '';
-                        btn.disabled = false;
-                        btn.innerText = "Mise à jour de la base de données";
-                        fetchMenu();
-                    }, 1000);
-                } else {
-                    const errorDetail = await res.text();
-                    throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur lors de la mise à jour : " + err.message);
-                btn.disabled = false;
-                btn.innerText = "Mise à jour de la base de données";
-            }
-        };
-
-        function deleteCurrentItem() {
-            if (!currentEditId) return;
-            const item = currentMenu.find(i => i.id === currentEditId);
-            if (!item) return;
-
-            document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
-            document.getElementById('delete-overlay').style.display = 'flex';
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('delete-overlay').style.display = 'none';
-        }
-
-        async function confirmDeleteAction() {
-            closeDeleteModal();
-            try {
-                const res = await fetch(`/api/admin/menu/${currentEditId}`, {
-                    method: 'DELETE'
-                });
-
-                if (res.ok) {
-                    closeEditModal();
-                    document.getElementById('loading').style.display = 'block';
-                    document.getElementById('admin-grid').innerHTML = '';
-                    fetchMenu(); // Recharger la grille
-                } else {
-                    const errText = await res.text();
-                    alert("Erreur lors de la suppression : " + errText);
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur réseau lors de la suppression.");
-            }
-        }
-
-        // --- Logique Cropper.js ---
-        document.getElementById('edit-file').addEventListener('change', function (e) {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    document.getElementById('cropper-image').src = event.target.result;
-                    document.getElementById('cropper-overlay').style.display = 'flex';
-
-                    if (cropperInstance) {
-                        cropperInstance.destroy();
+                        fetchMenu(); // Recharger la grille
+                    } else {
+                        const errText = await res.text();
+                        alert("Erreur lors de la suppression : " + errText);
                     }
-
-                    // Initialiser CropperJS
-                    const image = document.getElementById('cropper-image');
-                    cropperInstance = new Cropper(image, {
-                        aspectRatio: 4 / 3, // Ratio paysage recommandé pour la nourriture
-                        viewMode: 2,
-                        background: false,
-                        autoCropArea: 1,
-                        responsive: true
-                    });
-                };
-                reader.readAsDataURL(files[0]);
+                } catch (err) {
+                    console.error(err);
+                    alert("Erreur réseau lors de la suppression.");
+                }
             }
-        });
 
-        function closeCropperModal(resetInput = true) {
-            document.getElementById('cropper-overlay').style.display = 'none';
-            if (cropperInstance) {
-                cropperInstance.destroy();
-                cropperInstance = null;
-            }
-            if (resetInput) {
-                document.getElementById('edit-file').value = '';
-                currentCroppedBlob = null;
-            }
-        }
+            // --- Logique Cropper.js ---
+            document.getElementById('edit-file').addEventListener('change', function (e) {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        document.getElementById('cropper-image').src = event.target.result;
+                        document.getElementById('cropper-overlay').style.display = 'flex';
 
-        function applyCrop() {
-            if (!cropperInstance) return;
+                        if (cropperInstance) {
+                            cropperInstance.destroy();
+                        }
 
-            const btnSaveCrop = document.querySelector('#cropper-overlay .btn-save');
-            btnSaveCrop.innerText = "Traitement...";
-            btnSaveCrop.disabled = true;
-
-            const canvas = cropperInstance.getCroppedCanvas({
-                width: 800,
-                height: 600,
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
+                        // Initialiser CropperJS
+                        const image = document.getElementById('cropper-image');
+                        cropperInstance = new Cropper(image, {
+                            aspectRatio: 4 / 3, // Ratio paysage recommandé pour la nourriture
+                            viewMode: 2,
+                            background: false,
+                            autoCropArea: 1,
+                            responsive: true
+                        });
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
             });
 
-            canvas.toBlob((blob) => {
-                currentCroppedBlob = blob;
-                const url = URL.createObjectURL(blob);
-                document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
+            function closeCropperModal(resetInput = true) {
+                document.getElementById('cropper-overlay').style.display = 'none';
+                if (cropperInstance) {
+                    cropperInstance.destroy();
+                    cropperInstance = null;
+                }
+                if (resetInput) {
+                    document.getElementById('edit-file').value = '';
+                    currentCroppedBlob = null;
+                }
+            }
 
-                btnSaveCrop.innerText = "Valider le recadrage";
-                btnSaveCrop.disabled = false;
+            function applyCrop() {
+                if (!cropperInstance) return;
 
-                closeCropperModal(false); // Fermer sans reset, car on vient de sauvegarder l'état
-            }, 'image/jpeg', 0.85); // Qualité optimale pour le web
-        }
+                const btnSaveCrop = document.querySelector('#cropper-overlay .btn-save');
+                btnSaveCrop.innerText = "Traitement...";
+                btnSaveCrop.disabled = true;
 
-        fetchMenu();
-    </script>
+                const canvas = cropperInstance.getCroppedCanvas({
+                    width: 800,
+                    height: 600,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+
+                canvas.toBlob((blob) => {
+                    currentCroppedBlob = blob;
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
+
+                    btnSaveCrop.innerText = "Valider le recadrage";
+                    btnSaveCrop.disabled = false;
+
+                    closeCropperModal(false); // Fermer sans reset, car on vient de sauvegarder l'état
+                }, 'image/jpeg', 0.85); // Qualité optimale pour le web
+            }
+
+            fetchMenu();
+        </script>
 </body>
 
 </html>

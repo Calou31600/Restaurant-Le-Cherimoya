@@ -38,7 +38,12 @@ MAPPING = {
     "poulet_cheddar": "Filet de poulet au cheddar",
     "poulet_teriyaki": "Poulet sauce teriyaki",
     "prohibition_mocktail": "Prohibition",
-    "tataki_boeuf": "Tataki de bœuf 250gr"
+    "tataki_boeuf": "Tataki de bœuf 250gr",
+    "gambas_grillees_3pc": "Grosses gambas grillées 3pc",
+    "paradis_asiatique_cocktail": "Paradis asiatique",
+    "cotes_agneau_herbes": "Côtes d’agneau grillés aux herbes",
+    "tiramisu_cafe_cherimoya": "Tiramisu au café",
+    "poire_trompe_oeil_cherimoya": "Poire en trompe-l'œil"
 }
 
 BRAIN_DIR = r"C:\Users\pasca\.gemini\antigravity\brain\2fce4afb-db18-4eaf-b1ff-d10a48040969"

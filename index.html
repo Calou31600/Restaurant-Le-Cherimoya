@@ -794,10 +794,15 @@
                         src = photo[0].url;
                     } else if (typeof photo === 'string') {
                         if (photo.startsWith('http')) {
-                            src = photo;
+                            // Filter out temporary Airtable URLs which are often expired
+                            if (!photo.includes('airtableusercontent.com')) {
+                                src = photo;
+                            }
                         } else if (photo.includes('(') && photo.includes(')')) {
                             const match = photo.match(/\((https?:\/\/[^)]+)\)/);
-                            if (match) src = match[1];
+                            if (match && !match[1].includes('airtableusercontent.com')) {
+                                src = match[1];
+                            }
                         }
                     }
                     // Apply Cloudinary optimization if applicable

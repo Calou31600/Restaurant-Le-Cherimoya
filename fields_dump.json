@@ -49,7 +49,7 @@
       ],
       "prix": "€9.50",
       "producteur_local": "Producteur local du Terroir",
-      "Photo": "[\n    {\n        \"url\": \"https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275255/restaurant_cherimoya/menu/lexotique_cocktail.png\"\n    }\n]",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275937/restaurant_cherimoya/menu/bvjprgzslfvcuwkxwhwj.png",
       "Plat_EN": "The Exotic Mocktail",
       "description_geo_EN": "Banana juice, passion fruit juice, apple juice, vanilla syrup, lime.",
       "Menu": [
@@ -69,6 +69,7 @@
       ],
       "prix": "€26.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275934/restaurant_cherimoya/menu/wo6bmk5uonqd2knykbje.png",
       "Plat_EN": "Vietnamese Set Menu",
       "description_geo_EN": "Starter, Main course of your choice (Shrimp or Chicken fried rice), and Dessert (Tiramisu or Crème brûlée)",
       "Menu": [
@@ -128,6 +129,7 @@
       ],
       "prix": "€17.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275942/restaurant_cherimoya/menu/kj70xajj8hhebtq6ugm9.png",
       "Plat_EN": "Chicken breast with cheddar",
       "description_geo_EN": "Grilled chicken breast topped with a thin layer of Cheddar, paired with homemade mushroom sauce and fresh pasta",
       "Menu": [
@@ -184,6 +186,7 @@
       ],
       "prix": "€11.50",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275939/restaurant_cherimoya/menu/aplvdzpdlyihgz4k5gb5.png",
       "Plat_EN": "The Delight Mocktail",
       "description_geo_EN": "Lychee juice, raspberry cream, lemon juice, apple juice.",
       "Menu": [
@@ -240,6 +243,7 @@
       ],
       "prix": "€18.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275929/restaurant_cherimoya/menu/fru6fno0nn2gwlnbhrtb.png",
       "Plat_EN": "Duck breast with homemade sauce",
       "description_geo_EN": "Grilled duck breast topped with homemade sauce, served with French fries",
       "Menu": [
@@ -401,6 +405,7 @@
       ],
       "prix": "€17.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275943/restaurant_cherimoya/menu/sc2grclltotcehnv7oyy.png",
       "Plat_EN": "Chicken breast teriyaki sauce",
       "description_geo_EN": "Thinly sliced chicken breast skewers, grilled and topped with teriyaki sauce, served with fragrant rice and grilled vegetables",
       "Menu": [
@@ -461,6 +466,7 @@
       ],
       "prix": "€18.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275946/restaurant_cherimoya/menu/fml0ljka1rdtznbrrtck.png",
       "Plat_EN": "Beef tataki",
       "description_geo_EN": "Tender grilled beef, thinly sliced and marinated with homemade sauce, served with mashed potatoes and grilled vegetables",
       "Menu": [
@@ -518,6 +524,7 @@
       ],
       "prix": "€26.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275931/restaurant_cherimoya/menu/fiddh3gh6gdkghcjhhcc.png",
       "Plat_EN": "Rib steak with homemade sauce",
       "description_geo_EN": "Rib steak with homemade sauce, served with French fries and grilled vegetables",
       "Menu": [
@@ -614,6 +621,7 @@
       ],
       "prix": "€4.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275935/restaurant_cherimoya/menu/ycdd5luznvcuxynej40m.png",
       "Plat_EN": "Ice Creams (2 scoops of your choice)",
       "description_geo_EN": "Topped with smooth whipped cream Chantilly (vanilla, chocolate, rhum raisin, mangue, fraise, café, caramel).",
       "Menu": [
@@ -632,6 +640,7 @@
       ],
       "prix": "€17.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275932/restaurant_cherimoya/menu/jjpct04zdorvwr0cfanw.png",
       "Plat_EN": "Garlic butter shrimp",
       "description_geo_EN": "Shrimp quickly sautéed with garlic butter, served with rice and grilled vegetables",
       "Menu": [
@@ -652,6 +661,7 @@
       ],
       "prix": "€12.90",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275940/restaurant_cherimoya/menu/fhzaikkianc66owepmum.png",
       "Plat_EN": "Kids' Menu",
       "description_geo_EN": "Main course of your choice (Crispy chicken, Beef burger, Carbonara pasta, or Teriyaki chicken) + 1 scoop of ice cream",
       "Menu": [
@@ -728,6 +738,7 @@
       ],
       "prix": "€8.50",
       "producteur_local": "Producteur local du Terroir",
+      "Photo": "https://res.cloudinary.com/dytpnnyi0/image/upload/v1772275945/restaurant_cherimoya/menu/p2w2p7qxdilbqsa5s4x4.png",
       "Plat_EN": "Prohibition Mocktail",
       "description_geo_EN": "Orange juice, pineapple juice, lemon, raspberry syrup",
       "Menu": [

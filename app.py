@@ -25,7 +25,23 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 REDIRECT_URI = "https://restaurant-le-cherimoya.vercel.app/authorize"
 
-engine = MainEngine()
+# BookingManager instancié INDÉPENDAMMENT — critique pour les réservations
+try:
+    from booking_manager import BookingManager as _BookingManager
+    booking_manager = _BookingManager()
+    print("[INIT] BookingManager OK")
+except Exception as e:
+    print(f"[INIT ERREUR] BookingManager : {e}")
+    booking_manager = None
+
+# MainEngine instancié de façon protégée — si weather/seo plante, le reste tient
+try:
+    engine = MainEngine()
+    print("[INIT] MainEngine OK")
+except Exception as e:
+    print(f"[INIT ERREUR] MainEngine : {e}")
+    engine = None
+
 
 # Configuration Google OAuth - Récupération avec nettoyage (strip)
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
@@ -168,6 +184,8 @@ def status():
 def get_data():
     """Endpoint principal pour le frontend adaptatif."""
     try:
+        if engine is None:
+            return jsonify({"error": "Moteur non initialisé."}), 500
         data = engine.build_page_data()
         return jsonify(data)
     except Exception as e:
@@ -186,9 +204,14 @@ def make_reservation():
         covers = data.get('covers')
         
         if not all([name, email, date_str, time_str, service, covers]):
-            return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires (le nom, l'email pour la confirmation, etc.)."}), 400
-            
-        success, message = engine.booking.submit_reservation(name, phone, email, date_str, time_str, service, covers)
+            return jsonify({"status": "error", "message": "Veuillez remplir tous les champs obligatoires."}), 400
+
+        bm = booking_manager
+        if bm is None:
+            from booking_manager import BookingManager as BM
+            bm = BM()
+
+        success, message = bm.submit_reservation(name, phone, email, date_str, time_str, service, covers)
         if success:
             return jsonify({"status": "success", "message": message})
         else:
@@ -391,7 +414,14 @@ def admin_reservation_action(record_id, action):
         if action not in ['confirm', 'cancel']:
             return jsonify({"status": "error", "error": "Action invalide."}), 400
 
-        success, message = engine.booking.update_reservation_status(record_id, action)
+        # Utiliser le BookingManager global indépendant
+        bm = booking_manager
+        if bm is None:
+            # Dernier recours : instanciation locale
+            from booking_manager import BookingManager as BM
+            bm = BM()
+
+        success, message = bm.update_reservation_status(record_id, action)
         print(f"[ADMIN ACTION] success={success} message={message}")
 
         if success:
@@ -399,7 +429,22 @@ def admin_reservation_action(record_id, action):
         return jsonify({"status": "error", "error": message}), 500
     except Exception as e:
         print(f"[ADMIN ACTION EXCEPTION] {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route('/api/debug')
+def api_debug():
+    """Route de diagnostic — à supprimer en prod après débogage."""
+    import os
+    return jsonify({
+        "engine_ok": engine is not None,
+        "booking_ok": booking_manager is not None,
+        "base_id": os.getenv('AIRTABLE_BASE_ID', 'MANQUANT'),
+        "api_key_set": bool(os.getenv('AIRTABLE_API_KEY')),
+    })
+
 
 @app.route('/api/admin/stats/today', methods=['GET'])
 @admin_required

@@ -365,6 +365,24 @@
             letter-spacing: 0.05em;
         }
 
+        /* Tableau clients - no wrap forcé sur toutes les cellules */
+        #clients-tab .client-table th,
+        #clients-tab .client-table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #clients-tab .client-table td:nth-child(2) {
+            white-space: normal;   /* Contact peut avoir du wrap sur email long */
+            min-width: 180px;
+            max-width: 240px;
+        }
+
+        #clients-tab .client-table {
+            width: 100%;
+            table-layout: auto;
+        }
+
         /* ---- Section Demandes en attente ---- */
         .pending-section {
             margin-bottom: 2.5rem;
@@ -544,18 +562,18 @@
         </div>
 
         <div id="clients-tab" class="tab-content">
-            <div class="admin-grid">
+            <div class="admin-grid" style="overflow-x:auto;">
                 <table class="client-table">
                     <thead>
                         <tr>
-                            <th>Nom</th>
-                            <th>Contact</th>
-                            <th>Réservations</th>
-                            <th>Dernière Visite</th>
-                            <th>Envoi Mail</th>
-                            <th>Statut Avis</th>
-                            <th>Note</th>
-                            <th>Actions</th>
+                            <th style="white-space:nowrap;">Nom</th>
+                            <th style="white-space:nowrap;">Contact</th>
+                            <th style="white-space:nowrap;">Rés.</th>
+                            <th style="white-space:nowrap;">Dernière Visite</th>
+                            <th style="white-space:nowrap;">Envoi Mail</th>
+                            <th style="white-space:nowrap;min-width:110px;">Statut Avis</th>
+                            <th style="white-space:nowrap;">Note</th>
+                            <th style="white-space:nowrap;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="clients-tbody">
@@ -1001,8 +1019,8 @@
 
                 // Badge avis
                 const avisBadge = avisRecu
-                    ? `<span style="background:rgba(40,167,69,0.12);color:#28a745;border:1px solid rgba(40,167,69,0.3);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;">✓&nbsp;Reçu</span>`
-                    : `<span style="background:rgba(207,168,110,0.08);color:#cfa86e;border:1px solid rgba(207,168,110,0.25);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;">⏳&nbsp;En attente</span>`;
+                    ? `<span style="background:rgba(40,167,69,0.12);color:#28a745;border:1px solid rgba(40,167,69,0.3);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;display:inline-block;">✓&nbsp;Reçu</span>`
+                    : `<span style="background:rgba(207,168,110,0.08);color:#cfa86e;border:1px solid rgba(207,168,110,0.25);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;display:inline-block;">⏳&nbsp;En attente</span>`;
 
                 // Tel formaté (0660510100 → 06 60 51 01 00)
                 const telFmt = tel ? tel.replace(/(\d{2})(?=\d)/g,'$1 ').trim() : '–';

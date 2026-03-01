@@ -141,6 +141,14 @@
         }
 
         /* Navigation */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .admin-nav {
             display: flex;
             gap: 3rem;
@@ -327,9 +335,9 @@
             </div>
 
             <nav class="admin-nav">
-                <div class="nav-tab active" onclick="switchTab('menu')">Carte</div>
-                <div class="nav-tab" onclick="switchTab('reservations')">Réservations</div>
-                <div class="nav-tab" onclick="switchTab('clients')">Clients</div>
+                <div class="nav-tab active" data-tab="menu" onclick="switchTab('menu')">Carte</div>
+                <div class="nav-tab" data-tab="reservations" onclick="switchTab('reservations')">Réservations</div>
+                <div class="nav-tab" data-tab="clients" data-tab="clients" onclick="switchTab('clients')">Clients</div>
             </nav>
         </header>
 
@@ -547,11 +555,12 @@
 
         function switchTab(tab) {
             activeTab = tab;
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-
-            document.querySelector(`.nav-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-            document.getElementById(`${tab}-tab`).classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.toggle('active', el.getAttribute('onclick').includes(`'${tab}'`));
+            });
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.toggle('active', el.id === `${tab}-tab`);
+            });
 
             // Afficher/Cacher boutons contextuels
             document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';

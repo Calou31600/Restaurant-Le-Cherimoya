@@ -398,11 +398,16 @@ def admin_update_client(record_id):
 @app.route('/api/admin/reservations', methods=['GET'])
 @admin_required
 def admin_get_reservations():
-    """Liste toutes les réservations."""
+    """Liste toutes les réservations depuis Airtable (tri chronologique desc)."""
     try:
-        resas = engine.booking.get_reservations()
+        bm = booking_manager
+        if bm is None:
+            from booking_manager import BookingManager as BM
+            bm = BM()
+        resas = bm.get_reservations()
         return jsonify(resas)
     except Exception as e:
+        print(f"[GET RESERVATIONS] Erreur: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/admin/reservations/action/<record_id>/<action>', methods=['POST'])

@@ -494,6 +494,7 @@
                     <button class="btn-save" id="btn-add-item" onclick="openAddModal()">+ Nouveau Plat</button>
                     <button class="filter-btn" id="btn-sync-clients" onclick="syncClients()" style="display: none;">🔄
                         Synchroniser</button>
+                    <button class="filter-btn" id="btn-refresh-resas" onclick="fetchReservations()" style="display: none;">🔄 Actualiser</button>
                     <a href="/" class="filter-btn">Site Public</a>
                 </div>
             </div>
@@ -741,6 +742,7 @@
             // Afficher/Cacher boutons contextuels
             document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
             document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
+            document.getElementById('btn-refresh-resas').style.display = tab === 'reservations' ? 'block' : 'none';
 
             // Masquer les stats dans l'onglet clients pour purifier la vue si besoin
             // document.getElementById('header-stats').style.display = tab === 'clients' ? 'none' : 'flex';
@@ -775,16 +777,26 @@
             }
         }
 
+        let _resaRefreshTimer = null;
+
         async function fetchReservations() {
-            document.getElementById('loading').style.display = 'block';
+            // Annuler le timer précédent si re-appelé manuellement
+            if (_resaRefreshTimer) { clearTimeout(_resaRefreshTimer); _resaRefreshTimer = null; }
+
             try {
                 const res = await fetch('/api/admin/reservations');
+                if (!res.ok) { console.warn('[RESAS] HTTP', res.status); return; }
                 const data = await res.json();
                 renderReservations(data);
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
-                console.error(err);
-                document.getElementById('loading').innerHTML = '<div style="color:#ff4d4d">Erreur lors du chargement des réservations.</div>';
+                console.error('[RESAS] Erreur fetch:', err);
+                document.getElementById('loading').innerHTML = '<div style="color:#ff4d4d">Erreur chargement réservations.</div>';
+            }
+
+            // Auto-refresh toutes les 30s si on est sur l'onglet réservations
+            if (activeTab === 'reservations') {
+                _resaRefreshTimer = setTimeout(fetchReservations, 30000);
             }
         }
 

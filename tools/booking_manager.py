@@ -67,32 +67,42 @@ class BookingManager:
     def is_service_accessible(self, service_type, target_date_str):
         """
         Vérifie la règle des 2 heures avant le service.
+        La règle ne s'applique QUE si la date demandée est aujourd'hui.
+        Pour toute date future, la réservation est toujours acceptée.
         service_type: 'Midi' ou 'Soir'
         target_date_str: 'YYYY-MM-DD'
         """
         now = datetime.now()
         target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
-        
+        today = now.date()
+
         # Règle : Fermé le Lundi (0) et le Mardi (1)
         if target_date.weekday() in [0, 1]:
             return False, "Le restaurant est fermé le lundi et le mardi."
-        
-        # Heures de début de service fixes par SOP
+
+        # Si la date est dans le futur (pas aujourd'hui), c'est toujours valid
+        if target_date > today:
+            return True, "Service accessible."
+
+        # Si la date est passée, on refuse
+        if target_date < today:
+            return False, "Impossible de réserver pour une date passée."
+
+        # Pour AUJOURD'HUI uniquement : appliquer la règle des 2 heures
         service_times = {
             'Midi': datetime.combine(target_date, datetime.strptime('12:00', '%H:%M').time()),
             'Soir': datetime.combine(target_date, datetime.strptime('19:30', '%H:%M').time())
         }
-        
+
         service_start = service_times.get(service_type)
         if not service_start:
             return False, "Type de service invalide."
 
-        # Règle des 2 heures
         cutoff_time = service_start - timedelta(hours=2)
-        
+
         if now > cutoff_time:
-            return False, f"Réservations en ligne clôturées pour ce service. Merci de nous appeler."
-        
+            return False, f"Réservations en ligne clôturées pour ce service aujourd'hui. Merci de nous appeler."
+
         return True, "Service accessible."
 
     def check_inventory(self, service_type, target_date_str):
@@ -164,8 +174,10 @@ class BookingManager:
                 record_id = res.json()['records'][0]['id']
                 self.send_email_notification(fields, record_id)
                 return True, "Votre demande de réservation a bien été envoyée."
-            return False, f"Erreur serveur: {res.text}"
+            print(f"ERREUR AIRTABLE POST Réservation [{res.status_code}]: {res.text}")
+            return False, f"Erreur serveur lors de l'enregistrement. Veuillez réessayer."
         except Exception as e:
+            print(f"EXCEPTION submit_reservation: {e}")
             return False, "Erreur réseau lors de la réservation."
 
     def update_reservation_status(self, record_id, action):

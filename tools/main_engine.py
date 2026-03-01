@@ -157,16 +157,31 @@ class MainEngine:
                 date_res = fields.get('Date')
                 
                 if email in client_emails:
-                    # Client existant : Mise à jour de la date de visite
                     client_id = client_emails[email]
                     client_record = next((c for c in current_clients if c['id'] == client_id), None)
                     if client_record:
-                        old_date = client_record['fields'].get('Derniere_Visite', '')
-                        # On ne met à jour que si la date de résa est plus récente ou différente
-                        if date_res != old_date:
+                        existing_fields = client_record.get('fields', {})
+                        
+                        # On met à jour si la date est différente ou si des infos manquent
+                        update_needed = False
+                        new_fields = {}
+                        
+                        if date_res != existing_fields.get('Derniere_Visite'):
+                            new_fields["Derniere_Visite"] = date_res
+                            update_needed = True
+                            
+                        if not existing_fields.get('Nom') and nom:
+                            new_fields["Nom"] = nom
+                            update_needed = True
+                            
+                        if not existing_fields.get('Telephone') and tel:
+                            new_fields["Telephone"] = tel
+                            update_needed = True
+
+                        if update_needed:
                             requests.patch(f"https://api.airtable.com/v0/{self.base_id}/Clients/{client_id}", 
                                            headers=self.headers, 
-                                           json={"fields": {"Derniere_Visite": date_res}})
+                                           json={"fields": new_fields})
                 else:
                     # Nouveau client : Création
                     new_client_fields = {
@@ -179,6 +194,8 @@ class MainEngine:
                     requests.post(f"https://api.airtable.com/v0/{self.base_id}/Clients", 
                                   headers=self.headers, 
                                   json={"records": [{"fields": new_client_fields}], "typecast": True})
+                    # On l'ajoute au cache local pour éviter les doublons dans la même boucle
+                    client_emails[email] = "new"
             return True, "Synchronisation terminée."
         except Exception as e:
             return False, str(e)

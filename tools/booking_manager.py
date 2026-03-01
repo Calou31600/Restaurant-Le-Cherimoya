@@ -32,13 +32,14 @@ class BookingManager:
             return []
 
     def get_today_stats(self):
-        """Récupère les statistiques de réservation pour aujourd'hui depuis Airtable."""
+        """Récupère les statistiques de réservation pour aujourd'hui en comptant les couverts confirmés dans la table Reservations."""
         today_str = datetime.now().strftime('%Y-%m-%d')
         stats = {"midi": 0, "soir": 0, "date": today_str}
         
-        url = f"https://api.airtable.com/v0/{self.base_id}/Disponibilites"
+        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
+        # On ne compte que les réservations CONFIRMÉES pour aujourd'hui
         params = {
-            "filterByFormula": f"Date='{today_str}'"
+            "filterByFormula": f"AND(IS_SAME({{Date}}, '{today_str}'), {{Statut}}='Confirmée')"
         }
         
         try:
@@ -48,11 +49,11 @@ class BookingManager:
                 for record in records:
                     fields = record.get('fields', {})
                     service = fields.get('Service')
-                    confirmed = fields.get('Reservations confirmees', 0)
+                    covers = fields.get('Couverts', 0)
                     if service == 'Midi':
-                        stats["midi"] = int(confirmed)
+                        stats["midi"] += int(covers)
                     elif service == 'Soir':
-                        stats["soir"] = int(confirmed)
+                        stats["soir"] += int(covers)
             return stats
         except Exception as e:
             print(f"Erreur get_today_stats: {e}")
@@ -184,6 +185,9 @@ class BookingManager:
             res_patch = requests.patch(url, headers=self.headers, json={"fields": {"Statut": status}})
             if res_patch.status_code == 200:
                 self.send_client_response(data, status)
+                # Si confirmée, on met à jour le CRM automatiquement
+                if action == "confirm":
+                    self._update_crm_from_booking(data)
                 return True, f"Réservation {status.lower()} avec succès."
             
             print(f"ERREUR AIRTABLE PATCH: {res_patch.status_code} - {res_patch.text}")
@@ -191,6 +195,51 @@ class BookingManager:
         except Exception as e:
             print(f"EXCEPTION UPDATE STATUS: {e}")
             return False, str(e)
+
+    def _update_crm_from_booking(self, booking_data):
+        """Met à jour ou crée un client dans le CRM à partir d'une réservation confirmée."""
+        email = booking_data.get('Email')
+        if not email: return
+        
+        url = f"https://api.airtable.com/v0/{self.base_id}/Clients"
+        headers = self.headers
+        
+        try:
+            # 1. Chercher si le client existe déjà
+            search_params = {"filterByFormula": f"{{Email}}='{email}'"}
+            res = requests.get(url, headers=headers, params=search_params)
+            if res.status_code == 200:
+                records = res.json().get('records', [])
+                if records:
+                    # Client existant : Mise à jour des infos et date
+                    client_id = records[0]['id']
+                    existing_fields = records[0]['fields']
+                    
+                    # On complète les infos manquantes si besoin
+                    updated_fields = {
+                        "Derniere_Visite": booking_data.get('Date'),
+                        "Nom": existing_fields.get('Nom') or booking_data.get('Nom'),
+                        "Telephone": existing_fields.get('Telephone') or booking_data.get('Telephone')
+                    }
+                    
+                    # Incrémenter le nombre de réservations si possible via Airtable (ou on le fait nous-mêmes)
+                    # Pour faire simple, on récupère le nb actuel et on fait +1
+                    old_nb = existing_fields.get('Nb_Reservations', 0)
+                    updated_fields["Nb_Reservations"] = old_nb + 1
+                    
+                    requests.patch(f"{url}/{client_id}", headers=headers, json={"fields": updated_fields})
+                else:
+                    # Nouveau client : Création
+                    new_fields = {
+                        "Nom": booking_data.get('Nom'),
+                        "Email": email,
+                        "Telephone": booking_data.get('Telephone'),
+                        "Nb_Reservations": 1,
+                        "Derniere_Visite": booking_data.get('Date')
+                    }
+                    requests.post(url, headers=headers, json={"records": [{"fields": new_fields}], "typecast": True})
+        except Exception as e:
+            print(f"Erreur update CRM: {e}")
 
     def send_client_response(self, booking_data, status):
         """Envoie un mail de confirmation ou de refus au client."""

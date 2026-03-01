@@ -365,48 +365,65 @@
             letter-spacing: 0.05em;
         }
 
-        /* Tableau clients - layout fixe sans scrollbar */
-        #clients-tab .client-table {
-            width: 100%;
-            table-layout: fixed;
+        /* Cartes clients */
+        .client-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(207,168,110,0.12);
+            border-radius: 16px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
-
-        #clients-tab .client-table th,
-        #clients-tab .client-table td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            vertical-align: middle;
-            padding: 0.7rem 0.6rem;
+        .client-card:hover {
+            border-color: rgba(207,168,110,0.35);
+            box-shadow: 0 4px 24px rgba(207,168,110,0.07);
         }
-
-        /* Largeurs fixes par colonne */
-        #clients-tab .client-table th:nth-child(1),
-        #clients-tab .client-table td:nth-child(1) { width: 16%; }  /* NOM */
-
-        #clients-tab .client-table th:nth-child(2),
-        #clients-tab .client-table td:nth-child(2) {
-            width: 20%;
-            white-space: nowrap;
-        }  /* CONTACT */
-
-        #clients-tab .client-table th:nth-child(3),
-        #clients-tab .client-table td:nth-child(3) { width: 7%; text-align: center; } /* RÉS. */
-
-        #clients-tab .client-table th:nth-child(4),
-        #clients-tab .client-table td:nth-child(4) { width: 12%; } /* DERNIÈRE VISITE */
-
-        #clients-tab .client-table th:nth-child(5),
-        #clients-tab .client-table td:nth-child(5) { width: 10%; } /* ENVOI MAIL */
-
-        #clients-tab .client-table th:nth-child(6),
-        #clients-tab .client-table td:nth-child(6) { width: 11%; } /* STATUT AVIS */
-
-        #clients-tab .client-table th:nth-child(7),
-        #clients-tab .client-table td:nth-child(7) { width: 8%; text-align: center; } /* NOTE */
-
-        #clients-tab .client-table th:nth-child(8),
-        #clients-tab .client-table td:nth-child(8) { width: 16%; } /* ACTIONS */
+        .client-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .client-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            letter-spacing: 0.05em;
+        }
+        .client-card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 1rem;
+        }
+        .client-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .client-stat-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            opacity: 0.7;
+        }
+        .client-stat-value {
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+        .client-card-actions {
+            display: flex;
+            gap: 0.6rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
 
         /* ---- Section Demandes en attente ---- */
         .pending-section {
@@ -587,24 +604,8 @@
         </div>
 
         <div id="clients-tab" class="tab-content">
-            <div class="admin-grid" style="width:100%;">
-                <table class="client-table">
-                    <thead>
-                        <tr>
-                            <th style="white-space:nowrap;">Nom</th>
-                            <th style="white-space:nowrap;">Contact</th>
-                            <th style="white-space:nowrap;">Rés.</th>
-                            <th style="white-space:nowrap;">Dernière Visite</th>
-                            <th style="white-space:nowrap;">Envoi Mail</th>
-                            <th style="white-space:nowrap;min-width:110px;">Statut Avis</th>
-                            <th style="white-space:nowrap;">Note</th>
-                            <th style="white-space:nowrap;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clients-tbody">
-                        <!-- Clients injectés ici -->
-                    </tbody>
-                </table>
+            <div id="clients-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem;padding:0.5rem 0;">
+                <!-- Cartes clients injectées ici -->
             </div>
         </div>
 
@@ -1007,11 +1008,19 @@
         }
 
         function renderClients() {
-            const tbody = document.getElementById('clients-tbody');
+            const grid = document.getElementById('clients-grid');
             const countElement = document.getElementById('menu-count');
             countElement.innerText = `${currentClients.length} client${currentClients.length > 1 ? 's' : ''} dans le CRM`;
 
-            tbody.innerHTML = currentClients.map(client => {
+            if (currentClients.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-dim);opacity:0.5;">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;">👥</div>
+                    <div>Aucun client dans le CRM</div>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = currentClients.map(client => {
                 const f = client.fields;
                 const nom = f.Nom || 'Inconnu';
                 const email = f.Email || '';
@@ -1021,8 +1030,8 @@
                 const avisRecu = f.Avis_Recu;
 
                 // Avatar initiales
-                const initials = nom.trim().split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                const palette = ['#cfa86e','#7b9e87','#9e7b7b','#7b8e9e','#9e8e7b'];
+                const initials = nom.trim().split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase();
+                const palette = ['#cfa86e','#7b9e87','#9e7b7b','#7b8e9e','#b89e7b'];
                 const avatarColor = palette[initials.charCodeAt(0) % palette.length];
 
                 // Date lisible
@@ -1034,68 +1043,82 @@
                 }
 
                 // Étoiles
-                let starsHtml = '<span style="color:var(--text-dim);font-size:0.8rem;">–</span>';
+                let starsHtml = '<span style="color:var(--text-dim);font-size:0.8rem;opacity:0.4;">–</span>';
                 if (note && note !== '-') {
                     const n = parseFloat(note);
-                    starsHtml = Array.from({length:5}, (_,i) =>
-                        `<span style="color:${i < n ? '#cfa86e' : 'rgba(255,255,255,0.12)'}">★</span>`
-                    ).join('');
+                    starsHtml = `<span style="color:var(--text-dim);font-size:0.75rem;">${note}/5 </span>` +
+                        Array.from({length:5}, (_,i) =>
+                            `<span style="color:${i < n ? '#cfa86e' : 'rgba(255,255,255,0.12)'}">★</span>`
+                        ).join('');
                 }
 
                 // Badge avis
                 const avisBadge = avisRecu
-                    ? `<span style="background:rgba(40,167,69,0.12);color:#28a745;border:1px solid rgba(40,167,69,0.3);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;display:inline-block;">✓&nbsp;Reçu</span>`
-                    : `<span style="background:rgba(207,168,110,0.08);color:#cfa86e;border:1px solid rgba(207,168,110,0.25);border-radius:50px;padding:3px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;display:inline-block;">⏳&nbsp;En attente</span>`;
+                    ? `<span style="background:rgba(40,167,69,0.12);color:#28a745;border:1px solid rgba(40,167,69,0.3);border-radius:50px;padding:2px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;">✓ Reçu</span>`
+                    : `<span style="background:rgba(207,168,110,0.08);color:#cfa86e;border:1px solid rgba(207,168,110,0.25);border-radius:50px;padding:2px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;">⏳ En attente</span>`;
 
-                // Tel formaté (0660510100 → 06 60 51 01 00)
+                // Tel formaté
                 const telFmt = tel ? tel.replace(/(\d{2})(?=\d)/g,'$1 ').trim() : '–';
-
                 const safeName = nom.replace(/'/g, "\\'");
 
-                return `<tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:38px;height:38px;border-radius:50%;background:${avatarColor}18;border:1.5px solid ${avatarColor}44;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:${avatarColor};flex-shrink:0;letter-spacing:0.05em;">${initials}</div>
-                            <div>
-                                <div style="font-weight:700;color:#fff;font-size:0.95rem;line-height:1.3;">${nom}</div>
-                                <div style="font-size:0.68rem;color:var(--text-dim);margin-top:1px;text-transform:uppercase;letter-spacing:0.06em;">${nb} résa${nb > 1 ? 's' : ''}</div>
+                return `<div class="client-card">
+                    <!-- En-tête -->
+                    <div class="client-card-header">
+                        <div class="client-avatar" style="background:${avatarColor}18;border:1.5px solid ${avatarColor}44;color:${avatarColor};">${initials}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:700;color:#fff;font-size:1.05rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+                            <div style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">
+                                ${nb} réservation${nb > 1 ? 's' : ''}
                             </div>
                         </div>
-                    </td>
-                    <td>
-                        <div style="display:flex;flex-direction:column;gap:5px;">
-                            ${email ? `<a href="mailto:${email}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-main);text-decoration:none;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
-                                <svg style="flex-shrink:0;opacity:0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-                                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;display:block;">${email}</span>
-                            </a>` : '<span style="color:var(--text-dim);font-size:0.82rem;opacity:0.5;">–</span>'}
-                            ${tel ? `<a href="tel:${tel}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);text-decoration:none;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
-                                <svg style="flex-shrink:0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-                                ${telFmt}
-                            </a>` : ''}
+                        <div style="flex-shrink:0;">${avisBadge}</div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div style="display:flex;flex-direction:column;gap:6px;padding:0.8rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">
+                        ${email ? `<a href="mailto:${email}" style="display:flex;align-items:center;gap:8px;color:var(--text-main);text-decoration:none;font-size:0.82rem;transition:color 0.2s;overflow:hidden;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
+                            <svg style="flex-shrink:0;opacity:0.45" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+                            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${email}</span>
+                        </a>` : ''}
+                        ${tel ? `<a href="tel:${tel}" style="display:flex;align-items:center;gap:8px;color:var(--text-dim);text-decoration:none;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
+                            <svg style="flex-shrink:0" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+                            ${telFmt}
+                        </a>` : ''}
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="client-card-body">
+                        <div class="client-stat">
+                            <span class="client-stat-label">Dernière visite</span>
+                            <span class="client-stat-value">${lastVisit}</span>
                         </div>
-                    </td>
-                    <td style="text-align:center;">
-                        <div style="font-size:1.3rem;font-weight:700;color:var(--accent);line-height:1;">${nb}</div>
-                        <div style="font-size:0.6rem;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.06em;">visite${nb > 1 ? 's' : ''}</div>
-                    </td>
-                    <td style="font-size:0.84rem;color:var(--text-dim);">${lastVisit}</td>
-                    <td style="font-size:0.82rem;color:${f.Dernier_Avis_Envoye ? 'var(--accent)' : 'var(--text-dim)'};">
-                        ${f.Dernier_Avis_Envoye || 'Jamais'}
-                    </td>
-                    <td>${avisBadge}</td>
-                    <td style="text-align:center;letter-spacing:-1px;">${starsHtml}</td>
-                    <td>
-                        <div style="display:flex;gap:0.4rem;justify-content:flex-end;flex-wrap:nowrap;">
-                            <button class="btn-save btn-small" title="Envoyer mail d'avis" onclick="sendReview('${client.id}', '${email}', '${safeName}')" style="padding:5px 8px;font-size:0.7rem;white-space:nowrap;">
-                                📧&nbsp;Mail
-                            </button>
-                            <button class="filter-btn btn-small" onclick="markReviewReceived('${client.id}', ${!avisRecu})"
-                                style="padding:5px 8px;font-size:0.7rem;white-space:nowrap;${avisRecu ? '' : 'border-color:rgba(40,167,69,0.4);color:#28a745;'}">
-                                ${avisRecu ? '↩' : '✓'}
-                            </button>
+                        <div class="client-stat">
+                            <span class="client-stat-label">Note</span>
+                            <span class="client-stat-value" style="letter-spacing:-1px;">${starsHtml}</span>
                         </div>
-                    </td>
-                </tr>`;
+                        <div class="client-stat">
+                            <span class="client-stat-label">Envoi avis</span>
+                            <span class="client-stat-value" style="font-size:0.8rem;color:${f.Dernier_Avis_Envoye ? 'var(--accent)' : 'var(--text-dim)'};">
+                                ${f.Dernier_Avis_Envoye || 'Jamais'}
+                            </span>
+                        </div>
+                        <div class="client-stat">
+                            <span class="client-stat-label">Réservations</span>
+                            <span class="client-stat-value" style="font-size:1.1rem;font-weight:700;color:var(--accent);">${nb}</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="client-card-actions">
+                        <button class="btn-save" style="flex:1;padding:8px;font-size:0.78rem;" onclick="sendReview('${client.id}', '${email}', '${safeName}')">
+                            📧 Demander un avis
+                        </button>
+                        <button class="filter-btn" style="padding:8px 14px;font-size:0.78rem;white-space:nowrap;${avisRecu ? '' : 'border-color:rgba(40,167,69,0.4);color:#28a745;'}"
+                            onclick="markReviewReceived('${client.id}', ${!avisRecu})">
+                            ${avisRecu ? '↩ Reset' : '✓ Marquer reçu'}
+                        </button>
+                    </div>
+                </div>`;
             }).join('');
         }
 

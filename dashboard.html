@@ -365,23 +365,48 @@
             letter-spacing: 0.05em;
         }
 
-        /* Tableau clients - no wrap forcé sur toutes les cellules */
+        /* Tableau clients - layout fixe sans scrollbar */
+        #clients-tab .client-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
         #clients-tab .client-table th,
         #clients-tab .client-table td {
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             vertical-align: middle;
+            padding: 0.7rem 0.6rem;
         }
 
+        /* Largeurs fixes par colonne */
+        #clients-tab .client-table th:nth-child(1),
+        #clients-tab .client-table td:nth-child(1) { width: 16%; }  /* NOM */
+
+        #clients-tab .client-table th:nth-child(2),
         #clients-tab .client-table td:nth-child(2) {
-            white-space: normal;   /* Contact peut avoir du wrap sur email long */
-            min-width: 180px;
-            max-width: 240px;
-        }
+            width: 20%;
+            white-space: nowrap;
+        }  /* CONTACT */
 
-        #clients-tab .client-table {
-            width: 100%;
-            table-layout: auto;
-        }
+        #clients-tab .client-table th:nth-child(3),
+        #clients-tab .client-table td:nth-child(3) { width: 7%; text-align: center; } /* RÉS. */
+
+        #clients-tab .client-table th:nth-child(4),
+        #clients-tab .client-table td:nth-child(4) { width: 12%; } /* DERNIÈRE VISITE */
+
+        #clients-tab .client-table th:nth-child(5),
+        #clients-tab .client-table td:nth-child(5) { width: 10%; } /* ENVOI MAIL */
+
+        #clients-tab .client-table th:nth-child(6),
+        #clients-tab .client-table td:nth-child(6) { width: 11%; } /* STATUT AVIS */
+
+        #clients-tab .client-table th:nth-child(7),
+        #clients-tab .client-table td:nth-child(7) { width: 8%; text-align: center; } /* NOTE */
+
+        #clients-tab .client-table th:nth-child(8),
+        #clients-tab .client-table td:nth-child(8) { width: 16%; } /* ACTIONS */
 
         /* ---- Section Demandes en attente ---- */
         .pending-section {
@@ -562,7 +587,7 @@
         </div>
 
         <div id="clients-tab" class="tab-content">
-            <div class="admin-grid" style="overflow-x:auto;">
+            <div class="admin-grid" style="width:100%;">
                 <table class="client-table">
                     <thead>
                         <tr>
@@ -1041,7 +1066,7 @@
                         <div style="display:flex;flex-direction:column;gap:5px;">
                             ${email ? `<a href="mailto:${email}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-main);text-decoration:none;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
                                 <svg style="flex-shrink:0;opacity:0.5" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-                                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">${email}</span>
+                                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;display:block;">${email}</span>
                             </a>` : '<span style="color:var(--text-dim);font-size:0.82rem;opacity:0.5;">–</span>'}
                             ${tel ? `<a href="tel:${tel}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-dim);text-decoration:none;font-size:0.82rem;transition:color 0.2s;" onmouseover="this.style.color='#cfa86e'" onmouseout="this.style.color=''">
                                 <svg style="flex-shrink:0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
@@ -1060,13 +1085,13 @@
                     <td>${avisBadge}</td>
                     <td style="text-align:center;letter-spacing:-1px;">${starsHtml}</td>
                     <td>
-                        <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                            <button class="btn-save btn-small" title="Envoyer mail de demande d'avis" onclick="sendReview('${client.id}', '${email}', '${safeName}')">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>Mail
+                        <div style="display:flex;gap:0.4rem;justify-content:flex-end;flex-wrap:nowrap;">
+                            <button class="btn-save btn-small" title="Envoyer mail d'avis" onclick="sendReview('${client.id}', '${email}', '${safeName}')" style="padding:5px 8px;font-size:0.7rem;white-space:nowrap;">
+                                📧&nbsp;Mail
                             </button>
                             <button class="filter-btn btn-small" onclick="markReviewReceived('${client.id}', ${!avisRecu})"
-                                style="${avisRecu ? '' : 'border-color:rgba(40,167,69,0.4);color:#28a745;'}">
-                                ${avisRecu ? '↩ Reset' : '✓ Reçu'}
+                                style="padding:5px 8px;font-size:0.7rem;white-space:nowrap;${avisRecu ? '' : 'border-color:rgba(40,167,69,0.4);color:#28a745;'}">
+                                ${avisRecu ? '↩' : '✓'}
                             </button>
                         </div>
                     </td>

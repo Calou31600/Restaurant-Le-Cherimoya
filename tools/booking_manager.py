@@ -11,7 +11,10 @@ class BookingManager:
     def __init__(self):
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
-        self.headers = {"Authorization": f"Bearer {self.api_key}"}
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
         # URL de base pour les emails et redirections
         self.base_url = "https://restaurant-le-cherimoya.vercel.app"
 
@@ -38,8 +41,10 @@ class BookingManager:
         
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
         # On ne compte que les réservations CONFIRMÉES pour aujourd'hui
+        # On filtre sur les deux orthographes possibles de 'Confirmée'
+        formula = f"AND({{Date}}='{today_str}', OR({{Statut}}='Confirm\u00e9e', {{Statut}}='Confirmee'))"
         params = {
-            "filterByFormula": f"AND(IS_SAME({{Date}}, '{today_str}'), {{Statut}}='Confirmée')"
+            "filterByFormula": formula
         }
         
         try:
@@ -151,7 +156,7 @@ class BookingManager:
             "Heure": time_str,
             "Service": service,
             "Couverts": int(covers),
-            "Statut": "À confirmer"
+            "Statut": "\u00c0 confirmer"
         }
         try:
             res = requests.post(url, headers=self.headers, json={"records": [{"fields": fields}], "typecast": True})
@@ -166,8 +171,8 @@ class BookingManager:
     def update_reservation_status(self, record_id, action):
         """Met à jour le statut dans Airtable et notifie le client."""
         status_map = {
-            "confirm": "Confirmée",
-            "cancel": "Annulée"
+            "confirm": "Confirm\u00e9e",
+            "cancel": "Annul\u00e9e"
         }
         status = status_map.get(action)
         if not status:
@@ -205,9 +210,9 @@ class BookingManager:
         headers = self.headers
         
         try:
-            # 1. Chercher si le client existe déjà
-            search_params = {"filterByFormula": f"{{Email}}='{email}'"}
-            res = requests.get(url, headers=headers, params=search_params)
+            # 1. Chercher si le client existe déjà (par email)
+            search_params = {"filterByFormula": "{Email}='" + email + "'"}
+            res = requests.get(url, headers=self.headers, params=search_params)
             if res.status_code == 200:
                 records = res.json().get('records', [])
                 if records:
@@ -227,7 +232,9 @@ class BookingManager:
                     old_nb = existing_fields.get('Nb_Reservations', 0)
                     updated_fields["Nb_Reservations"] = old_nb + 1
                     
-                    requests.patch(f"{url}/{client_id}", headers=headers, json={"fields": updated_fields})
+                    patch_res = requests.patch(f"{url}/{client_id}", headers=self.headers, json={"fields": updated_fields})
+                    if patch_res.status_code != 200:
+                        print(f"Erreur PATCH CRM: {patch_res.status_code} - {patch_res.text}")
                 else:
                     # Nouveau client : Création
                     new_fields = {
@@ -237,7 +244,11 @@ class BookingManager:
                         "Nb_Reservations": 1,
                         "Derniere_Visite": booking_data.get('Date')
                     }
-                    requests.post(url, headers=headers, json={"records": [{"fields": new_fields}], "typecast": True})
+                    post_res = requests.post(url, headers=self.headers, json={"records": [{"fields": new_fields}], "typecast": True})
+                    if post_res.status_code != 200:
+                        print(f"Erreur POST CRM: {post_res.status_code} - {post_res.text}")
+                    else:
+                        print(f"✅ Client '{new_fields.get('Nom')}' créé dans le CRM.")
         except Exception as e:
             print(f"Erreur update CRM: {e}")
 

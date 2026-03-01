@@ -15,6 +15,22 @@ class BookingManager:
         # URL de base pour les emails et redirections
         self.base_url = "https://restaurant-le-cherimoya.vercel.app"
 
+    def get_reservations(self):
+        """Récupère toutes les réservations triées par date décroissante."""
+        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
+        params = {
+            "sort[0][field]": "Date",
+            "sort[0][direction]": "desc"
+        }
+        try:
+            response = requests.get(url, headers=self.headers, params=params)
+            if response.status_code == 200:
+                return response.json().get('records', [])
+            return []
+        except Exception as e:
+            print(f"Erreur get_reservations: {e}")
+            return []
+
     def get_today_stats(self):
         """Récupère les statistiques de réservation pour aujourd'hui depuis Airtable."""
         today_str = datetime.now().strftime('%Y-%m-%d')

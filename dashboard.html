@@ -328,6 +328,7 @@
 
             <nav class="admin-nav">
                 <div class="nav-tab active" onclick="switchTab('menu')">Carte</div>
+                <div class="nav-tab" onclick="switchTab('reservations')">Réservations</div>
                 <div class="nav-tab" onclick="switchTab('clients')">Clients</div>
             </nav>
         </header>
@@ -336,6 +337,25 @@
 
         <div id="menu-tab" class="tab-content active">
             <div id="admin-grid" class="admin-grid"></div>
+        </div>
+
+        <div id="reservations-tab" class="tab-content">
+            <div class="admin-grid" style="display: block;">
+                <table class="client-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Service</th>
+                            <th>Convive</th>
+                            <th>Places</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservations-tbody">
+                        <!-- Rempli en JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div id="clients-tab" class="tab-content">
@@ -539,6 +559,7 @@
 
             if (tab === 'menu') fetchMenu();
             if (tab === 'clients') fetchClients();
+            if (tab === 'reservations') fetchReservations();
         }
 
         async function fetchMenu() {
@@ -550,6 +571,70 @@
             } catch (err) {
                 console.error(err);
                 document.getElementById('loading').innerText = "Erreur de chargement.";
+            }
+        }
+
+        async function fetchReservations() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const res = await fetch('/api/admin/reservations');
+                const data = await res.json();
+                renderReservations(data);
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading').innerHTML = '<div style="color:#ff4d4d">Erreur lors du chargement des réservations.</div>';
+            }
+        }
+
+        function renderReservations(resas) {
+            const tbody = document.getElementById('reservations-tbody');
+            const countElement = document.getElementById('menu-count');
+            countElement.innerText = `${resas.length} réservation${resas.length > 1 ? 's' : ''} au total`;
+
+            tbody.innerHTML = resas.map(resa => {
+                const f = resa.fields;
+                const dateStr = new Date(f.Date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+                const statusColor = f.Statut === 'Confirmée' ? '#28a745' : (f.Statut === 'Annulée' ? '#ff4d4d' : '#cfa86e');
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight:bold">${dateStr}</div>
+                            <div style="font-size:0.8rem; color:var(--text-dim)">${f.Service} - ${f.Heure}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:bold">${f.Nom}</div>
+                            <div style="font-size:0.8rem; color:var(--text-dim)">${f.Telephone || '-'}</div>
+                        </td>
+                        <td style="font-size:1.1rem; font-weight:bold">${f.Couverts}</td>
+                        <td style="color:${statusColor}; font-weight:600">${f.Statut}</td>
+                        <td>
+                            <div style="display:flex; gap:0.5rem">
+                                ${f.Statut === 'À confirmer' ? `
+                                    <button class="filter-btn" onclick="handleResa('${resa.id}', 'confirm')" style="padding:5px 10px; border-color:#28a745; color:#28a745">Confirmer</button>
+                                    <button class="filter-btn" onclick="handleResa('${resa.id}', 'cancel')" style="padding:5px 10px; border-color:#ff4d4d; color:#ff4d4d">Refuser</button>
+                                ` : '<span style="color:var(--text-dim); font-size:0.8rem">Géré</span>'}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function handleResa(recordId, action) {
+            if (!confirm(`Souhaitez-vous ${action === 'confirm' ? 'confirmer' : 'annuler'} cette réservation ?`)) return;
+            try {
+                const res = await fetch(`/api/admin/reservations/action/${recordId}/${action}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(data.message);
+                    fetchReservations();
+                } else {
+                    alert("Erreur: " + data.error);
+                }
+            } catch (err) {
+                console.error(err);
             }
         }
 
@@ -568,6 +653,9 @@
 
         function renderClients() {
             const tbody = document.getElementById('clients-tbody');
+            const countElement = document.getElementById('menu-count');
+            countElement.innerText = `${currentClients.length} client${currentClients.length > 1 ? 's' : ''} dans le CRM`;
+
             tbody.innerHTML = currentClients.map(client => {
                 const f = client.fields;
                 const lastMail = f.Dernier_Avis_Envoye || "Jamais";
@@ -961,8 +1049,8 @@
         // Au chargement, on vérifie si un onglet spécifique est demandé
         const urlParams = new URLSearchParams(window.location.search);
         const requestedTab = urlParams.get('tab');
-        if (requestedTab === 'clients') {
-            switchTab('clients');
+        if (requestedTab) {
+            switchTab(requestedTab);
         } else {
             fetchMenu();
         }

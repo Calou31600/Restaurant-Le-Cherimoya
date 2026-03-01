@@ -369,6 +369,28 @@ def admin_update_client(record_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/reservations', methods=['GET'])
+@admin_required
+def admin_get_reservations():
+    """Liste toutes les réservations."""
+    try:
+        resas = engine.booking.get_reservations()
+        return jsonify(resas)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/reservations/action/<record_id>/<action>', methods=['POST'])
+@admin_required
+def admin_reservation_action(record_id, action):
+    """Confirme ou annule une réservation."""
+    try:
+        success, message = engine.booking.update_reservation_status(record_id, action)
+        if success:
+            return jsonify({"status": "success", "message": message})
+        return jsonify({"error": message}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/admin/stats/today', methods=['GET'])
 @admin_required
 def admin_get_today_stats():

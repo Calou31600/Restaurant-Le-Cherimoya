@@ -16,8 +16,18 @@ sys.path.append(os.path.join(os.getcwd(), 'tools'))
 from main_engine import MainEngine
 
 app = Flask(__name__, static_folder='.')
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_unsecure")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
 CORS(app)
+
+# Configuration de la session pour la production (Vercel)
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PREFERRED_URL_SCHEME'] = 'https'
+
+# Désactiver la sécurité des cookies si on est en local
+if os.environ.get('WEB_CONCURRENCY') is None and not os.environ.get('VERCEL'):
+    app.config['SESSION_COOKIE_SECURE'] = False
 
 # Configuration pour Vercel : permet de détecter correctement le protocole HTTPS
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)

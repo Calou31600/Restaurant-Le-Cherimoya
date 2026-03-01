@@ -367,8 +367,8 @@
 
         /* Cartes clients */
         .client-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(207,168,110,0.12);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(207, 168, 110, 0.12);
             border-radius: 16px;
             padding: 1.4rem;
             display: flex;
@@ -376,15 +376,18 @@
             gap: 1rem;
             transition: border-color 0.25s, box-shadow 0.25s;
         }
+
         .client-card:hover {
-            border-color: rgba(207,168,110,0.35);
-            box-shadow: 0 4px 24px rgba(207,168,110,0.07);
+            border-color: rgba(207, 168, 110, 0.35);
+            box-shadow: 0 4px 24px rgba(207, 168, 110, 0.07);
         }
+
         .client-card-header {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
+
         .client-avatar {
             width: 48px;
             height: 48px;
@@ -397,16 +400,19 @@
             flex-shrink: 0;
             letter-spacing: 0.05em;
         }
+
         .client-card-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.6rem 1rem;
         }
+
         .client-stat {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
+
         .client-stat-label {
             font-size: 0.62rem;
             text-transform: uppercase;
@@ -414,15 +420,17 @@
             color: var(--text-dim);
             opacity: 0.7;
         }
+
         .client-stat-value {
             font-size: 0.88rem;
             color: var(--text-main);
         }
+
         .client-card-actions {
             display: flex;
             gap: 0.6rem;
             padding-top: 0.6rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* ---- Section Demandes en attente ---- */
@@ -554,7 +562,8 @@
                     <button class="btn-save" id="btn-add-item" onclick="openAddModal()">+ Nouveau Plat</button>
                     <button class="filter-btn" id="btn-sync-clients" onclick="syncClients()" style="display: none;">🔄
                         Synchroniser</button>
-                    <button class="filter-btn" id="btn-refresh-resas" onclick="fetchReservations()" style="display: none;">🔄 Actualiser</button>
+                    <button class="filter-btn" id="btn-refresh-resas" onclick="fetchReservations()"
+                        style="display: none;">🔄 Actualiser</button>
                     <a href="/" class="filter-btn">Site Public</a>
                 </div>
             </div>
@@ -572,7 +581,7 @@
             <div id="admin-grid" class="admin-grid"></div>
         </div>
 
-                <div id="reservations-tab" class="tab-content">
+        <div id="reservations-tab" class="tab-content">
             <!-- Section Demandes en attente -->
             <div class="pending-section" id="pending-section">
                 <div class="pending-section-title">
@@ -604,7 +613,8 @@
         </div>
 
         <div id="clients-tab" class="tab-content">
-            <div id="clients-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem;padding:0.5rem 0;">
+            <div id="clients-grid"
+                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem;padding:0.5rem 0;">
                 <!-- Cartes clients injectées ici -->
             </div>
         </div>
@@ -726,6 +736,24 @@
             </div>
         </div>
 
+        <!-- Modal Confirmation Générique -->
+        <div id="confirm-overlay" class="upload-overlay" style="z-index: 6000; display: none;">
+            <div class="admin-modal"
+                style="max-width: 450px; text-align: center; border: 1px solid rgba(207, 168, 110, 0.4);">
+                <div
+                    style="font-size: 2.5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(207, 168, 110, 0.3));">
+                    ❓</div>
+                <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--text-main);">Confirmation</h3>
+                <p id="confirm-message"
+                    style="margin-bottom: 2rem; color: var(--text-dim); font-size: 1.05rem; line-height: 1.5;"></p>
+                <div style="display:flex; gap: 1rem; justify-content: center;">
+                    <button class="filter-btn" id="confirm-btn-cancel">Annuler</button>
+                    <button class="btn-save" id="confirm-btn-ok"
+                        style="background: var(--accent); color: #000; font-weight: bold;">Confirmer</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal Confirmation Suppression -->
         <div id="delete-overlay" class="upload-overlay" style="z-index: 4000;">
             <div class="admin-modal" style="max-width: 450px; text-align: center;">
@@ -773,6 +801,27 @@
         let activeTab = 'menu';
         let cropperInstance = null;
         let currentCroppedBlob = null;
+
+        function customConfirm(message) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('confirm-overlay');
+                const msgEl = document.getElementById('confirm-message');
+                const btnOk = document.getElementById('confirm-btn-ok');
+                const btnCancel = document.getElementById('confirm-btn-cancel');
+
+                msgEl.innerText = message;
+                overlay.style.display = 'flex';
+
+                const cleanup = () => {
+                    overlay.style.display = 'none';
+                    btnOk.onclick = null;
+                    btnCancel.onclick = null;
+                };
+
+                btnOk.onclick = () => { cleanup(); resolve(true); };
+                btnCancel.onclick = () => { cleanup(); resolve(false); };
+            });
+        }
 
         async function switchTab(tab) {
             activeTab = tab;
@@ -849,7 +898,7 @@
             const dateObj = new Date(dateStr + 'T12:00:00');
             const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'long' });
             const dayNum = dateObj.getDate();
-            const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase().slice(0,4);
+            const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase().slice(0, 4);
             return { dayName, dayNum, monthName };
         }
 
@@ -861,7 +910,7 @@
             const pendingEmpty = document.getElementById('pending-empty');
 
             const pending = resas.filter(r => r.fields.Statut === '\u00c0 confirmer');
-            const others  = resas.filter(r => r.fields.Statut !== '\u00c0 confirmer');
+            const others = resas.filter(r => r.fields.Statut !== '\u00c0 confirmer');
 
             countElement.innerText = `${resas.length} réservation${resas.length > 1 ? 's' : ''} au total`;
 
@@ -908,7 +957,7 @@
                 const f = resa.fields;
                 const { dayName, dayNum, monthName } = buildDateBlock(f.Date);
                 const statusColor = f.Statut === 'Confirmée' ? '#28a745' : (f.Statut === 'Annulée' ? '#ff4d4d' : '#cfa86e');
-                const statusBg   = f.Statut === 'Confirmée' ? 'rgba(40,167,69,0.1)' : (f.Statut === 'Annulée' ? 'rgba(255,77,77,0.1)' : 'rgba(207,168,110,0.1)');
+                const statusBg = f.Statut === 'Confirmée' ? 'rgba(40,167,69,0.1)' : (f.Statut === 'Annulée' ? 'rgba(255,77,77,0.1)' : 'rgba(207,168,110,0.1)');
                 return `
                     <tr>
                         <td style="min-width:180px;">
@@ -947,7 +996,7 @@
 
         async function handleResa(recordId, action) {
             const label = action === 'confirm' ? 'confirmer' : 'refuser';
-            if (!confirm(`Souhaitez-vous ${label} cette réservation ?`)) return;
+            if (!await customConfirm(`Souhaitez-vous ${label} cette réservation ?`)) return;
 
             // Animation de retrait immédiate
             const card = document.getElementById(`pending-${recordId}`);
@@ -1030,16 +1079,16 @@
                 const avisRecu = f.Avis_Recu;
 
                 // Avatar initiales
-                const initials = nom.trim().split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase();
-                const palette = ['#cfa86e','#7b9e87','#9e7b7b','#7b8e9e','#b89e7b'];
+                const initials = nom.trim().split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                const palette = ['#cfa86e', '#7b9e87', '#9e7b7b', '#7b8e9e', '#b89e7b'];
                 const avatarColor = palette[initials.charCodeAt(0) % palette.length];
 
                 // Date lisible
                 let lastVisit = '–';
                 if (f.Derniere_Visite) {
                     try {
-                        lastVisit = new Date(f.Derniere_Visite + 'T12:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
-                    } catch(e) { lastVisit = f.Derniere_Visite; }
+                        lastVisit = new Date(f.Derniere_Visite + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+                    } catch (e) { lastVisit = f.Derniere_Visite; }
                 }
 
                 // Étoiles
@@ -1047,7 +1096,7 @@
                 if (note && note !== '-') {
                     const n = parseFloat(note);
                     starsHtml = `<span style="color:var(--text-dim);font-size:0.75rem;">${note}/5 </span>` +
-                        Array.from({length:5}, (_,i) =>
+                        Array.from({ length: 5 }, (_, i) =>
                             `<span style="color:${i < n ? '#cfa86e' : 'rgba(255,255,255,0.12)'}">★</span>`
                         ).join('');
                 }
@@ -1058,7 +1107,7 @@
                     : `<span style="background:rgba(207,168,110,0.08);color:#cfa86e;border:1px solid rgba(207,168,110,0.25);border-radius:50px;padding:2px 10px;font-size:0.72rem;font-weight:700;white-space:nowrap;">⏳ En attente</span>`;
 
                 // Tel formaté
-                const telFmt = tel ? tel.replace(/(\d{2})(?=\d)/g,'$1 ').trim() : '–';
+                const telFmt = tel ? tel.replace(/(\d{2})(?=\d)/g, '$1 ').trim() : '–';
                 const safeName = nom.replace(/'/g, "\\'");
 
                 return `<div class="client-card">
@@ -1161,7 +1210,7 @@
         }
 
         async function sendReview(id, email, name) {
-            if (!confirm(`Envoyer une demande d'avis à ${name} (${email}) ?`)) return;
+            if (!await customConfirm(`Envoyer une demande d'avis à ${name} (${email}) ?`)) return;
 
             try {
                 const res = await fetch('/api/admin/clients/send-review', {

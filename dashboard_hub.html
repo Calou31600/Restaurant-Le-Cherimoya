@@ -434,7 +434,19 @@
         async function fetchStats() {
             try {
                 const res = await fetch('/api/admin/stats/today');
+                if (!res.ok) {
+                    console.error('[STATS] HTTP', res.status);
+                    return;
+                }
                 const data = await res.json();
+                if (data.error) {
+                    console.error('[STATS] Erreur API:', data.error);
+                    return;
+                }
+
+                // S'assurer que les listes existent toujours
+                data.reservations_midi = data.reservations_midi || [];
+                data.reservations_soir = data.reservations_soir || [];
                 currentTodayStats = data;
 
                 document.getElementById('stats-midi').innerText = data.midi || '0';

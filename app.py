@@ -456,10 +456,15 @@ def api_debug():
 def admin_get_today_stats():
     """Récupère les statistiques de réservation du jour (Midi et Soir)."""
     try:
-        stats = engine.booking.get_today_stats()
+        bm = booking_manager
+        if bm is None:
+            from booking_manager import BookingManager as BM
+            bm = BM()
+        stats = bm.get_today_stats()
         return jsonify(stats)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"[STATS TODAY] Erreur: {e}")
+        return jsonify({"error": str(e), "midi": 0, "soir": 0, "reservations_midi": [], "reservations_soir": []}), 500
 
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut

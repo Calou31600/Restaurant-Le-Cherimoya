@@ -126,6 +126,121 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Modal Réservations */
+        .resa-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .resa-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .resa-modal-content {
+            background: #111;
+            border: 1px solid rgba(207, 168, 110, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            color: var(--text-main);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        /* Custom scrollbar */
+        .resa-modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .resa-modal-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .resa-modal-content::-webkit-scrollbar-thumb {
+            background: rgba(207, 168, 110, 0.5);
+            border-radius: 6px;
+        }
+        .resa-modal.active .resa-modal-content {
+            transform: scale(1);
+        }
+        .resa-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(207, 168, 110, 0.2);
+            padding-bottom: 1rem;
+        }
+        .resa-modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-modal-btn:hover {
+            color: #ff4d4d;
+        }
+        .resa-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(207, 168, 110, 0.1);
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+        .resa-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(207, 168, 110, 0.3);
+        }
+        .resa-info h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+        .resa-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .resa-covers {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-width: 45px;
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            padding: 0 5px;
+            box-shadow: 0 4px 10px rgba(207, 168, 110, 0.2);
+        }
     </style>
 </head>
 
@@ -160,7 +275,7 @@
             <!-- Widget Réservations Aujourd'hui -->
             <div class="hub-card"
                 style="padding: 1.5rem 3rem; flex-direction: row; gap: 3rem; min-width: 400px; transform: none; cursor: default;">
-                <div style="text-align: center;">
+                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.filter='brightness(1.2)';" onmouseout="this.style.transform='scale(1)'; this.style.filter='brightness(1)';" onclick="openResaModal('midi')">
                     <div
                         style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
                         🍽️ Service Midi</div>
@@ -170,7 +285,7 @@
                     <div style="font-size: 0.8rem; color: var(--accent);">Portions</div>
                 </div>
                 <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.1);"></div>
-                <div style="text-align: center;">
+                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'; this.style.filter='brightness(1.2)';" onmouseout="this.style.transform='scale(1)'; this.style.filter='brightness(1)';" onclick="openResaModal('soir')">
                     <div
                         style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
                         🌙 Service Soir</div>
@@ -207,6 +322,19 @@
         </div>
     </div>
 
+    <!-- Modal Liste Réservations -->
+    <div id="resaModal" class="resa-modal" onclick="closeResaModal(event)">
+        <div class="resa-modal-content" onclick="event.stopPropagation()">
+            <div class="resa-modal-header">
+                <h2 id="resaModalTitle">Détail du Service</h2>
+                <button class="close-modal-btn" onclick="closeResaModal(event)">&times;</button>
+            </div>
+            <div id="resaModalBody">
+                <!-- Contenu injecté via JS -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- HORLOGE TEMPS RÉEL ---
         function updateClock() {
@@ -221,16 +349,60 @@
         }
 
         // --- STATS RÉSERVATIONS ---
+        let currentTodayStats = null;
+
         async function fetchStats() {
             try {
                 const res = await fetch('/api/admin/stats/today');
                 const data = await res.json();
+                currentTodayStats = data;
 
                 document.getElementById('stats-midi').innerText = data.midi || '0';
                 document.getElementById('stats-soir').innerText = data.soir || '0';
             } catch (err) {
                 console.error("Erreur fetch stats:", err);
             }
+        }
+
+        function openResaModal(service) {
+            if (!currentTodayStats) return;
+            const modal = document.getElementById('resaModal');
+            const title = document.getElementById('resaModalTitle');
+            const body = document.getElementById('resaModalBody');
+            
+            let list = service === 'midi' ? currentTodayStats.reservations_midi : currentTodayStats.reservations_soir;
+            title.innerHTML = service === 'midi' ? "🍽️ <span>Réservations Midi</span>" : "🌙 <span>Réservations Soir</span>";
+            
+            body.innerHTML = '';
+            if (!list || list.length === 0) {
+                body.innerHTML = '<p style="text-align:center; color: var(--text-dim); padding: 2rem 0; font-style: italic;">Aucune réservation confirmée pour ce service.</p>';
+            } else {
+                // Trier par heure (ordre chrono)
+                list.sort((a, b) => a.heure.localeCompare(b.heure));
+                
+                list.forEach(resa => {
+                    const item = document.createElement('div');
+                    item.className = 'resa-item';
+                    
+                    const phoneDisplay = resa.telephone ? `📞 ${resa.telephone}` : `📞 -`;
+                    const timeDisplay = resa.heure ? resa.heure : `N/A`;
+
+                    item.innerHTML = `
+                        <div class="resa-info">
+                            <h3>${resa.nom}</h3>
+                            <p>🕐 ${timeDisplay} &nbsp;|&nbsp; ${phoneDisplay}</p>
+                        </div>
+                        <div class="resa-covers">${resa.couverts}</div>
+                    `;
+                    body.appendChild(item);
+                });
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeResaModal(e) {
+            document.getElementById('resaModal').classList.remove('active');
         }
 
         // Initialisation

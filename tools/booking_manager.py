@@ -37,7 +37,10 @@ class BookingManager:
     def get_today_stats(self):
         """Récupère les statistiques de réservation pour aujourd'hui en comptant les couverts confirmés dans la table Reservations."""
         today_str = datetime.now().strftime('%Y-%m-%d')
-        stats = {"midi": 0, "soir": 0, "date": today_str}
+        stats = {
+            "midi": 0, "soir": 0, "date": today_str,
+            "reservations_midi": [], "reservations_soir": []
+        }
         
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
         # On ne compte que les réservations CONFIRMÉES pour aujourd'hui
@@ -55,10 +58,21 @@ class BookingManager:
                     fields = record.get('fields', {})
                     service = fields.get('Service')
                     covers = fields.get('Couverts', 0)
+                    
+                    resa_info = {
+                        "nom": fields.get('Nom', 'Inconnu'),
+                        "couverts": covers,
+                        "heure": fields.get('Heure', ''),
+                        "telephone": fields.get('Telephone', ''),
+                        "email": fields.get('Email', '')
+                    }
+                    
                     if service == 'Midi':
                         stats["midi"] += int(covers)
+                        stats["reservations_midi"].append(resa_info)
                     elif service == 'Soir':
                         stats["soir"] += int(covers)
+                        stats["reservations_soir"].append(resa_info)
             return stats
         except Exception as e:
             print(f"Erreur get_today_stats: {e}")

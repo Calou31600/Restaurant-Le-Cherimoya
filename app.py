@@ -22,8 +22,9 @@ CORS(app)
 # Configuration de la session pour la production (Vercel)
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Requis pour les redirections OAuth
 app.config['PREFERRED_URL_SCHEME'] = 'https'
+app.config['SESSION_TYPE'] = 'filesystem' # Optionnel, mais aide si la session cookie est trop grosse
 
 # Désactiver la sécurité des cookies si on est en local
 if os.environ.get('WEB_CONCURRENCY') is None and not os.environ.get('VERCEL'):
@@ -91,10 +92,11 @@ def login_google():
     # Cela évite les problèmes de mismatch avec Vercel qui peut générer l'URL différemment
     if os.environ.get("REDIRECT_URI"):
         redirect_uri = os.environ.get("REDIRECT_URI")
+    elif not request.host.startswith('localhost'):
+        # Force HTTPS et le domaine de production
+        redirect_uri = "https://restaurant-le-cherimoya.vercel.app/authorize"
     else:
         redirect_uri = url_for('authorize', _external=True)
-        if not request.host.startswith('localhost'):
-            redirect_uri = redirect_uri.replace('http://', 'https://')
     
     return google.authorize_redirect(redirect_uri)
 

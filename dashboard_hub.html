@@ -456,7 +456,7 @@
             }
         }
 
-        function openResaModal(service) {
+        async function openResaModal(service) {
             const modal = document.getElementById('resaModal');
             const title = document.getElementById('resaModalTitle');
             const body = document.getElementById('resaModalBody');
@@ -466,70 +466,79 @@
 
             const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             dateEl.innerText = todayLabel;
+            title.innerHTML = service === 'midi' ? "🍽️ <span>Service Midi</span>" : "🌙 <span>Service Soir</span>";
 
-            // Afficher la modale immédiatement
+            // Ouvrir la modale IMMÉDIATEMENT
             modal.classList.add('active');
 
-            // Afficher un état de chargement si les stats ne sont pas encore là
+            // Si les stats ne sont pas encore chargées, les récupérer maintenant
             if (!currentTodayStats) {
-                title.innerHTML = service === 'midi' ? "🍽️ <span>Service Midi</span>" : "🌙 <span>Service Soir</span>";
-                body.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--text-dim);">
-                    <div style="font-size:2rem;margin-bottom:1rem;animation:spin 1s linear infinite;">⏳</div>
-                    <div>Chargement des réservations...</div>
-                </div>`;
+                body.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:var(--text-dim);">
+                        <div style="font-size:2.5rem;margin-bottom:1rem;">⏳</div>
+                        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">Chargement...</div>
+                    </div>`;
                 totalBar.style.display = 'none';
+                try {
+                    const res = await fetch('/api/admin/stats/today');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (!data.error) {
+                            data.reservations_midi = data.reservations_midi || [];
+                            data.reservations_soir = data.reservations_soir || [];
+                            currentTodayStats = data;
+                            document.getElementById('stats-midi').innerText = data.midi || '0';
+                            document.getElementById('stats-soir').innerText = data.soir || '0';
+                        }
+                    }
+                } catch (e) {
+                    console.error('[MODAL] Erreur chargement stats:', e);
+                }
+            }
+
+            // Rendre le contenu
+            if (!currentTodayStats) {
+                body.innerHTML = `
+                    <div style="text-align:center;padding:3rem;border:1px dashed rgba(255,77,77,0.2);border-radius:16px;">
+                        <div style="font-size:2.5rem;margin-bottom:1rem;">⚠️</div>
+                        <p style="color:var(--text-dim);font-size:0.9rem;">Impossible de charger les réservations.<br>
+                        <span style="color:var(--accent);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;display:inline-block;margin-top:10px;">Vérifiez la connexion</span></p>
+                    </div>`;
                 return;
             }
 
-            let list = service === 'midi' ? currentTodayStats.reservations_midi : currentTodayStats.reservations_soir;
+            const list = service === 'midi' ? currentTodayStats.reservations_midi : currentTodayStats.reservations_soir;
             const totalService = service === 'midi' ? currentTodayStats.midi : currentTodayStats.soir;
-
-            title.innerHTML = service === 'midi'
-                ? "🍽️ <span>Service Midi</span>"
-                : "🌙 <span>Service Soir</span>";
-
             body.innerHTML = '';
 
             if (!list || list.length === 0) {
                 totalBar.style.display = 'none';
                 const icon = service === 'midi' ? '☀️' : '🌟';
                 body.innerHTML = `
-                    <div style="text-align: center; padding: 3rem 1rem; border: 1px dashed rgba(207, 168, 110, 0.25); border-radius: 16px; background: rgba(207,168,110,0.02); margin-top: 0.5rem;">
-                        <div style="font-size: 3.5rem; margin-bottom: 1.2rem; filter: drop-shadow(0 0 14px rgba(207,168,110,0.25));">${icon}</div>
-                        <h3 style="color: var(--text-main); font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 0.6rem; letter-spacing: 0.05em;">Service Intimiste</h3>
-                        <p style="color: var(--text-dim); font-size: 0.92rem; line-height: 1.7; max-width: 280px; margin: 0 auto;">
+                    <div style="text-align:center;padding:3rem 1rem;border:1px dashed rgba(207,168,110,0.25);border-radius:16px;background:rgba(207,168,110,0.02);">
+                        <div style="font-size:3.5rem;margin-bottom:1.2rem;filter:drop-shadow(0 0 14px rgba(207,168,110,0.25));">${icon}</div>
+                        <h3 style="color:var(--text-main);font-family:var(--font-heading);font-size:1.4rem;margin-bottom:0.6rem;letter-spacing:0.05em;">Service Intimiste</h3>
+                        <p style="color:var(--text-dim);font-size:0.92rem;line-height:1.7;max-width:280px;margin:0 auto;">
                             Le carnet est encore vierge pour ce service.<br>
-                            <span style="color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; display: inline-block; margin-top: 12px;">En attente de convives</span>
+                            <span style="color:var(--accent);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;display:inline-block;margin-top:12px;">En attente de convives</span>
                         </p>
-                    </div>
-                `;
+                    </div>`;
             } else {
-                // Afficher la barre de total
                 totalBar.style.display = 'flex';
                 totalCouverts.innerText = totalService;
-
-                // Trier par heure
                 list.sort((a, b) => (a.heure || '').localeCompare(b.heure || ''));
-
-                list.forEach((resa, index) => {
+                list.forEach(resa => {
                     const item = document.createElement('div');
                     item.className = 'resa-item';
-                    item.style.animationDelay = `${index * 60}ms`;
-
-                    const timeDisplay = resa.heure || '–';
                     const phoneDisplay = resa.telephone ? `📞 ${resa.telephone}` : '📞 Non renseigné';
                     const emailDisplay = resa.email ? `✉️ ${resa.email}` : '';
-
                     item.innerHTML = `
                         <div class="resa-info">
                             <h3>${resa.nom}</h3>
-                            <p>🕐 ${timeDisplay}&nbsp;&nbsp;${phoneDisplay}</p>
+                            <p>🕐 ${resa.heure || '–'}&nbsp;&nbsp;${phoneDisplay}</p>
                             ${emailDisplay ? `<p style="opacity:0.6;font-size:0.78rem;margin-top:2px;">${emailDisplay}</p>` : ''}
                         </div>
-                        <div class="resa-covers">
-                            ${resa.couverts}<span>pers.</span>
-                        </div>
-                    `;
+                        <div class="resa-covers">${resa.couverts}<span>pers.</span></div>`;
                     body.appendChild(item);
                 });
             }
@@ -543,8 +552,6 @@
         setInterval(updateClock, 1000);
         updateClock();
         fetchStats();
-
-        // Rafraîchir les stats toutes les 5 minutes
         setInterval(fetchStats, 300000);
     </script>
 </body>

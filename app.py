@@ -374,7 +374,7 @@ def admin_send_review():
             if record_id:
                 today = datetime.now().strftime('%Y-%m-%d')
                 url = f"https://api.airtable.com/v0/{engine.base_id}/Clients/{record_id}"
-                requests.patch(url, headers=engine.headers, json={"fields": {"Dernier_Avis_Envoye": today}})
+                http_requests.patch(url, headers=engine.headers, json={"fields": {"Dernier_Avis_Envoye": today}})
             
             return jsonify({"status": "success", "message": message})
         return jsonify({"error": message}), 500
@@ -388,7 +388,7 @@ def admin_update_client(record_id):
     try:
         fields = request.json.get('fields', {})
         url = f"https://api.airtable.com/v0/{engine.base_id}/Clients/{record_id}"
-        res = requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
+        res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
         if res.status_code == 200:
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code

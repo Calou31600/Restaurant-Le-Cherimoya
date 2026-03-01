@@ -305,6 +305,66 @@
             letter-spacing: 0.2em;
         }
 
+        /* Tables for CRM & Reservations */
+        .client-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.8rem;
+            margin-top: -0.8rem;
+        }
+
+        .client-table th {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            color: var(--accent);
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(207, 168, 110, 0.2);
+        }
+
+        .client-table tr {
+            background: rgba(255, 255, 255, 0.02);
+            transition: var(--transition-smooth);
+        }
+
+        .client-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.005);
+        }
+
+        .client-table td {
+            padding: 1.2rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .client-table td:first-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px 0 0 12px;
+        }
+
+        .client-table td:last-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         @media (max-width: 768px) {
 
             .admin-price {
@@ -603,27 +663,51 @@
 
             tbody.innerHTML = resas.map(resa => {
                 const f = resa.fields;
-                const dateStr = new Date(f.Date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+                const dateObj = new Date(f.Date);
+                const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'long' });
+                const dayNum = dateObj.getDate();
+                const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long' });
+
                 const statusColor = f.Statut === 'Confirmée' ? '#28a745' : (f.Statut === 'Annulée' ? '#ff4d4d' : '#cfa86e');
+                const statusBg = f.Statut === 'Confirmée' ? 'rgba(40, 167, 69, 0.1)' : (f.Statut === 'Annulée' ? 'rgba(255, 77, 77, 0.1)' : 'rgba(207, 168, 110, 0.1)');
 
                 return `
                     <tr>
-                        <td>
-                            <div style="font-weight:bold">${dateStr}</div>
-                            <div style="font-size:0.8rem; color:var(--text-dim)">${f.Service} - ${f.Heure}</div>
+                        <td style="min-width: 180px;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="text-align: center; background: rgba(207, 168, 110, 0.1); padding: 8px; border-radius: 8px; min-width: 60px; border: 1px solid rgba(207, 168, 110, 0.2);">
+                                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--accent); font-weight: bold;">${monthName}</div>
+                                    <div style="font-size: 1.4rem; font-weight: bold; color: #fff; line-height: 1;">${dayNum}</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-dim);">${dayName}</div>
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; color: var(--accent); font-size: 1rem;">${f.Service}</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-dim);">🕑 ${f.Heure}</div>
+                                </div>
+                            </div>
                         </td>
                         <td>
-                            <div style="font-weight:bold">${f.Nom}</div>
-                            <div style="font-size:0.8rem; color:var(--text-dim)">${f.Telephone || '-'}</div>
+                            <div style="font-weight: bold; color: #fff; font-size: 1.05rem; margin-bottom: 2px;">${f.Nom}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-dim);">📞 ${f.Telephone || 'N/A'}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); opacity: 0.7;">📧 ${f.Email || 'N/A'}</div>
                         </td>
-                        <td style="font-size:1.1rem; font-weight:bold">${f.Couverts}</td>
-                        <td style="color:${statusColor}; font-weight:600">${f.Statut}</td>
+                        <td style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent); line-height: 1;">${f.Couverts}</div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim);">Personnes</div>
+                        </td>
                         <td>
-                            <div style="display:flex; gap:0.5rem">
+                            <span class="status-badge" style="color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}44;">
+                                ${f.Statut}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.8rem; justify-content: flex-end;">
                                 ${f.Statut === 'À confirmer' ? `
-                                    <button class="filter-btn" onclick="handleResa('${resa.id}', 'confirm')" style="padding:5px 10px; border-color:#28a745; color:#28a745">Confirmer</button>
-                                    <button class="filter-btn" onclick="handleResa('${resa.id}', 'cancel')" style="padding:5px 10px; border-color:#ff4d4d; color:#ff4d4d">Refuser</button>
-                                ` : '<span style="color:var(--text-dim); font-size:0.8rem">Géré</span>'}
+                                    <button class="btn-save btn-small" onclick="handleResa('${resa.id}', 'confirm')" style="background: #28a745; color: #fff;">Confirmer</button>
+                                    <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color: #ff4d4d; color: #ff4d4d;">Refuser</button>
+                                ` : `
+                                    <span style="font-size: 0.8rem; color: var(--text-dim); font-style: italic;">Demande gérée</span>
+                                `}
                             </div>
                         </td>
                     </tr>

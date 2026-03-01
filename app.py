@@ -1,3 +1,4 @@
+import requests as http_requests
 from flask import Flask, jsonify, send_from_directory, request, session, redirect, url_for, make_response
 from flask_cors import CORS
 import os
@@ -76,37 +77,61 @@ def login_page():
 
 @app.route('/login/google')
 def login_google():
-    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        return "Erreur : Les clés Google OAuth sont manquantes.", 500
-    # On laisse Authlib générer et stocker le state dans la session Flask
-    return google.authorize_redirect(REDIRECT_URI)
+    if not GOOGLE_CLIENT_ID:
+        return "Erreur : Client ID Google manquant.", 500
+    
+    # URL de base pour l'authentification Google
+    # On passe un 'state' bidon car nous n'allons pas le vérifier via la session
+    auth_url = (
+        "https://accounts.google.com/o/oauth2/v2/auth?"
+        "response_type=code&"
+        f"client_id={GOOGLE_CLIENT_ID}&"
+        f"redirect_uri={REDIRECT_URI}&"
+        "scope=openid%20email%20profile&"
+        "state=random_state_string"
+    )
+    return redirect(auth_url)
 
 
 @app.route('/authorize')
 def authorize():
     try:
-        # Sur Vercel (serverless), la session Flask (cookie-based) peut être
-        # perdue entre /login/google et /authorize (instances différentes).
-        # Solution : on réinjecte le state retourné par Google dans la session
-        # pour qu'Authlib le retrouve et le valide correctement.
-        returned_state = request.args.get('state')
-        if returned_state:
-            session['_google_state_'] = returned_state
+        # 1. On récupère le code envoyé par Google
+        code = request.args.get('code')
+        if not code:
+            return "Erreur : Aucun code reçu de Google.", 400
 
-        token = google.authorize_access_token()
-        user = token.get('userinfo')
+        # 2. On échange ce code contre un jeton d'accès via une requête POST directe
+        token_url = "https://oauth2.googleapis.com/token"
+        data = {
+            'code': code,
+            'client_id': GOOGLE_CLIENT_ID,
+            'client_secret': GOOGLE_CLIENT_SECRET,
+            'redirect_uri': REDIRECT_URI,
+            'grant_type': 'authorization_code'
+        }
+        
+        token_resp = http_requests.post(token_url, data=data)
+        if token_resp.status_code != 200:
+            return f"Erreur Google Token : {token_resp.text}", 400
+            
+        access_token = token_resp.json().get('access_token')
 
+        # 3. On récupère les infos de l'utilisateur avec ce jeton
+        user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        user_resp = http_requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
+        user = user_resp.json()
+
+        # 4. Vérification finale de l'admin
         if user and user.get('email') == ADMIN_EMAIL:
             session['user'] = dict(user)
             session.permanent = True
             return redirect(url_for('admin'))
 
-        return f"Accès refusé : {user.get('email') if user else 'inconnu'} n'est pas l'administrateur.", 403
+        return f"Accès refusé : {user.get('email') if user else 'Inconnu'} n'est pas l'administrateur.", 403
 
     except Exception as e:
-        print(f"ERREUR AUTHORIZE : {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"ERREUR CRITIQUE AUTHORIZE : {e}")
         return f"Erreur d'authentification : {str(e)}", 500
 
 

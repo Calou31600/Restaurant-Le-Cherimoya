@@ -365,11 +365,100 @@
             letter-spacing: 0.05em;
         }
 
-        @media (max-width: 768px) {
+        /* ---- Section Demandes en attente ---- */
+        .pending-section {
+            margin-bottom: 2.5rem;
+        }
 
+        .pending-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #cfa86e;
+            font-weight: 700;
+        }
+
+        .pending-section-title .pending-count {
+            background: #cfa86e;
+            color: #0d0d0d;
+            border-radius: 50px;
+            padding: 2px 9px;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .pending-section-title .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #cfa86e;
+            border-radius: 50%;
+            animation: pulse-badge 1.5s infinite;
+        }
+
+        @keyframes pulse-badge {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
+        }
+
+        .pending-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .pending-card {
+            display: grid;
+            grid-template-columns: 200px 1fr auto auto auto;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(207, 168, 110, 0.04);
+            border: 1px solid rgba(207, 168, 110, 0.25);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pending-card:hover {
+            background: rgba(207, 168, 110, 0.08);
+            border-color: rgba(207, 168, 110, 0.5);
+        }
+
+        .pending-card.removing {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease;
+        }
+
+        .pending-empty {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            padding: 1.2rem;
+            font-style: italic;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
             .admin-price {
                 grid-column: 2;
                 text-align: left;
+            }
+
+            .pending-card {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -422,12 +511,24 @@
             <div id="admin-grid" class="admin-grid"></div>
         </div>
 
-        <div id="reservations-tab" class="tab-content">
+                <div id="reservations-tab" class="tab-content">
+            <!-- Section Demandes en attente -->
+            <div class="pending-section" id="pending-section">
+                <div class="pending-section-title">
+                    <div class="pulse-dot"></div>
+                    Demandes en attente
+                    <span class="pending-count" id="pending-count">0</span>
+                </div>
+                <div class="pending-cards" id="pending-cards"></div>
+                <div class="pending-empty" id="pending-empty">Aucune demande en attente.</div>
+            </div>
+
+            <!-- Tableau toutes reservations -->
             <div class="admin-grid" style="display: block;">
                 <table class="client-table">
                     <thead>
                         <tr>
-                            <th>Date & Service</th>
+                            <th>Date &amp; Service</th>
                             <th>Convive</th>
                             <th>Places</th>
                             <th>Statut</th>
@@ -687,95 +788,151 @@
             }
         }
 
+        // --- Helpers de rendu partagés ---
+        function buildDateBlock(dateStr) {
+            const dateObj = new Date(dateStr + 'T12:00:00');
+            const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'long' });
+            const dayNum = dateObj.getDate();
+            const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase().slice(0,4);
+            return { dayName, dayNum, monthName };
+        }
+
         function renderReservations(resas) {
             const tbody = document.getElementById('reservations-tbody');
             const countElement = document.getElementById('menu-count');
+            const pendingCards = document.getElementById('pending-cards');
+            const pendingCount = document.getElementById('pending-count');
+            const pendingEmpty = document.getElementById('pending-empty');
+
+            const pending = resas.filter(r => r.fields.Statut === '\u00c0 confirmer');
+            const others  = resas.filter(r => r.fields.Statut !== '\u00c0 confirmer');
+
             countElement.innerText = `${resas.length} réservation${resas.length > 1 ? 's' : ''} au total`;
 
+            // --- Section demandes en attente ---
+            pendingCount.innerText = pending.length;
+            if (pending.length === 0) {
+                pendingCards.innerHTML = '';
+                pendingEmpty.style.display = 'block';
+            } else {
+                pendingEmpty.style.display = 'none';
+                pendingCards.innerHTML = pending.map(resa => {
+                    const f = resa.fields;
+                    const { dayName, dayNum, monthName } = buildDateBlock(f.Date);
+                    return `
+                    <div class="pending-card" id="pending-${resa.id}">
+                        <div style="display:flex;align-items:center;gap:1rem;">
+                            <div style="text-align:center;background:rgba(207,168,110,0.1);padding:8px 12px;border-radius:8px;border:1px solid rgba(207,168,110,0.25);min-width:56px;">
+                                <div style="font-size:0.65rem;text-transform:uppercase;color:var(--accent);font-weight:700;">${monthName}</div>
+                                <div style="font-size:1.4rem;font-weight:700;color:#fff;line-height:1.1;">${dayNum}</div>
+                                <div style="font-size:0.6rem;color:var(--text-dim);">${dayName}</div>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;color:var(--accent);font-size:0.95rem;">${f.Service}</div>
+                                <div style="font-size:0.82rem;color:var(--text-dim);">🕑 ${f.Heure || '–'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:#fff;font-size:1rem;margin-bottom:2px;">${f.Nom || '–'}</div>
+                            <div style="font-size:0.82rem;color:var(--text-dim);">📞 ${f.Telephone || 'N/A'}</div>
+                            <div style="font-size:0.78rem;color:var(--text-dim);opacity:0.7;">📧 ${f.Email || 'N/A'}</div>
+                        </div>
+                        <div style="text-align:center;min-width:60px;">
+                            <div style="font-size:1.4rem;font-weight:700;color:var(--accent);">${f.Couverts}</div>
+                            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--text-dim);">pers.</div>
+                        </div>
+                        <button class="btn-save btn-small" onclick="handleResa('${resa.id}', 'confirm')" style="background:#28a745;color:#fff;white-space:nowrap;">✓ Confirmer</button>
+                        <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color:#ff4d4d;color:#ff4d4d;white-space:nowrap;">✕ Refuser</button>
+                    </div>`;
+                }).join('');
+            }
+
+            // --- Tableau toutes réservations ---
             tbody.innerHTML = resas.map(resa => {
                 const f = resa.fields;
-                const dateObj = new Date(f.Date);
-                const dayName = dateObj.toLocaleDateString('fr-FR', { weekday: 'long' });
-                const dayNum = dateObj.getDate();
-                const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long' });
-
+                const { dayName, dayNum, monthName } = buildDateBlock(f.Date);
                 const statusColor = f.Statut === 'Confirmée' ? '#28a745' : (f.Statut === 'Annulée' ? '#ff4d4d' : '#cfa86e');
-                const statusBg = f.Statut === 'Confirmée' ? 'rgba(40, 167, 69, 0.1)' : (f.Statut === 'Annulée' ? 'rgba(255, 77, 77, 0.1)' : 'rgba(207, 168, 110, 0.1)');
-
+                const statusBg   = f.Statut === 'Confirmée' ? 'rgba(40,167,69,0.1)' : (f.Statut === 'Annulée' ? 'rgba(255,77,77,0.1)' : 'rgba(207,168,110,0.1)');
                 return `
                     <tr>
-                        <td style="min-width: 180px;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div style="text-align: center; background: rgba(207, 168, 110, 0.1); padding: 8px; border-radius: 8px; min-width: 60px; border: 1px solid rgba(207, 168, 110, 0.2);">
-                                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--accent); font-weight: bold;">${monthName}</div>
-                                    <div style="font-size: 1.4rem; font-weight: bold; color: #fff; line-height: 1;">${dayNum}</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-dim);">${dayName}</div>
+                        <td style="min-width:180px;">
+                            <div style="display:flex;align-items:center;gap:1rem;">
+                                <div style="text-align:center;background:rgba(207,168,110,0.1);padding:8px;border-radius:8px;min-width:60px;border:1px solid rgba(207,168,110,0.2);">
+                                    <div style="font-size:0.7rem;text-transform:uppercase;color:var(--accent);font-weight:bold;">${monthName}</div>
+                                    <div style="font-size:1.4rem;font-weight:bold;color:#fff;line-height:1;">${dayNum}</div>
+                                    <div style="font-size:0.65rem;color:var(--text-dim);">${dayName}</div>
                                 </div>
                                 <div>
-                                    <div style="font-weight: bold; color: var(--accent); font-size: 1rem;">${f.Service}</div>
-                                    <div style="font-size: 0.85rem; color: var(--text-dim);">🕑 ${f.Heure}</div>
+                                    <div style="font-weight:bold;color:var(--accent);font-size:1rem;">${f.Service}</div>
+                                    <div style="font-size:0.85rem;color:var(--text-dim);">🕑 ${f.Heure || '–'}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: bold; color: #fff; font-size: 1.05rem; margin-bottom: 2px;">${f.Nom}</div>
-                            <div style="font-size: 0.85rem; color: var(--text-dim);">📞 ${f.Telephone || 'N/A'}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-dim); opacity: 0.7;">📧 ${f.Email || 'N/A'}</div>
+                            <div style="font-weight:bold;color:#fff;font-size:1.05rem;margin-bottom:2px;">${f.Nom}</div>
+                            <div style="font-size:0.85rem;color:var(--text-dim);">📞 ${f.Telephone || 'N/A'}</div>
+                            <div style="font-size:0.8rem;color:var(--text-dim);opacity:0.7;">📧 ${f.Email || 'N/A'}</div>
                         </td>
-                        <td style="text-align: center;">
-                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent); line-height: 1;">${f.Couverts}</div>
-                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim);">Personnes</div>
+                        <td style="text-align:center;">
+                            <div style="font-size:1.5rem;font-weight:bold;color:var(--accent);line-height:1;">${f.Couverts}</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;color:var(--text-dim);">Personnes</div>
                         </td>
                         <td>
-                            <span class="status-badge" style="color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}44;">
-                                ${f.Statut}
+                            <span class="status-badge" style="color:${statusColor};background:${statusBg};border:1px solid ${statusColor}44;">${f.Statut}</span>
+                        </td>
+                        <td>
+                            <span style="font-size:0.8rem;color:var(--text-dim);font-style:italic;">
+                                ${f.Statut === '\u00c0 confirmer' ? 'En attente' : 'Géré'}
                             </span>
                         </td>
-                        <td>
-                            <div style="display: flex; gap: 0.8rem; justify-content: flex-end;">
-                                ${f.Statut === 'À confirmer' ? `
-                                    <button class="btn-save btn-small" onclick="handleResa('${resa.id}', 'confirm')" style="background: #28a745; color: #fff;">Confirmer</button>
-                                    <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color: #ff4d4d; color: #ff4d4d;">Refuser</button>
-                                ` : `
-                                    <span style="font-size: 0.8rem; color: var(--text-dim); font-style: italic;">Demande gérée</span>
-                                `}
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                    </tr>`;
             }).join('');
         }
 
         async function handleResa(recordId, action) {
-            if (!confirm(`Souhaitez-vous ${action === 'confirm' ? 'confirmer' : 'annuler'} cette réservation ?`)) return;
+            const label = action === 'confirm' ? 'confirmer' : 'refuser';
+            if (!confirm(`Souhaitez-vous ${label} cette réservation ?`)) return;
+
+            // Animation de retrait immédiate
+            const card = document.getElementById(`pending-${recordId}`);
+            if (card) card.classList.add('removing');
+
             try {
                 const res = await fetch(`/api/admin/reservations/action/${recordId}/${action}`, { method: 'POST' });
 
-                // Gestion de la session expirée
                 if (res.status === 401) {
-                    alert("⚠️ Session expirée. Veuillez vous reconnecter.");
+                    alert("Session expirée. Veuillez vous reconnecter.");
                     window.location.href = '/login';
                     return;
                 }
 
-                // Vérifier que la réponse est bien du JSON
                 const contentType = res.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await res.text();
-                    console.error("Réponse non-JSON reçue:", text.substring(0, 200));
-                    alert("Erreur serveur inattendue. Vérifiez les logs Vercel.");
+                    console.error("Réponse non-JSON:", text.substring(0, 300));
+                    alert("Erreur serveur. Vérifiez les logs Vercel.");
+                    if (card) card.classList.remove('removing');
                     return;
                 }
 
                 const data = await res.json();
                 if (data.status === 'success') {
-                    alert(data.message);
-                    fetchReservations();
-                    fetchStats();
+                    // Retirer la carte après l'animation
+                    if (card) {
+                        setTimeout(() => {
+                            fetchReservations();
+                            fetchStats();
+                        }, 400);
+                    } else {
+                        fetchReservations();
+                        fetchStats();
+                    }
                 } else {
+                    if (card) card.classList.remove('removing');
                     alert("Erreur: " + (data.error || "Erreur inconnue"));
                 }
             } catch (err) {
+                if (card) card.classList.remove('removing');
                 console.error("Erreur réseau handleResa:", err);
                 alert("Erreur réseau. Vérifiez votre connexion.");
             }

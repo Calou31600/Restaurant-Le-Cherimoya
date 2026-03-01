@@ -170,7 +170,7 @@
                 <span class="score" id="dynamic-rating">4,3</span>
                 <div>
                     <div class="stars" id="dynamic-stars">★★★★<span style="color: rgba(255,255,255,0.2)">★</span></div>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;" id="dynamic-reviews-count">Basé sur 64 avis
+                    <p style="color: var(--text-dim); font-size: 0.9rem;" id="dynamic-reviews-count">Basé sur 66 avis
                         Google</p>
                 </div>
             </div>
@@ -717,7 +717,14 @@
             menu: [
                 { Plat: "Agneau du Comminges", description_geo: "Agneau élevé en plein air, cuit 7 heures aux herbes sauvages", prix: 32, is_featured: true },
                 { Plat: "Truite de l'Ourse", description_geo: "Truite fumée au bois de hêtre, légumes oubliés du maraîcher", prix: 28, is_featured: false }
-            ]
+            ],
+            reviews: {
+                rating: 4.3,
+                total: 66,
+                reviews: [
+                    { author_name: "Jean-Pierre", rating: 5, text: "Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons..." }
+                ]
+            }
         };
 
         function updateUI(data) {
@@ -760,16 +767,17 @@
         }
 
         function updateReviewsDisplay(reviewsData) {
-            if (!reviewsData) return;
+            if (!reviewsData || typeof reviewsData.rating === 'undefined' || reviewsData.rating === null) return;
             currentReviewsData = reviewsData;
 
-            const rating = reviewsData.rating.toFixed(1).replace('.', ',');
+            const ratingVal = Number(reviewsData.rating);
+            const rating = !isNaN(ratingVal) ? ratingVal.toFixed(1).replace('.', ',') : "4,3";
             document.getElementById('dynamic-rating').innerText = rating;
 
-            const total = reviewsData.total;
+            const total = reviewsData.total || 66;
             document.getElementById('dynamic-reviews-count').innerText = currentLang === 'fr' ? `Basé sur ${total} avis Google` : `Based on ${total} Google reviews`;
 
-            const score = Math.round(reviewsData.rating);
+            const score = Math.round(ratingVal) || 4;
             let starsHTML = '';
             for (let i = 1; i <= 5; i++) {
                 if (i <= score) starsHTML += '★';

@@ -77,8 +77,8 @@ class MainEngine:
                 if data:
                     # On garde les infos essentielles
                     reviews_data = {
-                        "rating": data.get("rating", 4.5),
-                        "total": data.get("user_ratings_total", 0),
+                        "rating": data.get("rating", 4.3),
+                        "total": data.get("user_ratings_total", 66),
                         "reviews": [{"author_name": r.get("author_name"), "rating": r.get("rating"), "text": r.get("text")} for r in data.get("reviews", []) if r.get("text")]
                     }
                     self._set_cache("reviews", reviews_data)

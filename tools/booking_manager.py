@@ -250,52 +250,78 @@ class BookingManager:
 
     def _update_crm_from_booking(self, booking_data):
         """Met à jour ou crée un client dans le CRM à partir d'une réservation confirmée."""
-        email = booking_data.get('Email')
-        if not email: return
+        email = (booking_data.get('Email') or '').strip()
+        telephone = (booking_data.get('Telephone') or '').strip()
+        nom = (booking_data.get('Nom') or 'Inconnu').strip()
         
+        # S'il n'y a ni email, ni téléphone, ni vrai nom, on ignore
+        if not email and not telephone and nom == 'Inconnu':
+            return
+            
         url = f"https://api.airtable.com/v0/{self.base_id}/Clients"
-        headers = self.headers
         
         try:
-            # 1. Chercher si le client existe déjà (par email)
-            search_params = {"filterByFormula": "{Email}='" + email + "'"}
-            res = requests.get(url, headers=self.headers, params=search_params)
-            if res.status_code == 200:
-                records = res.json().get('records', [])
-                if records:
-                    # Client existant : Mise à jour des infos et date
-                    client_id = records[0]['id']
-                    existing_fields = records[0]['fields']
+            records = []
+            
+            # 1. Chercher par email d'abord (en priorité)
+            if email:
+                search_params = {"filterByFormula": f"{{Email}}='{email}'"}
+                res = requests.get(url, headers=self.headers, params=search_params)
+                if res.status_code == 200:
+                    records = res.json().get('records', [])
+            
+            # 2. Chercher par téléphone s'il n'y a pas de correspondance par email (ou pas d'email du tout)
+            if not records and telephone:
+                search_params = {"filterByFormula": f"{{Telephone}}='{telephone}'"}
+                res = requests.get(url, headers=self.headers, params=search_params)
+                if res.status_code == 200:
+                    records = res.json().get('records', [])
+            
+            # 3. Mise à jour ou création
+            if records:
+                client_id = records[0]['id']
+                existing_fields = records[0]['fields']
+                
+                updated_fields = {
+                    "Derniere_Visite": booking_data.get('Date')
+                }
+                
+                # Conserver l'existant s'il est meilleur
+                if nom and nom != 'Inconnu':
+                    updated_fields["Nom"] = nom
+                elif existing_fields.get('Nom'):
+                    updated_fields["Nom"] = existing_fields.get('Nom')
+                
+                if email:
+                    updated_fields["Email"] = email
+                if telephone:
+                    updated_fields["Telephone"] = telephone
                     
-                    # On complète les infos manquantes si besoin
-                    updated_fields = {
-                        "Derniere_Visite": booking_data.get('Date'),
-                        "Nom": existing_fields.get('Nom') or booking_data.get('Nom'),
-                        "Telephone": existing_fields.get('Telephone') or booking_data.get('Telephone')
-                    }
-                    
-                    # Incrémenter le nombre de réservations si possible via Airtable (ou on le fait nous-mêmes)
-                    # Pour faire simple, on récupère le nb actuel et on fait +1
-                    old_nb = existing_fields.get('Nb_Reservations', 0)
-                    updated_fields["Nb_Reservations"] = old_nb + 1
-                    
-                    patch_res = requests.patch(f"{url}/{client_id}", headers=self.headers, json={"fields": updated_fields})
-                    if patch_res.status_code != 200:
-                        print(f"Erreur PATCH CRM: {patch_res.status_code} - {patch_res.text}")
+                old_nb = existing_fields.get('Nb_Reservations', 0)
+                updated_fields["Nb_Reservations"] = old_nb + 1
+                
+                patch_res = requests.patch(f"{url}/{client_id}", headers=self.headers, json={"fields": updated_fields})
+                if patch_res.status_code != 200:
+                    print(f"Erreur PATCH CRM: {patch_res.status_code} - {patch_res.text}")
                 else:
-                    # Nouveau client : Création
-                    new_fields = {
-                        "Nom": booking_data.get('Nom'),
-                        "Email": email,
-                        "Telephone": booking_data.get('Telephone'),
-                        "Nb_Reservations": 1,
-                        "Derniere_Visite": booking_data.get('Date')
-                    }
-                    post_res = requests.post(url, headers=self.headers, json={"records": [{"fields": new_fields}], "typecast": True})
-                    if post_res.status_code != 200:
-                        print(f"Erreur POST CRM: {post_res.status_code} - {post_res.text}")
-                    else:
-                        print(f"✅ Client '{new_fields.get('Nom')}' créé dans le CRM.")
+                    print(f"✅ Fiche client CRM mise à jour pour '{nom}'.")
+            else:
+                # Nouveau client : Création
+                new_fields = {
+                    "Nom": nom,
+                    "Nb_Reservations": 1,
+                    "Derniere_Visite": booking_data.get('Date')
+                }
+                if email:
+                    new_fields["Email"] = email
+                if telephone:
+                    new_fields["Telephone"] = telephone
+                
+                post_res = requests.post(url, headers=self.headers, json={"records": [{"fields": new_fields}], "typecast": True})
+                if post_res.status_code != 200:
+                    print(f"Erreur POST CRM: {post_res.status_code} - {post_res.text}")
+                else:
+                    print(f"✅ Client '{nom}' créé dans le CRM.")
         except Exception as e:
             print(f"Erreur update CRM: {e}")
 

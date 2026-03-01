@@ -43,7 +43,24 @@ MAPPING = {
     "paradis_asiatique_cocktail": "Paradis asiatique",
     "cotes_agneau_herbes": "Côtes d’agneau grillés aux herbes",
     "tiramisu_cafe_cherimoya": "Tiramisu au café",
-    "poire_trompe_oeil_cherimoya": "Poire en trompe-l'œil"
+    "poire_trompe_oeil_cherimoya": "Poire en trompe-l'œil",
+    "gambas_grillees_3pc_v2": "Grosses gambas grillées 3pc",
+    "paradis_asiatique_cocktail_v2": "Paradis asiatique",
+    "cotes_agneau_herbes_v2": "Côtes d’agneau grillés aux herbes",
+    "tiramisu_cafe_v2_cherimoya": "Tiramisu au café",
+    "poire_trompe_oeil_v2_cherimoya": "Poire en trompe-l'œil",
+    "assiette_charcuterie_fromages_v2": "Assiette de charcuterie et fromages",
+    "mojito_cocktail_v2": "Mojito",
+    "virgin_colada_cocktail_v2": "Virgin colada",
+    "americano_cocktail": "Américano",
+    "pates_fruits_de_mer": "Pâtes aux fruits de mer",
+    "riz_saute_fruits_de_mer": "Riz sauté aux fruits de mer",
+    "pina_colada_cocktail": "Pina colada",
+    "nems_poulet_croustillants": "4 nems poulet croustillants",
+    "salade_camembert_roti": "Salade de camembert roti",
+    "siu_mai_vapeur_5pc_v2_cherimoya_retry": "Siu Mai vapeur 5pc",
+    "saumon_teriyaki_v2_cherimoya_retry": "Saumon sauce teriyaki",
+    "tartelette_tatin_cherimoya": "Tartelette tatin"
 }
 
 BRAIN_DIR = r"C:\Users\pasca\.gemini\antigravity\brain\2fce4afb-db18-4eaf-b1ff-d10a48040969"

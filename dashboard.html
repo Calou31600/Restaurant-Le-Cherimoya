@@ -750,16 +750,34 @@
             if (!confirm(`Souhaitez-vous ${action === 'confirm' ? 'confirmer' : 'annuler'} cette réservation ?`)) return;
             try {
                 const res = await fetch(`/api/admin/reservations/action/${recordId}/${action}`, { method: 'POST' });
+
+                // Gestion de la session expirée
+                if (res.status === 401) {
+                    alert("⚠️ Session expirée. Veuillez vous reconnecter.");
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Vérifier que la réponse est bien du JSON
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    console.error("Réponse non-JSON reçue:", text.substring(0, 200));
+                    alert("Erreur serveur inattendue. Vérifiez les logs Vercel.");
+                    return;
+                }
+
                 const data = await res.json();
                 if (data.status === 'success') {
                     alert(data.message);
                     fetchReservations();
-                    fetchStats(); // Mise à jour immédiate des compteurs Midi/Soir
+                    fetchStats();
                 } else {
-                    alert("Erreur: " + data.error);
+                    alert("Erreur: " + (data.error || "Erreur inconnue"));
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Erreur réseau handleResa:", err);
+                alert("Erreur réseau. Vérifiez votre connexion.");
             }
         }
 

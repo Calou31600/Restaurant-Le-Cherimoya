@@ -51,6 +51,9 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user' not in session or session['user'].get('email') != ADMIN_EMAIL:
+            # Sur les routes API, retourner du JSON (pas une redirection HTML)
+            if request.path.startswith('/api/'):
+                return jsonify({"status": "error", "error": "Non autorisé. Session expirée."}), 401
             return redirect(url_for('login_page'))
         return f(*args, **kwargs)
     return decorated_function
@@ -382,14 +385,21 @@ def admin_get_reservations():
 @app.route('/api/admin/reservations/action/<record_id>/<action>', methods=['POST'])
 @admin_required
 def admin_reservation_action(record_id, action):
-    """Confirme ou annule une réservation."""
+    """Confirme ou annule une réservation depuis le dashboard."""
     try:
+        print(f"[ADMIN ACTION] record_id={record_id} action={action}")
+        if action not in ['confirm', 'cancel']:
+            return jsonify({"status": "error", "error": "Action invalide."}), 400
+
         success, message = engine.booking.update_reservation_status(record_id, action)
+        print(f"[ADMIN ACTION] success={success} message={message}")
+
         if success:
             return jsonify({"status": "success", "message": message})
-        return jsonify({"error": message}), 500
+        return jsonify({"status": "error", "error": message}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"[ADMIN ACTION EXCEPTION] {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
 
 @app.route('/api/admin/stats/today', methods=['GET'])
 @admin_required

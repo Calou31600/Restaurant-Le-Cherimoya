@@ -2,16 +2,12 @@ from flask import Flask, jsonify, send_from_directory, request, session, redirec
 from flask_cors import CORS
 import os
 import sys
-import secrets
-import requests as http_requests
 import cloudinary
 import cloudinary.uploader
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from datetime import datetime
-from urllib.parse import urlencode
 from werkzeug.middleware.proxy_fix import ProxyFix
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 
 # Ajouter le dossier tools au path pour importer les moteurs
@@ -20,16 +16,13 @@ sys.path.append(os.path.join(os.getcwd(), 'tools'))
 from main_engine import MainEngine
 
 app = Flask(__name__, static_folder='.')
-SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
-app.secret_key = SECRET_KEY
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
 CORS(app)
 
-# Configuration pour Vercel : permet de détecter correctement le protocole HTTPS
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+# ProxyFix : permet à Flask de détecter HTTPS derriere le proxy Vercel
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
-# Sérialiseur pour signer le state OAuth de manière stateless (compatible Serverless/Vercel)
-_state_serializer = URLSafeTimedSerializer(SECRET_KEY, salt='oauth-state')
-IS_PRODUCTION = bool(os.environ.get('VERCEL') or os.environ.get('PRODUCTION'))
+REDIRECT_URI = "https://restaurant-le-cherimoya.vercel.app/authorize"
 
 engine = MainEngine()
 
@@ -84,111 +77,38 @@ def login_page():
 @app.route('/login/google')
 def login_google():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        return "Erreur : Les clés Google OAuth sont manquantes sur le serveur.", 500
-
-    # Génère un state signé cryptographiquement (stateless, compatible Vercel)
-    raw_state = secrets.token_urlsafe(32)
-    signed_state = _state_serializer.dumps(raw_state)
-
-    redirect_uri = (
-        "https://restaurant-le-cherimoya.vercel.app/authorize"
-        if IS_PRODUCTION
-        else url_for('authorize', _external=True)
-    )
-
-    # Construction manuelle de l'URL Google OAuth (sans Authlib)
-    # Authlib modifiait le state en interne, causant le mismatch
-    params = urlencode({
-        'client_id': GOOGLE_CLIENT_ID,
-        'redirect_uri': redirect_uri,
-        'response_type': 'code',
-        'scope': 'openid email profile',
-        'state': signed_state,
-        'access_type': 'online',
-    })
-    google_auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{params}"
-
-    # Redirection + cookie contenant le state pour vérification au retour
-    resp = make_response(redirect(google_auth_url))
-    resp.set_cookie(
-        'oauth_state', signed_state,
-        httponly=True, secure=IS_PRODUCTION,
-        samesite='Lax', max_age=300
-    )
-    return resp
+        return "Erreur : Les clés Google OAuth sont manquantes.", 500
+    # On laisse Authlib générer et stocker le state dans la session Flask
+    return google.authorize_redirect(REDIRECT_URI)
 
 
 @app.route('/authorize')
 def authorize():
     try:
-        returned_state = request.args.get('state', '')
-        cookie_state = request.cookies.get('oauth_state', '')
+        # Sur Vercel (serverless), la session Flask (cookie-based) peut être
+        # perdue entre /login/google et /authorize (instances différentes).
+        # Solution : on réinjecte le state retourné par Google dans la session
+        # pour qu'Authlib le retrouve et le valide correctement.
+        returned_state = request.args.get('state')
+        if returned_state:
+            session['_google_state_'] = returned_state
 
-        # 1. Vérification que le state retourné par Google correspond au cookie
-        if not returned_state or not cookie_state or returned_state != cookie_state:
-            print(f"STATE MISMATCH - returned: {returned_state[:30] if returned_state else 'VIDE'} | cookie: {cookie_state[:30] if cookie_state else 'VIDE'}")
-            return "Erreur OAuth : le state ne correspond pas. Retournez sur /login et réessayez.", 403
+        token = google.authorize_access_token()
+        user = token.get('userinfo')
 
-        # 2. Vérification de la signature cryptographique du state
-        try:
-            _state_serializer.loads(cookie_state, max_age=300)
-        except SignatureExpired:
-            return "Erreur OAuth : la session a expiré (> 5 min). Veuillez réessayer.", 403
-        except BadSignature:
-            return "Erreur OAuth : state invalide (falsification détectée).", 403
-
-        # 3. Échange du code d'autorisation contre un token (manuellement, sans Authlib)
-        code = request.args.get('code')
-        if not code:
-            return "Erreur OAuth : code d'autorisation manquant.", 400
-
-        redirect_uri = (
-            "https://restaurant-le-cherimoya.vercel.app/authorize"
-            if IS_PRODUCTION
-            else url_for('authorize', _external=True)
-        )
-
-        token_resp = http_requests.post(
-            'https://oauth2.googleapis.com/token',
-            data={
-                'code': code,
-                'client_id': GOOGLE_CLIENT_ID,
-                'client_secret': GOOGLE_CLIENT_SECRET,
-                'redirect_uri': redirect_uri,
-                'grant_type': 'authorization_code',
-            },
-            timeout=10
-        )
-
-        if token_resp.status_code != 200:
-            print(f"ERREUR TOKEN GOOGLE : {token_resp.status_code} - {token_resp.text}")
-            return f"Erreur lors de l'échange du token Google : {token_resp.text}", 500
-
-        access_token = token_resp.json().get('access_token')
-
-        # 4. Récupération des infos utilisateur
-        userinfo_resp = http_requests.get(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            headers={'Authorization': f'Bearer {access_token}'},
-            timeout=10
-        )
-        user = userinfo_resp.json()
-
-        # 5. Vérification de l'email admin
-        if user.get('email') == ADMIN_EMAIL:
-            session['user'] = user
+        if user and user.get('email') == ADMIN_EMAIL:
+            session['user'] = dict(user)
             session.permanent = True
-            resp = make_response(redirect(url_for('admin')))
-            resp.set_cookie('oauth_state', '', expires=0)  # Nettoyage du cookie
-            return resp
+            return redirect(url_for('admin'))
 
-        return f"Accès refusé : {user.get('email')} n'est pas l'administrateur.", 403
+        return f"Accès refusé : {user.get('email') if user else 'inconnu'} n'est pas l'administrateur.", 403
 
     except Exception as e:
-        print(f"ERREUR CRITIQUE AUTHORIZE : {e}")
+        print(f"ERREUR AUTHORIZE : {e}")
         import traceback
         traceback.print_exc()
         return f"Erreur d'authentification : {str(e)}", 500
+
 
 
 @app.route('/logout')

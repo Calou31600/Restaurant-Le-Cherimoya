@@ -31,9 +31,9 @@
 
         .hub-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 3rem;
-            max-width: 1000px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1200px;
             width: 100%;
         }
 
@@ -41,7 +41,7 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(207, 168, 110, 0.2);
             border-radius: 20px;
-            padding: 4rem 2rem;
+            padding: 3rem 1.5rem;
             text-align: center;
             text-decoration: none;
             transition: var(--transition-smooth);
@@ -53,6 +53,7 @@
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            height: 100%;
         }
 
         .hub-card::before {

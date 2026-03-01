@@ -262,6 +262,8 @@
                 <h2 style="margin-bottom:0">Administration Menu</h2>
                 <p class="terroir-badge" style="margin-top:0.5rem; border:none; padding:0">Le Chérimoya Control Center
                 </p>
+                <div id="menu-count"
+                    style="font-size: 0.9rem; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;"></div>
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                     <a href="/admin" class="filter-btn"
                         style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center; background: rgba(207, 168, 110, 0.1); border-color: var(--accent);">
@@ -282,33 +284,33 @@
                 <div class="nav-tab active" onclick="switchTab('menu')">MENU GASTRONOMIQUE</div>
                 <div class="nav-tab" onclick="switchTab('clients')">CRM CLIENTS & AVIS</div>
             </div>
+        </div>
 
-            <div id="loading">Chargement...</div>
+        <div id="loading">Chargement...</div>
 
-            <div id="menu-tab" class="tab-content active">
-                <div id="admin-grid" class="admin-grid"></div>
-            </div>
+        <div id="menu-tab" class="tab-content active">
+            <div id="admin-grid" class="admin-grid"></div>
+        </div>
 
-            <div id="clients-tab" class="tab-content">
-                <div class="admin-grid">
-                    <table class="client-table">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Contact</th>
-                                <th>Réservations</th>
-                                <th>Dernière Visite</th>
-                                <th>Envoi Mail</th>
-                                <th>Statut Avis</th>
-                                <th>Note</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clients-tbody">
-                            <!-- Clients injectés ici -->
-                        </tbody>
-                    </table>
-                </div>
+        <div id="clients-tab" class="tab-content">
+            <div class="admin-grid">
+                <table class="client-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Contact</th>
+                            <th>Réservations</th>
+                            <th>Dernière Visite</th>
+                            <th>Envoi Mail</th>
+                            <th>Statut Avis</th>
+                            <th>Note</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-tbody">
+                        <!-- Clients injectés ici -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -384,12 +386,14 @@
                             <label
                                 style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
                                 <input type="checkbox" value="Lactose" class="intolerance-checkbox"
-                                    style="margin-right: 8px;"> Lactose
+                                    style="margin-right: 8px;">
+                                Lactose
                             </label>
                             <label
                                 style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
                                 <input type="checkbox" value="Gluten" class="intolerance-checkbox"
-                                    style="margin-right: 8px;"> Gluten
+                                    style="margin-right: 8px;">
+                                Gluten
                             </label>
                             <label
                                 style="display: flex; align-items: center; cursor: pointer; color: white; font-weight: normal;">
@@ -493,65 +497,66 @@
             </div>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-        <script>
-            let currentMenu = [];
-            let currentClients = [];
-            let activeTab = 'menu';
-            let currentUploadId = null;
-            let cropperInstance = null;
-            let currentCroppedBlob = null;
+    </div> <!-- Fin de admin-container -->
 
-            function switchTab(tab) {
-                activeTab = tab;
-                document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+        let currentMenu = [];
+        let currentClients = [];
+        let activeTab = 'menu';
+        let cropperInstance = null;
+        let currentCroppedBlob = null;
 
-                document.querySelector(`.nav-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-                document.getElementById(`${tab}-tab`).classList.add('active');
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
 
-                // Afficher/Cacher boutons contextuels
-                document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
-                document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
+            document.querySelector(`.nav-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
 
-                if (tab === 'menu') fetchMenu();
-                if (tab === 'clients') fetchClients();
+            // Afficher/Cacher boutons contextuels
+            document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
+            document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
+
+            if (tab === 'menu') fetchMenu();
+            if (tab === 'clients') fetchClients();
+        }
+
+        async function fetchMenu() {
+            try {
+                const res = await fetch('/api/admin/menu');
+                currentMenu = await res.json();
+                renderAdmin();
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading').innerText = "Erreur de chargement.";
             }
+        }
 
-            async function fetchMenu() {
-                try {
-                    const res = await fetch('/api/admin/menu');
-                    currentMenu = await res.json();
-                    renderAdmin();
-                    document.getElementById('loading').style.display = 'none';
-                } catch (err) {
-                    console.error(err);
-                    document.getElementById('loading').innerText = "Erreur de chargement.";
-                }
+        async function fetchClients() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const res = await fetch('/api/admin/clients');
+                currentClients = await res.json();
+                renderClients();
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading').innerText = "Erreur de chargement.";
             }
+        }
 
-            async function fetchClients() {
-                document.getElementById('loading').style.display = 'block';
-                try {
-                    const res = await fetch('/api/admin/clients');
-                    currentClients = await res.json();
-                    renderClients();
-                    document.getElementById('loading').style.display = 'none';
-                } catch (err) {
-                    console.error(err);
-                    document.getElementById('loading').innerText = "Erreur de chargement.";
-                }
-            }
+        function renderClients() {
+            const tbody = document.getElementById('clients-tbody');
+            tbody.innerHTML = currentClients.map(client => {
+                const f = client.fields;
+                const lastMail = f.Dernier_Avis_Envoye || "Jamais";
+                const avisRecu = f.Avis_Recu ? "✅ Reçu" : "⏳ En attente";
+                const note = f.Note || "-";
 
-            function renderClients() {
-                const tbody = document.getElementById('clients-tbody');
-                tbody.innerHTML = currentClients.map(client => {
-                    const f = client.fields;
-                    const lastMail = f.Dernier_Avis_Envoye || "Jamais";
-                    const avisRecu = f.Avis_Recu ? "✅ Reçu" : "⏳ En attente";
-                    const note = f.Note || "-";
-
-                    return `
+                return `
                     <tr>
                         <td><strong>${f.Nom}</strong></td>
                         <td>
@@ -571,93 +576,93 @@
                         </td>
                     </tr>
                 `;
-                }).join('');
-            }
+            }).join('');
+        }
 
-            async function markReviewReceived(id, received) {
-                try {
-                    const res = await fetch(`/api/admin/clients/${id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ fields: { Avis_Recu: received } })
-                    });
-                    if (res.ok) {
-                        fetchClients();
-                    } else {
-                        alert("Erreur lors de la mise à jour.");
-                    }
-                } catch (err) {
-                    console.error(err);
+        async function markReviewReceived(id, received) {
+            try {
+                const res = await fetch(`/api/admin/clients/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields: { Avis_Recu: received } })
+                });
+                if (res.ok) {
+                    fetchClients();
+                } else {
+                    alert("Erreur lors de la mise à jour.");
                 }
+            } catch (err) {
+                console.error(err);
             }
+        }
 
-            async function syncClients() {
-                const btn = document.getElementById('btn-sync-clients');
-                btn.disabled = true;
-                btn.innerText = "Synchronisation...";
-                try {
-                    const res = await fetch('/api/admin/clients/sync', { method: 'POST' });
-                    const data = await res.json();
-                    if (data.status === 'success') {
-                        alert(data.message);
-                        fetchClients();
-                    } else {
-                        alert("Erreur: " + data.error);
-                    }
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = "🔄 Synchroniser Clients";
+        async function syncClients() {
+            const btn = document.getElementById('btn-sync-clients');
+            btn.disabled = true;
+            btn.innerText = "Synchronisation...";
+            try {
+                const res = await fetch('/api/admin/clients/sync', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(data.message);
+                    fetchClients();
+                } else {
+                    alert("Erreur: " + data.error);
                 }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🔄 Synchroniser Clients";
             }
+        }
 
-            async function sendReview(id, email, name) {
-                if (!confirm(`Envoyer une demande d'avis à ${name} (${email}) ?`)) return;
+        async function sendReview(id, email, name) {
+            if (!confirm(`Envoyer une demande d'avis à ${name} (${email}) ?`)) return;
 
-                try {
-                    const res = await fetch('/api/admin/clients/send-review', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id, email, name })
-                    });
-                    const data = await res.json();
-                    if (data.status === 'success') {
-                        alert("Demande d'avis envoyée !");
-                        fetchClients();
-                    } else {
-                        alert("Erreur: " + data.error);
-                    }
-                } catch (err) {
-                    console.error(err);
+            try {
+                const res = await fetch('/api/admin/clients/send-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, email, name })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert("Demande d'avis envoyée !");
+                    fetchClients();
+                } else {
+                    alert("Erreur: " + data.error);
                 }
+            } catch (err) {
+                console.error(err);
             }
+        }
 
-            function renderAdmin() {
-                const grid = document.getElementById('admin-grid');
-                const countElement = document.getElementById('menu-count');
+        function renderAdmin() {
+            const grid = document.getElementById('admin-grid');
+            const countElement = document.getElementById('menu-count');
 
-                // Mise à jour du compteur
-                const totalPlats = currentMenu.length;
-                countElement.innerText = `${totalPlats} plat${totalPlats > 1 ? 's' : ''} à la carte`;
+            // Mise à jour du compteur
+            const totalPlats = currentMenu.length;
+            countElement.innerText = `${totalPlats} plat${totalPlats > 1 ? 's' : ''} à la carte`;
 
-                grid.innerHTML = currentMenu.map(item => {
-                    const f = item.fields;
-                    const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
-                    const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
+            grid.innerHTML = currentMenu.map(item => {
+                const f = item.fields;
+                const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+                const signatureBadge = f.is_featured ? '<span class="status-badge" style="color:#000; background: var(--accent); vertical-align: text-top;">★ Signature</span>' : '';
 
-                    // Gestion des icônes d'intolérances pour le dashboard
-                    const intolerances = f.intolerances || [];
-                    const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
+                // Gestion des icônes d'intolérances pour le dashboard
+                const intolerances = f.intolerances || [];
+                const icRedFilter = "grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(700%) brightness(0.8) drop-shadow(0 0 2px rgba(255,0,0,0.5))";
 
-                    let iconsHtml = "";
-                    if (intolerances.includes("Lactose")) iconsHtml += `<span title="Lactose" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥛</span>`;
-                    if (intolerances.includes("Gluten")) iconsHtml += `<span title="Gluten" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🌾</span>`;
-                    if (intolerances.includes("Cacahuète")) iconsHtml += `<span title="Cacahuète" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥜</span>`;
+                let iconsHtml = "";
+                if (intolerances.includes("Lactose")) iconsHtml += `<span title="Lactose" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥛</span>`;
+                if (intolerances.includes("Gluten")) iconsHtml += `<span title="Gluten" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🌾</span>`;
+                if (intolerances.includes("Cacahuète")) iconsHtml += `<span title="Cacahuète" style="display: inline-block; margin-left: 4px; filter: ${icRedFilter}; pointer-events: auto;">🥜</span>`;
 
-                    const intolerancesHtml = iconsHtml ? `<span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap; transition: 0.3s; display: inline-flex; align-items: center;">${iconsHtml}</span>` : "";
+                const intolerancesHtml = iconsHtml ? `<span style="font-size: 1.1rem; margin-left: 8px; vertical-align: middle; white-space: nowrap; transition: 0.3s; display: inline-flex; align-items: center;">${iconsHtml}</span>` : "";
 
-                    return `
+                return `
                     <div class="admin-card" onclick="openEditModal('${item.id}')" style="grid-template-columns: 80px 1fr 100px; cursor: pointer;">
                         <img src="${imgSrc}" class="admin-img" style="pointer-events: none;">
                         <div class="admin-info" style="pointer-events: none;">
@@ -670,273 +675,274 @@
                         </div>
                     </div>
                 `;
-                }).join('');
-            }
+            }).join('');
+        }
 
-            let currentEditId = null;
+        let currentEditId = null;
 
-            function openEditModal(id) {
-                const item = currentMenu.find(i => i.id === id);
-                if (!item) return;
-                const f = item.fields;
-                currentEditId = id;
-                document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
+        function openEditModal(id) {
+            const item = currentMenu.find(i => i.id === id);
+            if (!item) return;
+            const f = item.fields;
+            currentEditId = id;
+            document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
 
-                // Afficher le bouton supprimer
-                document.getElementById('delete-btn').style.display = 'block';
+            // Afficher le bouton supprimer
+            document.getElementById('delete-btn').style.display = 'block';
 
-                document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
-                document.getElementById('edit-name').value = f.Plat || '';
-                document.getElementById('edit-name-en').value = f.Plat_EN || '';
-                document.getElementById('edit-desc').value = f.description_geo || '';
-                document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
-                document.getElementById('edit-price').value = f.prix || 0;
-                document.getElementById('edit-featured').checked = !!f.is_featured;
-                document.getElementById('edit-file').value = '';
-                currentCroppedBlob = null;
+            document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+            document.getElementById('edit-name').value = f.Plat || '';
+            document.getElementById('edit-name-en').value = f.Plat_EN || '';
+            document.getElementById('edit-desc').value = f.description_geo || '';
+            document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
+            document.getElementById('edit-price').value = f.prix || 0;
+            document.getElementById('edit-featured').checked = !!f.is_featured;
+            document.getElementById('edit-file').value = '';
+            currentCroppedBlob = null;
 
-                // Gestion des catégories
-                const currentCats = f.Menu || [];
-                document.querySelectorAll('.cat-checkbox').forEach(cb => {
-                    cb.checked = currentCats.includes(cb.value);
-                });
+            // Gestion des catégories
+            const currentCats = f.Menu || [];
+            document.querySelectorAll('.cat-checkbox').forEach(cb => {
+                cb.checked = currentCats.includes(cb.value);
+            });
 
-                // Gestion des intolérances
-                const currentIntolerances = f.intolerances || [];
-                document.querySelectorAll('.intolerance-checkbox').forEach(cb => {
-                    cb.checked = currentIntolerances.includes(cb.value);
-                });
+            // Gestion des intolérances
+            const currentIntolerances = f.intolerances || [];
+            document.querySelectorAll('.intolerance-checkbox').forEach(cb => {
+                cb.checked = currentIntolerances.includes(cb.value);
+            });
 
-                // Gestion des tags météo
-                const currentMeteo = f.tags_meteo || [];
-                document.querySelectorAll('.meteo-checkbox').forEach(cb => {
-                    cb.checked = currentMeteo.includes(cb.value);
-                });
+            // Gestion des tags météo
+            const currentMeteo = f.tags_meteo || [];
+            document.querySelectorAll('.meteo-checkbox').forEach(cb => {
+                cb.checked = currentMeteo.includes(cb.value);
+            });
 
-                document.getElementById('edit-overlay').style.display = 'flex';
-            }
+            document.getElementById('edit-overlay').style.display = 'flex';
+        }
 
-            function openAddModal() {
-                currentEditId = null;
-                document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
+        function openAddModal() {
+            currentEditId = null;
+            document.getElementById('modal-title').innerText = "➕ Nouveau Plat";
 
-                // Cacher le bouton supprimer
-                document.getElementById('delete-btn').style.display = 'none';
+            // Cacher le bouton supprimer
+            document.getElementById('delete-btn').style.display = 'none';
 
-                document.getElementById('edit-current-img').src = 'assets/dish1.png';
-                document.getElementById('edit-name').value = '';
-                document.getElementById('edit-name-en').value = '';
-                document.getElementById('edit-desc').value = '';
-                document.getElementById('edit-desc-en').value = '';
-                document.getElementById('edit-price').value = 0;
-                document.getElementById('edit-featured').checked = false;
-                document.getElementById('edit-file').value = '';
-                currentCroppedBlob = null;
+            document.getElementById('edit-current-img').src = 'assets/dish1.png';
+            document.getElementById('edit-name').value = '';
+            document.getElementById('edit-name-en').value = '';
+            document.getElementById('edit-desc').value = '';
+            document.getElementById('edit-desc-en').value = '';
+            document.getElementById('edit-price').value = 0;
+            document.getElementById('edit-featured').checked = false;
+            document.getElementById('edit-file').value = '';
+            currentCroppedBlob = null;
 
-                document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
-                document.querySelectorAll('.intolerance-checkbox').forEach(cb => cb.checked = false);
-                document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.intolerance-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
 
-                document.getElementById('edit-overlay').style.display = 'flex';
-            }
+            document.getElementById('edit-overlay').style.display = 'flex';
+        }
 
-            function closeEditModal() {
-                document.getElementById('edit-overlay').style.display = 'none';
-            }
+        function closeEditModal() {
+            document.getElementById('edit-overlay').style.display = 'none';
+        }
 
-            document.getElementById('btn-save-all').onclick = async () => {
-                const btn = document.getElementById('btn-save-all');
-                btn.disabled = true;
-                btn.innerText = "Mise à jour en cours...";
+        document.getElementById('btn-save-all').onclick = async () => {
+            const btn = document.getElementById('btn-save-all');
+            btn.disabled = true;
+            btn.innerText = "Mise à jour en cours...";
 
-                try {
-                    // Récupération des catégories cochées
-                    const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
-                    // Récupération des intolérances cochées
-                    const checkedIntolerances = Array.from(document.querySelectorAll('.intolerance-checkbox:checked')).map(cb => cb.value);
-                    // Récupération des tags météo cochés
-                    const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
+            try {
+                // Récupération des catégories cochées
+                const checkedCats = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(cb => cb.value);
+                // Récupération des intolérances cochées
+                const checkedIntolerances = Array.from(document.querySelectorAll('.intolerance-checkbox:checked')).map(cb => cb.value);
+                // Récupération des tags météo cochés
+                const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
 
-                    const fieldsToUpdate = {
-                        Plat: document.getElementById('edit-name').value,
-                        Plat_EN: document.getElementById('edit-name-en').value,
-                        description_geo: document.getElementById('edit-desc').value,
-                        description_geo_EN: document.getElementById('edit-desc-en').value,
-                        prix: parseFloat(document.getElementById('edit-price').value),
-                        is_featured: document.getElementById('edit-featured').checked,
-                        Menu: checkedCats,
-                        intolerances: checkedIntolerances,
-                        tags_meteo: checkedMeteo
-                    };
+                const fieldsToUpdate = {
+                    Plat: document.getElementById('edit-name').value,
+                    Plat_EN: document.getElementById('edit-name-en').value,
+                    description_geo: document.getElementById('edit-desc').value,
+                    description_geo_EN: document.getElementById('edit-desc-en').value,
+                    prix: parseFloat(document.getElementById('edit-price').value),
+                    is_featured: document.getElementById('edit-featured').checked,
+                    Menu: checkedCats,
+                    intolerances: checkedIntolerances,
+                    tags_meteo: checkedMeteo
+                };
 
-                    const fileInput = document.getElementById('edit-file');
-                    let fileToUpload = null;
+                const fileInput = document.getElementById('edit-file');
+                let fileToUpload = null;
 
-                    // Priorité à l'image recadrée si elle existe, sinon au fichier d'origine s'il y a un bypass
-                    if (currentCroppedBlob) {
-                        fileToUpload = currentCroppedBlob;
-                    } else if (fileInput.files.length > 0) {
-                        fileToUpload = fileInput.files[0];
-                    }
-
-                    if (fileToUpload) {
-                        btn.innerText = "Upload de la photo...";
-                        const formData = new FormData();
-                        formData.append('file', fileToUpload, 'menu_image.jpg'); // Toujours fournir un nom propre
-                        const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-                        const uploadData = await uploadRes.json();
-                        if (uploadData.url) {
-                            fieldsToUpdate.Photo = [{ url: uploadData.url }];
-                        }
-                    }
-
-                    btn.innerText = "Enregistrement Airtable...";
-
-                    let apiUrl = '/api/admin/menu';
-                    let apiMethod = 'POST';
-
-                    if (currentEditId) {
-                        apiUrl = `/api/admin/menu/${currentEditId}`;
-                        apiMethod = 'PATCH';
-                    }
-
-                    const res = await fetch(apiUrl, {
-                        method: apiMethod,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ fields: fieldsToUpdate })
-                    });
-
-                    if (res.ok) {
-                        btn.innerText = "✅ Succès";
-                        setTimeout(() => {
-                            closeEditModal();
-                            document.getElementById('loading').style.display = 'block';
-                            document.getElementById('admin-grid').innerHTML = '';
-                            btn.disabled = false;
-                            btn.innerText = "Mise à jour de la base de données";
-                            fetchMenu();
-                        }, 1000);
-                    } else {
-                        const errorDetail = await res.text();
-                        throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("Erreur lors de la mise à jour : " + err.message);
-                    btn.disabled = false;
-                    btn.innerText = "Mise à jour de la base de données";
+                // Priorité à l'image recadrée si elle existe, sinon au fichier d'origine s'il y a un bypass
+                if (currentCroppedBlob) {
+                    fileToUpload = currentCroppedBlob;
+                } else if (fileInput.files.length > 0) {
+                    fileToUpload = fileInput.files[0];
                 }
-            };
 
-            function deleteCurrentItem() {
-                if (!currentEditId) return;
-                const item = currentMenu.find(i => i.id === currentEditId);
-                if (!item) return;
+                if (fileToUpload) {
+                    btn.innerText = "Upload de la photo...";
+                    const formData = new FormData();
+                    formData.append('file', fileToUpload, 'menu_image.jpg'); // Toujours fournir un nom propre
+                    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) {
+                        fieldsToUpdate.Photo = [{ url: uploadData.url }];
+                    }
+                }
 
-                document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
-                document.getElementById('delete-overlay').style.display = 'flex';
-            }
+                btn.innerText = "Enregistrement Airtable...";
 
-            function closeDeleteModal() {
-                document.getElementById('delete-overlay').style.display = 'none';
-            }
+                let apiUrl = '/api/admin/menu';
+                let apiMethod = 'POST';
 
-            async function confirmDeleteAction() {
-                closeDeleteModal();
-                try {
-                    const res = await fetch(`/api/admin/menu/${currentEditId}`, {
-                        method: 'DELETE'
-                    });
+                if (currentEditId) {
+                    apiUrl = `/api/admin/menu/${currentEditId}`;
+                    apiMethod = 'PATCH';
+                }
 
-                    if (res.ok) {
+                const res = await fetch(apiUrl, {
+                    method: apiMethod,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields: fieldsToUpdate })
+                });
+
+                if (res.ok) {
+                    btn.innerText = "✅ Succès";
+                    setTimeout(() => {
                         closeEditModal();
                         document.getElementById('loading').style.display = 'block';
                         document.getElementById('admin-grid').innerHTML = '';
-                        fetchMenu(); // Recharger la grille
-                    } else {
-                        const errText = await res.text();
-                        alert("Erreur lors de la suppression : " + errText);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("Erreur réseau lors de la suppression.");
+                        btn.disabled = false;
+                        btn.innerText = "Mise à jour de la base de données";
+                        fetchMenu();
+                    }, 1000);
+                } else {
+                    const errorDetail = await res.text();
+                    throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
                 }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la mise à jour : " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Mise à jour de la base de données";
             }
+        };
 
-            // --- Logique Cropper.js ---
-            document.getElementById('edit-file').addEventListener('change', function (e) {
-                const files = e.target.files;
-                if (files && files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        document.getElementById('cropper-image').src = event.target.result;
-                        document.getElementById('cropper-overlay').style.display = 'flex';
+        function deleteCurrentItem() {
+            if (!currentEditId) return;
+            const item = currentMenu.find(i => i.id === currentEditId);
+            if (!item) return;
 
-                        if (cropperInstance) {
-                            cropperInstance.destroy();
-                        }
+            document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
+            document.getElementById('delete-overlay').style.display = 'flex';
+        }
 
-                        // Initialiser CropperJS
-                        const image = document.getElementById('cropper-image');
-                        cropperInstance = new Cropper(image, {
-                            aspectRatio: 4 / 3, // Ratio paysage recommandé pour la nourriture
-                            viewMode: 2,
-                            background: false,
-                            autoCropArea: 1,
-                            responsive: true
-                        });
-                    };
-                    reader.readAsDataURL(files[0]);
-                }
-            });
+        function closeDeleteModal() {
+            document.getElementById('delete-overlay').style.display = 'none';
+        }
 
-            function closeCropperModal(resetInput = true) {
-                document.getElementById('cropper-overlay').style.display = 'none';
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                    cropperInstance = null;
-                }
-                if (resetInput) {
-                    document.getElementById('edit-file').value = '';
-                    currentCroppedBlob = null;
-                }
-            }
-
-            function applyCrop() {
-                if (!cropperInstance) return;
-
-                const btnSaveCrop = document.querySelector('#cropper-overlay .btn-save');
-                btnSaveCrop.innerText = "Traitement...";
-                btnSaveCrop.disabled = true;
-
-                const canvas = cropperInstance.getCroppedCanvas({
-                    width: 800,
-                    height: 600,
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
+        async function confirmDeleteAction() {
+            closeDeleteModal();
+            try {
+                const res = await fetch(`/api/admin/menu/${currentEditId}`, {
+                    method: 'DELETE'
                 });
 
-                canvas.toBlob((blob) => {
-                    currentCroppedBlob = blob;
-                    const url = URL.createObjectURL(blob);
-                    document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
-
-                    btnSaveCrop.innerText = "Valider le recadrage";
-                    btnSaveCrop.disabled = false;
-
-                    closeCropperModal(false); // Fermer sans reset, car on vient de sauvegarder l'état
-                }, 'image/jpeg', 0.85); // Qualité optimale pour le web
+                if (res.ok) {
+                    closeEditModal();
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('admin-grid').innerHTML = '';
+                    fetchMenu(); // Recharger la grille
+                } else {
+                    const errText = await res.text();
+                    alert("Erreur lors de la suppression : " + errText);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur réseau lors de la suppression.");
             }
+        }
 
-            // Au chargement, on vérifie si un onglet spécifique est demandé
-            const urlParams = new URLSearchParams(window.location.search);
-            const requestedTab = urlParams.get('tab');
-            if (requestedTab === 'clients') {
-                switchTab('clients');
-            } else {
-                fetchMenu();
+        // --- Logique Cropper.js ---
+        document.getElementById('edit-file').addEventListener('change', function (e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('cropper-image').src = event.target.result;
+                    document.getElementById('cropper-overlay').style.display = 'flex';
+
+                    if (cropperInstance) {
+                        cropperInstance.destroy();
+                    }
+
+                    // Initialiser CropperJS
+                    const image = document.getElementById('cropper-image');
+                    cropperInstance = new Cropper(image, {
+                        aspectRatio: 4 / 3, // Ratio paysage recommandé pour la nourriture
+                        viewMode: 2,
+                        background: false,
+                        autoCropArea: 1,
+                        responsive: true
+                    });
+                };
+                reader.readAsDataURL(files[0]);
             }
-        </script>
+        });
+
+        function closeCropperModal(resetInput = true) {
+            document.getElementById('cropper-overlay').style.display = 'none';
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            if (resetInput) {
+                document.getElementById('edit-file').value = '';
+                currentCroppedBlob = null;
+            }
+        }
+
+        function applyCrop() {
+            if (!cropperInstance) return;
+
+            const btnSaveCrop = document.querySelector('#cropper-overlay .btn-save');
+            btnSaveCrop.innerText = "Traitement...";
+            btnSaveCrop.disabled = true;
+
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 800,
+                height: 600,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
+            canvas.toBlob((blob) => {
+                currentCroppedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
+
+                btnSaveCrop.innerText = "Valider le recadrage";
+                btnSaveCrop.disabled = false;
+
+                closeCropperModal(false); // Fermer sans reset, car on vient de sauvegarder l'état
+            }, 'image/jpeg', 0.85); // Qualité optimale pour le web
+        }
+
+        // Au chargement, on vérifie si un onglet spécifique est demandé
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedTab = urlParams.get('tab');
+        if (requestedTab === 'clients') {
+            switchTab('clients');
+        } else {
+            fetchMenu();
+        }
+    </script>
+    </div>
 </body>
 
 </html>

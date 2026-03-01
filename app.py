@@ -369,6 +369,16 @@ def admin_update_client(record_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/stats/today', methods=['GET'])
+@admin_required
+def admin_get_today_stats():
+    """Récupère les statistiques de réservation du jour (Midi et Soir)."""
+    try:
+        stats = engine.booking.get_today_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut
     print("Serveur Le Cherimoya demarre sur http://localhost:5000")

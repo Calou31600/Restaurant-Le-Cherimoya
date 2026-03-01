@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,12 +120,14 @@
             .hub-title h1 {
                 font-size: 2.5rem;
             }
+
             .hub-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="hero-bg"></div>
     <div class="dynamic-overlay"></div>
@@ -132,9 +135,50 @@
     <a href="/logout" class="logout-btn">Déconnexion</a>
 
     <div class="hub-container">
-        <div class="hub-title">
+        <div class="hub-title" style="margin-bottom: 2rem;">
             <span class="terroir-badge">Administration</span>
             <h1>Control Center</h1>
+        </div>
+
+        <!-- Section Infos Temps Réel -->
+        <div
+            style="display: flex; gap: 2rem; margin-bottom: 4rem; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 1000px;">
+            <!-- Widget Heure/Date -->
+            <div class="hub-card"
+                style="padding: 1.5rem 3rem; flex-direction: row; gap: 2rem; min-width: 300px; transform: none; cursor: default;">
+                <div style="text-align: left;">
+                    <div id="live-time"
+                        style="font-size: 2.5rem; color: var(--accent); font-family: var(--font-heading); line-height: 1;">
+                        00:00:00</div>
+                    <div id="live-date"
+                        style="font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 5px;">
+                        Chargement date...</div>
+                </div>
+            </div>
+
+            <!-- Widget Réservations Aujourd'hui -->
+            <div class="hub-card"
+                style="padding: 1.5rem 3rem; flex-direction: row; gap: 3rem; min-width: 400px; transform: none; cursor: default;">
+                <div style="text-align: center;">
+                    <div
+                        style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+                        🍽️ Service Midi</div>
+                    <div id="stats-midi"
+                        style="font-size: 2.2rem; color: var(--text-main); font-family: var(--font-heading); line-height: 1;">
+                        -</div>
+                    <div style="font-size: 0.8rem; color: var(--accent);">Portions</div>
+                </div>
+                <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.1);"></div>
+                <div style="text-align: center;">
+                    <div
+                        style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+                        🌙 Service Soir</div>
+                    <div id="stats-soir"
+                        style="font-size: 2.2rem; color: var(--text-main); font-family: var(--font-heading); line-height: 1;">
+                        -</div>
+                    <div style="font-size: 0.8rem; color: var(--accent);">Portions</div>
+                </div>
+            </div>
         </div>
 
         <div class="hub-grid">
@@ -155,5 +199,41 @@
             <a href="/" class="btn-premium">Voir le site public</a>
         </div>
     </div>
+
+    <script>
+        // --- HORLOGE TEMPS RÉEL ---
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStr = now.toLocaleDateString('fr-FR', options);
+
+            document.getElementById('live-time').innerText = timeStr;
+            document.getElementById('live-date').innerText = dateStr;
+        }
+
+        // --- STATS RÉSERVATIONS ---
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/admin/stats/today');
+                const data = await res.json();
+
+                document.getElementById('stats-midi').innerText = data.midi || '0';
+                document.getElementById('stats-soir').innerText = data.soir || '0';
+            } catch (err) {
+                console.error("Erreur fetch stats:", err);
+            }
+        }
+
+        // Initialisation
+        setInterval(updateClock, 1000);
+        updateClock();
+        fetchStats();
+
+        // Rafraîchir les stats toutes les 5 minutes
+        setInterval(fetchStats, 300000);
+    </script>
 </body>
+
 </html>

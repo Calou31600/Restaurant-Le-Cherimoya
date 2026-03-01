@@ -12,7 +12,35 @@ class BookingManager:
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
+        # URL de base pour les emails et redirections
         self.base_url = "https://restaurant-le-cherimoya.vercel.app"
+
+    def get_today_stats(self):
+        """Récupère les statistiques de réservation pour aujourd'hui depuis Airtable."""
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        stats = {"midi": 0, "soir": 0, "date": today_str}
+        
+        url = f"https://api.airtable.com/v0/{self.base_id}/Disponibilites"
+        params = {
+            "filterByFormula": f"Date='{today_str}'"
+        }
+        
+        try:
+            response = requests.get(url, headers=self.headers, params=params)
+            if response.status_code == 200:
+                records = response.json().get('records', [])
+                for record in records:
+                    fields = record.get('fields', {})
+                    service = fields.get('Service')
+                    confirmed = fields.get('Reservations confirmees', 0)
+                    if service == 'Midi':
+                        stats["midi"] = int(confirmed)
+                    elif service == 'Soir':
+                        stats["soir"] = int(confirmed)
+            return stats
+        except Exception as e:
+            print(f"Erreur get_today_stats: {e}")
+            return stats
 
     def is_service_accessible(self, service_type, target_date_str):
         """

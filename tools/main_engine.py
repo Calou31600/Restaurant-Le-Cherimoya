@@ -22,9 +22,9 @@ class MainEngine:
         # Système de Cache simple
         self._cache = {}
         self._cache_ttl = {
-            "menu": 300,    # 5 minutes
+            "menu": 120,    # 2 minutes pour tester
             "weather": 600, # 10 minutes
-            "reviews": 3600 # 1 heure
+            "reviews": 120  # 2 minutes (pour voir ses propres avis rapidement)
         }
 
     def _get_cached(self, key):
@@ -68,7 +68,8 @@ class MainEngine:
             return None
             
         place_id = "ChIJw6L9_VP9qBIRmpyHeIKMEXo"
-        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=rating,user_ratings_total,reviews&language=fr&key={google_api_key}"
+        # On ajoute reviews_sort=newest pour avoir les plus récents (et non les plus "pertinents" par défaut qui stagnent)
+        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=rating,user_ratings_total,reviews&language=fr&reviews_sort=newest&key={google_api_key}"
         try:
             response = requests.get(url, timeout=5)
             if response.status_code == 200:

@@ -170,13 +170,12 @@
                 <span class="score" id="dynamic-rating">4,3</span>
                 <div>
                     <div class="stars" id="dynamic-stars">★★★★<span style="color: rgba(255,255,255,0.2)">★</span></div>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;" id="dynamic-reviews-count"
-                        data-i18n="reviews_count">Basé sur 64 avis
+                    <p style="color: var(--text-dim); font-size: 0.9rem;" id="dynamic-reviews-count">Basé sur 64 avis
                         Google</p>
                 </div>
             </div>
 
-            <p id="dynamic-review-quote" data-i18n="reviews_quote"
+            <p id="dynamic-review-quote"
                 style="font-style: italic; color: var(--text-main); line-height: 1.8; margin-top: 1.5rem; border-left: 2px solid var(--accent); padding-left: 1rem;">
                 "Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La
                 cuisine fusion met brillamment en valeur les produits de notre terroir."
@@ -258,6 +257,7 @@
         let currentLang = localStorage.getItem('lang') || 'fr';
         let fullMenuData = [];
         let currentWeatherTag = "Normal";
+        let currentReviewsData = null;
 
         const translations = {
             fr: {
@@ -675,6 +675,12 @@
                     renderMenu(fullMenuData);
                 }
             }
+
+            // Mettre à jour les textes des avis manuellement puisqu'on a enlevé le data-i18n
+            if (currentReviewsData) {
+                const total = currentReviewsData.total;
+                document.getElementById('dynamic-reviews-count').innerText = currentLang === 'fr' ? `Basé sur ${total} avis Google` : `Based on ${total} Google reviews`;
+            }
         }
 
         async function loadAppData() {
@@ -746,6 +752,7 @@
 
             // Mise à jour adaptative des avis Google
             if (data.reviews) {
+                currentReviewsData = data.reviews;
                 const rating = data.reviews.rating.toFixed(1).replace('.', ',');
                 document.getElementById('dynamic-rating').innerText = rating;
 

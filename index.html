@@ -279,7 +279,7 @@
                 reviews_title: "L'Expérience Chérimoya",
                 reviews_budget: "20–30 €",
                 reviews_type: "Restaurant Français Fusion",
-                reviews_count: "Basé sur 64 avis Google",
+                reviews_count: "Chargement des avis...",
                 reviews_quote: "\"Une magnifique adresse au cœur du Comminges ! La Cheffe Thuong maîtrise parfaitement ses cuissons. La cuisine fusion met brillamment en valeur les produits de notre terroir.\"",
                 btn_book: "Réserver une table",
                 map_address: "3 R.D. 817",
@@ -306,7 +306,7 @@
                 reviews_title: "The Chérimoya Experience",
                 reviews_budget: "€20–€30",
                 reviews_type: "French Fusion Restaurant",
-                reviews_count: "Based on 64 Google reviews",
+                reviews_count: "Loading reviews...",
                 reviews_quote: "\"A wonderful discovery in the Comminges. Refined dishes, perfectly cooked meats, and impeccable service.\"",
                 btn_book: "Book a table",
                 map_address: "3 R.D. 817",
@@ -696,6 +696,9 @@
                 // Setup Language
                 setLanguage(currentLang);
 
+                // Forcer la mise à jour des avis après la traduction pour écraser les valeurs par défaut
+                updateReviewsDisplay(data.reviews);
+
                 // Injection du JSON-LD pour le SEO
                 document.getElementById('seo-json-ld').innerHTML = data.json_ld;
                 console.log("✅ Données réelles chargées depuis le moteur intelligent.");
@@ -752,27 +755,33 @@
 
             // Mise à jour adaptative des avis Google
             if (data.reviews) {
-                currentReviewsData = data.reviews;
-                const rating = data.reviews.rating.toFixed(1).replace('.', ',');
-                document.getElementById('dynamic-rating').innerText = rating;
+                updateReviewsDisplay(data.reviews);
+            }
+        }
 
-                const total = data.reviews.total;
-                document.getElementById('dynamic-reviews-count').innerText = currentLang === 'fr' ? `Basé sur ${total} avis Google` : `Based on ${total} Google reviews`;
+        function updateReviewsDisplay(reviewsData) {
+            if (!reviewsData) return;
+            currentReviewsData = reviewsData;
 
-                const score = Math.round(data.reviews.rating);
-                let starsHTML = '';
-                for (let i = 1; i <= 5; i++) {
-                    if (i <= score) starsHTML += '★';
-                    else starsHTML += '<span style="color: rgba(255,255,255,0.2)">★</span>';
-                }
-                document.getElementById('dynamic-stars').innerHTML = starsHTML;
+            const rating = reviewsData.rating.toFixed(1).replace('.', ',');
+            document.getElementById('dynamic-rating').innerText = rating;
 
-                // Mettre le premier avis textuel long
-                if (data.reviews.reviews && data.reviews.reviews.length > 0) {
-                    const bestReview = data.reviews.reviews.sort((a, b) => b.rating - a.rating).find(r => r.text && r.text.length > 30);
-                    if (bestReview) {
-                        document.getElementById('dynamic-review-quote').innerHTML = `"${bestReview.text}"<br><span style="font-size: 0.9rem; color: var(--accent); margin-top: 8px; display: inline-block;">— ${bestReview.author_name}</span>`;
-                    }
+            const total = reviewsData.total;
+            document.getElementById('dynamic-reviews-count').innerText = currentLang === 'fr' ? `Basé sur ${total} avis Google` : `Based on ${total} Google reviews`;
+
+            const score = Math.round(reviewsData.rating);
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= score) starsHTML += '★';
+                else starsHTML += '<span style="color: rgba(255,255,255,0.2)">★</span>';
+            }
+            document.getElementById('dynamic-stars').innerHTML = starsHTML;
+
+            // Mettre le premier avis textuel long
+            if (reviewsData.reviews && reviewsData.reviews.length > 0) {
+                const bestReview = reviewsData.reviews.sort((a, b) => b.rating - a.rating).find(r => r.text && r.text.length > 30);
+                if (bestReview) {
+                    document.getElementById('dynamic-review-quote').innerHTML = `"${bestReview.text}"<br><span style="font-size: 0.9rem; color: var(--accent); margin-top: 8px; display: inline-block;">— ${bestReview.author_name}</span>`;
                 }
             }
         }

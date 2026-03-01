@@ -6,6 +6,9 @@ import cloudinary
 import cloudinary.uploader
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
+from datetime import datetime
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 
 # Ajouter le dossier tools au path pour importer les moteurs
 sys.path.append(os.path.join(os.getcwd(), 'tools'))
@@ -15,6 +18,9 @@ from main_engine import MainEngine
 app = Flask(__name__, static_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_unsecure")
 CORS(app)
+
+# Configuration pour Vercel : permet de détecter correctement le protocole HTTPS
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 
 engine = MainEngine()
 
@@ -84,12 +90,24 @@ def login_google():
 
 @app.route('/authorize')
 def authorize():
-    token = google.authorize_access_token()
-    user = token.get('userinfo')
-    if user and user.get('email') == ADMIN_EMAIL:
-        session['user'] = user
-        return redirect(url_for('admin'))
-    return "Accès refusé. Seul l'administrateur peut accéder à cette page.", 403
+    try:
+        # Tentative de récupération du jeton Google
+        token = google.authorize_access_token()
+        user = token.get('userinfo')
+        
+        if user and user.get('email') == ADMIN_EMAIL:
+            session['user'] = user
+            # On s'assure que la session est bien enregistrée
+            session.permanent = True
+            return redirect(url_for('admin'))
+        
+        return f"Accès refusé. Seul l'administrateur ({ADMIN_EMAIL}) peut accéder à cette page.", 403
+    except Exception as e:
+        # Log détaillé de l'erreur pour aider au diagnostic
+        print(f"ERREUR AUTHENTIFICATION : {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return f"Une erreur est survenue lors de l'authentification : {str(e)}. Veuillez vérifier que vos variables d'environnement (CLIENT_ID / SECRET) sont correctes et que l'URL de redirection est bien configurée dans la console Google.", 500
 
 @app.route('/logout')
 def logout():

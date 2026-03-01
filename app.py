@@ -144,6 +144,13 @@ def logout():
 @app.route('/admin')
 @admin_required
 def admin():
+    """Hub central de l'administration."""
+    return send_from_directory('.', 'dashboard_hub.html')
+
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard():
+    """Dashboard complet avec onglets."""
     return send_from_directory('.', 'dashboard.html')
 
 @app.route('/<path:path>')

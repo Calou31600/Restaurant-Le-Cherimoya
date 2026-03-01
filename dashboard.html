@@ -262,7 +262,11 @@
                 <h2 style="margin-bottom:0">Administration Menu</h2>
                 <p class="terroir-badge" style="margin-top:0.5rem; border:none; padding:0">Le Chérimoya Control Center
                 </p>
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <a href="/admin" class="filter-btn"
+                        style="text-decoration: none; padding: 10px 20px; display: inline-flex; align-items: center; justify-content: center; background: rgba(207, 168, 110, 0.1); border-color: var(--accent);">
+                        ← Retour au Hub
+                    </a>
                     <button class="btn-save" id="btn-add-item" onclick="openAddModal()"
                         style="font-size: 1rem; padding: 10px 20px;">+ Ajouter
                         un plat</button>
@@ -924,7 +928,14 @@
                 }, 'image/jpeg', 0.85); // Qualité optimale pour le web
             }
 
-            fetchMenu();
+            // Au chargement, on vérifie si un onglet spécifique est demandé
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestedTab = urlParams.get('tab');
+            if (requestedTab === 'clients') {
+                switchTab('clients');
+            } else {
+                fetchMenu();
+            }
         </script>
 </body>
 

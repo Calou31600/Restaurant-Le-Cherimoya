@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration | Le Chérimoya</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .hub-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hub-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hub-title h1 {
+            font-size: 3.5rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .hub-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(207, 168, 110, 0.2);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            text-align: center;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hub-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(207, 168, 110, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .hub-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .hub-card:hover::before {
+            opacity: 1;
+        }
+
+        .hub-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 10px rgba(207, 168, 110, 0.3));
+        }
+
+        .hub-card h2 {
+            font-size: 1.8rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .hub-card p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            max-width: 250px;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            color: #ff4d4d;
+            border-color: #ff4d4d;
+        }
+
+        @media (max-width: 768px) {
+            .hub-title h1 {
+                font-size: 2.5rem;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-bg"></div>
+    <div class="dynamic-overlay"></div>
+
+    <a href="/logout" class="logout-btn">Déconnexion</a>
+
+    <div class="hub-container">
+        <div class="hub-title">
+            <span class="terroir-badge">Administration</span>
+            <h1>Control Center</h1>
+        </div>
+
+        <div class="hub-grid">
+            <a href="/admin/dashboard?tab=menu" class="hub-card">
+                <div class="hub-icon">👨‍🍳</div>
+                <h2>Menu Gastronomique</h2>
+                <p>Gérez vos plats, tarifs, photos et recommandations météo.</p>
+            </a>
+
+            <a href="/admin/dashboard?tab=clients" class="hub-card">
+                <div class="hub-icon">👥</div>
+                <h2>CRM Clients & Avis</h2>
+                <p>Suivez vos clients réguliers et gérez les demandes d'avis Google.</p>
+            </a>
+        </div>
+
+        <div style="margin-top: 5rem;">
+            <a href="/" class="btn-premium">Voir le site public</a>
+        </div>
+    </div>
+</body>
+</html>

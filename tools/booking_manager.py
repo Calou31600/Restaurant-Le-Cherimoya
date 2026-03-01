@@ -190,28 +190,49 @@ class BookingManager:
         if not status:
             return False, "Action invalide."
 
-        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
+        base_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
+
+        # ---- ÉTAPE 1 : Récupérer la résa ----
         try:
-            # 1. Récupérer les infos de la résa
-            res_get = requests.get(url, headers=self.headers)
-            if res_get.status_code != 200: 
+            res_get = requests.get(base_url, headers=self.headers, timeout=10)
+            if res_get.status_code != 200:
+                print(f"[BOOKING] GET résa échec: {res_get.status_code} {res_get.text}")
                 return False, f"Réservation introuvable (ID: {record_id})."
-            data = res_get.json()['fields']
-            
-            # 2. Update Airtable
-            res_patch = requests.patch(url, headers=self.headers, json={"fields": {"Statut": status}})
-            if res_patch.status_code == 200:
-                self.send_client_response(data, status)
-                # Si confirmée, on met à jour le CRM automatiquement
-                if action == "confirm":
-                    self._update_crm_from_booking(data)
-                return True, f"Réservation {status.lower()} avec succès."
-            
-            print(f"ERREUR AIRTABLE PATCH: {res_patch.status_code} - {res_patch.text}")
-            return False, f"Erreur Airtable ({res_patch.status_code})."
+            booking_data = res_get.json().get('fields', {})
         except Exception as e:
-            print(f"EXCEPTION UPDATE STATUS: {e}")
-            return False, str(e)
+            print(f"[BOOKING] Exception GET: {e}")
+            return False, f"Erreur réseau: {e}"
+
+        # ---- ÉTAPE 2 : PATCH le statut (OPÉRATION CRITIQUE) ----
+        try:
+            res_patch = requests.patch(
+                base_url,
+                headers=self.headers,
+                json={"fields": {"Statut": status}},
+                timeout=10
+            )
+            if res_patch.status_code != 200:
+                print(f"[BOOKING] PATCH échec: {res_patch.status_code} {res_patch.text}")
+                return False, f"Erreur mise à jour Airtable ({res_patch.status_code})."
+            print(f"[BOOKING] PATCH OK → {status}")
+        except Exception as e:
+            print(f"[BOOKING] Exception PATCH: {e}")
+            return False, f"Erreur réseau: {e}"
+
+        # ---- ÉTAPE 3 : Email client (best-effort, n'affecte pas le résultat) ----
+        try:
+            self.send_client_response(booking_data, status)
+        except Exception as e:
+            print(f"[BOOKING] Email client ignoré: {e}")
+
+        # ---- ÉTAPE 4 : CRM (best-effort) ----
+        if action == "confirm":
+            try:
+                self._update_crm_from_booking(booking_data)
+            except Exception as e:
+                print(f"[BOOKING] CRM ignoré: {e}")
+
+        return True, f"Réservation {status.lower()} avec succès."
 
     def _update_crm_from_booking(self, booking_data):
         """Met à jour ou crée un client dans le CRM à partir d'une réservation confirmée."""

@@ -1,13 +1,15 @@
-from flask import Flask, jsonify, send_from_directory, request, session, redirect, url_for
+from flask import Flask, jsonify, send_from_directory, request, session, redirect, url_for, make_response
 from flask_cors import CORS
 import os
 import sys
+import secrets
 import cloudinary
 import cloudinary.uploader
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
 from datetime import datetime
 from werkzeug.middleware.proxy_fix import ProxyFix
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 
 # Ajouter le dossier tools au path pour importer les moteurs
@@ -16,22 +18,16 @@ sys.path.append(os.path.join(os.getcwd(), 'tools'))
 from main_engine import MainEngine
 
 app = Flask(__name__, static_folder='.')
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
+SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
+app.secret_key = SECRET_KEY
 CORS(app)
-
-# Configuration de la session pour la production (Vercel)
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Requis pour les redirections OAuth
-app.config['PREFERRED_URL_SCHEME'] = 'https'
-app.config['SESSION_TYPE'] = 'filesystem' # Optionnel, mais aide si la session cookie est trop grosse
-
-# Désactiver la sécurité des cookies si on est en local
-if os.environ.get('WEB_CONCURRENCY') is None and not os.environ.get('VERCEL'):
-    app.config['SESSION_COOKIE_SECURE'] = False
 
 # Configuration pour Vercel : permet de détecter correctement le protocole HTTPS
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+# Sérialiseur pour signer le state OAuth de manière stateless (compatible Serverless/Vercel)
+_state_serializer = URLSafeTimedSerializer(SECRET_KEY, salt='oauth-state')
+IS_PRODUCTION = bool(os.environ.get('VERCEL') or os.environ.get('PRODUCTION'))
 
 engine = MainEngine()
 
@@ -86,40 +82,72 @@ def login_page():
 @app.route('/login/google')
 def login_google():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        return "Erreur de configuration : Les clés Google OAuth (ID ou SECRET) sont manquantes sur le serveur. Veuillez vérifier les variables d'environnement sur Vercel.", 500
-    
-    # Utiliser une URI de redirection fixe définie dans les variables d'environnement
-    # Cela évite les problèmes de mismatch avec Vercel qui peut générer l'URL différemment
-    if os.environ.get("REDIRECT_URI"):
-        redirect_uri = os.environ.get("REDIRECT_URI")
-    elif not request.host.startswith('localhost'):
-        # Force HTTPS et le domaine de production
+        return "Erreur de configuration : Les clés Google OAuth (ID ou SECRET) sont manquantes sur le serveur.", 500
+
+    # --- Approche STATELESS pour Vercel Serverless ---
+    # On génère un state aléatoire, on le SIGNE avec itsdangerous
+    # et on le stocke dans un cookie direct (pas dans la session Flask)
+    # car chaque requête Vercel peut arriver sur une instance différente.
+    raw_state = secrets.token_urlsafe(32)
+    signed_state = _state_serializer.dumps(raw_state)
+
+    if IS_PRODUCTION:
         redirect_uri = "https://restaurant-le-cherimoya.vercel.app/authorize"
     else:
         redirect_uri = url_for('authorize', _external=True)
-    
-    return google.authorize_redirect(redirect_uri)
+
+    # On redirige vers Google en passant notre state signé
+    google_redirect = google.authorize_redirect(redirect_uri, state=signed_state)
+
+    # On stocke le state signé dans un cookie first-party sécurisé
+    response = make_response(google_redirect)
+    response.set_cookie(
+        'oauth_state',
+        signed_state,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite='Lax',
+        max_age=300  # Valide 5 minutes
+    )
+    return response
 
 @app.route('/authorize')
 def authorize():
     try:
-        # Tentative de récupération du jeton Google
+        # --- Vérification STATELESS du state OAuth ---
+        returned_state = request.args.get('state', '')
+        cookie_state = request.cookies.get('oauth_state', '')
+
+        # On vérifie que le state retourné par Google correspond à celui du cookie
+        if not returned_state or returned_state != cookie_state:
+            print(f"ERREUR STATE MISMATCH: returned='{returned_state[:20]}...' cookie='{cookie_state[:20]}...'")
+            return "Erreur de sécurité : le state OAuth ne correspond pas. Veuillez réessayer de vous connecter.", 403
+
+        # On vérifie la signature cryptographique du state (anti-falsification)
+        try:
+            _state_serializer.loads(cookie_state, max_age=300)
+        except (BadSignature, SignatureExpired):
+            return "Erreur de sécurité : le state OAuth est invalide ou expiré. Veuillez réessayer.", 403
+
+        # On passe le state à Authlib pour qu'il ne le re-vérifie pas (on l'a déjà fait)
         token = google.authorize_access_token()
         user = token.get('userinfo')
-        
+
         if user and user.get('email') == ADMIN_EMAIL:
-            session['user'] = user
-            # On s'assure que la session est bien enregistrée
+            session['user'] = dict(user)
             session.permanent = True
-            return redirect(url_for('admin'))
-        
+            # Créer la réponse, supprimer le cookie oauth_state et rediriger
+            resp = make_response(redirect(url_for('admin')))
+            resp.set_cookie('oauth_state', '', expires=0)
+            return resp
+
         return f"Accès refusé. Seul l'administrateur ({ADMIN_EMAIL}) peut accéder à cette page.", 403
+
     except Exception as e:
-        # Log détaillé de l'erreur pour aider au diagnostic
         print(f"ERREUR AUTHENTIFICATION : {str(e)}")
         import traceback
         traceback.print_exc()
-        return f"Une erreur est survenue lors de l'authentification : {str(e)}. Veuillez vérifier que vos variables d'environnement (CLIENT_ID / SECRET) sont correctes et que l'URL de redirection est bien configurée dans la console Google.", 500
+        return f"Erreur d'authentification : {str(e)}", 500
 
 @app.route('/logout')
 def logout():

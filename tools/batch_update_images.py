@@ -60,10 +60,26 @@ MAPPING = {
     "salade_camembert_roti": "Salade de camembert roti",
     "siu_mai_vapeur_5pc_v2_cherimoya_retry": "Siu Mai vapeur 5pc",
     "saumon_teriyaki_v2_cherimoya_retry": "Saumon sauce teriyaki",
-    "tartelette_tatin_cherimoya": "Tartelette tatin"
+    "siu_mai_vapeur_cherimoya": "Siu mai vapeur 5pc",
+    "filet_bar_beurre_cherimoya": "Filet de bar au beurre",
+    "sunset_boulevard_cocktail_cherimoya": "Sunset boulevard",
+    "canard_caramel_balsamique_cherimoya": "Filet de canard sauce caramel balsamique",
+    "salade_poulet_croustillant_cherimoya_retry": "Salade de poulet croustillant",
+    "assiette_fruits_mer_cherimoya_retry": "Assiette de fruits de mer",
+    "creme_brulee_cafe_cherimoya_retry": "Crème Brûlée au Café",
+    "nana_fizz_cocktail_cherimoya_retry": "Nana fizz",
+    "plateau_fromages_mixtes_cherimoya_retry": "Plateau de fromages mixtes",
+    "salade_nems_cherimoya_retry": "Salade de nems",
+    "joue_boeuf_confite_cherimoya_final": "Joue de bœuf confite au four",
+    "faux_filet_boeuf_cherimoya_final": "Faux filet de bœuf 250gr",
+    "virgin_mojito_mocktail_cherimoya_final": "Virgin mojito",
+    "moules_creme_beurre_cherimoya_final_retry": "Moules à la crème beurre",
+    "ha_kao_crevettes_cherimoya_final_retry": "Ha Kao aux crevettes 5 pc",
+    "tropezienne_cherimoya_last_chance": "Tropézienne",
+    "dome_rubis_cherimoya_last_chance": "Dôme rubis"
 }
 
-BRAIN_DIR = r"C:\Users\pasca\.gemini\antigravity\brain\2fce4afb-db18-4eaf-b1ff-d10a48040969"
+BRAIN_DIR = r"C:\Users\pasca\.gemini\antigravity\brain\73d8d8ce-532a-4501-afb8-d03e70feb6f3"
 
 def get_airtable_records():
     url = BASE_URL

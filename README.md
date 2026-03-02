@@ -4,10 +4,10 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 📞 **Contact & Réservation** : 07 56 09 47 24
 
-
 ## 🌟 Fonctionnalités Principales
 
 ### Côté Client (Site Public)
+
 - **Menu Dynamique** : Affichage des plats triés par catégories (Entrées, Plats, Desserts, etc.) et par ordre alphabétique.
 - **Menu Bilingue (Français/Anglais)** : Support multilingue pour l'affichage des plats et de leurs descriptions.
 - **Gestion des Allergènes** : Affichage conditionnel et intelligent d'icônes (Lactose, Gluten, Cacahuéte) permettant de repérer au premier coup d'œil les plats ciblés.
@@ -18,6 +18,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Optimisation SEO, AEO & GEO** : Implémentation du format JSON-LD, balises sémantiques, et Meta Tags pour une visibilité maximale.
 
 ### Côté Administrateur (Dashboard)
+
 - **Gestion du Parcours Client** : Confirmation ou refus des réservations avec envoi de mail automatique.
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
 - **Upload & Recadrage d'Images** : Intégration de Cropper.js et hébergement optimisé sur Cloudinary.
@@ -37,6 +38,7 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 ## ⚙️ Maintenance & Évolutions
 
+- **Maintenance du Menu (02/03/2026)** : Mise à jour massive de la carte avec 16 nouveaux visuels haute résolution, couvrant quasi-intégralement la base de données.
 - **Ajout de Plats** : Après avoir ajouté un plat dans Airtable, lancer `tools/batch_update_images.py` pour générer et synchroniser automatiquement le visuel.
 - **SEO** : Le fichier `googlec1c6060347935c2d.html` permet le suivi en temps réel sur Google Search Console.
 - **Sitemap** : Toujours vérifier `sitemap.xml` après une modification structurelle majeure.
@@ -44,17 +46,20 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 ## ⚙️ Installation & Lancement en local
 
 1. **Cloner le dépôt** :
+
    ```bash
    git clone https://github.com/Calou31600/Restaurant-Le-Cherimoya.git
    cd "Restaurant Le Cherimoya"
    ```
 
 2. **Installation** :
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Variables d'Environnement (.env)** :
+
    ```env
    AIRTABLE_API_KEY=votre_pat_token
    AIRTABLE_BASE_ID=votre_base_id
@@ -70,10 +75,12 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
    - `check_missing_photos.py` : Identifie les plats sans images.
 
 ## 🔐 Sécurité & Administration
+
 L'accès au Dashboard est sécurisé par **Google OAuth2**.
 Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est autorisé à se connecter.
 
 **Identifiants requis dans le `.env` pour l'admin :**
+
 - `GOOGLE_CLIENT_ID` : Obtenu sur Google Cloud Console.
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Une clé aléatoire pour sécuriser les sessions.

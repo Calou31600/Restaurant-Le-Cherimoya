@@ -1289,6 +1289,34 @@
             }
         }
 
+        function resolveImg(fields) {
+            if (!fields) return 'assets/dish1.png';
+            const photo = fields.Photo;
+            let src = 'assets/dish1.png';
+
+            if (photo) {
+                if (Array.isArray(photo) && photo.length > 0) {
+                    // En mode Admin, on cherche d'abord une URL permanente (Cloudinary)
+                    const cloudPhoto = photo.find(p => p.url && !p.url.includes('airtableusercontent.com'));
+                    src = cloudPhoto ? cloudPhoto.url : photo[0].url;
+                } else if (typeof photo === 'string') {
+                    if (photo.startsWith('http')) {
+                        src = photo;
+                    } else if (photo.includes('(') && photo.includes(')')) {
+                        const match = photo.match(/\((https?:\/\/[^)]+)\)/);
+                        if (match) src = match[1];
+                    }
+                }
+            }
+
+            // Appliquer les optimisations si c'est du Cloudinary
+            if (src.includes('cloudinary.com')) {
+                if (!src.includes('upload/')) return src;
+                return src.replace('upload/', 'upload/f_auto,q_auto,w_600/');
+            }
+            return src;
+        }
+
         function renderAdmin() {
             const grid = document.getElementById('admin-grid');
             const countElement = document.getElementById('menu-count');
@@ -1299,7 +1327,7 @@
 
             grid.innerHTML = currentMenu.map(item => {
                 const f = item.fields;
-                const imgSrc = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+                const imgSrc = resolveImg(f);
                 const signatureBadge = f.is_featured ? '<span style="color:var(--accent); font-size: 0.8rem; border: 1px solid var(--accent); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">★ Signature</span>' : '';
 
                 // Gestion des icônes d'intolérances pour le dashboard

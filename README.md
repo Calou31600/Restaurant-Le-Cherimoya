@@ -38,7 +38,10 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 ## ⚙️ Maintenance & Évolutions
 
-- **Maintenance du Menu (02/03/2026)** : Mise à jour massive de la carte avec 16 nouveaux visuels haute résolution, couvrant quasi-intégralement la base de données.
+- **Maintenance du Menu (02/03/2026)** :
+  - Nettoyage massif de la base de données Airtable (suppression des corruptions JSON et restauration des métadonnées via `dishes.json`).
+  - Intégration de 16 nouveaux visuels haute résolution via Cloudinary.
+  - Correction des liens d'images cassés : le dashboard et le site utilisent désormais une logique de résolution d'images robuste qui privilégie les URLs Cloudinary permanentes et ignore les liens Airtable temporaires expirés.
 - **Ajout de Plats** : Après avoir ajouté un plat dans Airtable, lancer `tools/batch_update_images.py` pour générer et synchroniser automatiquement le visuel.
 - **SEO** : Le fichier `googlec1c6060347935c2d.html` permet le suivi en temps réel sur Google Search Console.
 - **Sitemap** : Toujours vérifier `sitemap.xml` après une modification structurelle majeure.

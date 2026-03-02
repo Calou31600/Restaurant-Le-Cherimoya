@@ -58,7 +58,7 @@ MAPPING = {
     "pina_colada_cocktail": "Pina colada",
     "nems_poulet_croustillants": "4 nems poulet croustillants",
     "salade_camembert_roti": "Salade de camembert roti",
-    "siu_mai_vapeur_5pc_v2_cherimoya_retry": "Siu Mai vapeur 5pc",
+    "siu_mai_vapeur_5pc_v2_cherimoya_retry": "Siu mai vapeur 5pc",
     "saumon_teriyaki_v2_cherimoya_retry": "Saumon sauce teriyaki",
     "siu_mai_vapeur_cherimoya": "Siu mai vapeur 5pc",
     "filet_bar_beurre_cherimoya": "Filet de bar au beurre",

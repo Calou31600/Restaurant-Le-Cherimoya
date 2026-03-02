@@ -31,7 +31,7 @@
 
         .hub-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             max-width: 1200px;
             width: 100%;
@@ -388,6 +388,12 @@
                 <div class="hub-icon">👥</div>
                 <h2>CRM Clients & Avis</h2>
                 <p>Suivez vos clients réguliers et gérez les demandes d'avis Google.</p>
+            </a>
+
+            <a href="/admin/settings" class="hub-card">
+                <div class="hub-icon">⚙️</div>
+                <h2>Paramètres</h2>
+                <p>Configurez les places disponibles, les horaires et autres paramètres du restaurant.</p>
             </a>
         </div>
 

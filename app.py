@@ -466,6 +466,39 @@ def admin_get_today_stats():
         print(f"[STATS TODAY] Erreur: {e}")
         return jsonify({"error": str(e), "midi": 0, "soir": 0, "reservations_midi": [], "reservations_soir": []}), 500
 
+@app.route('/admin/settings')
+@admin_required
+def admin_settings_page():
+    """Page de configuration des paramètres du restaurant."""
+    return send_from_directory('.', 'settings.html')
+
+@app.route('/api/admin/settings', methods=['GET'])
+@admin_required
+def admin_get_settings():
+    """Récupère les paramètres du restaurant."""
+    try:
+        from settings_manager import SettingsManager
+        sm = SettingsManager()
+        settings = sm.get_settings()
+        return jsonify({"status": "success", "settings": settings})
+    except Exception as e:
+        print(f"[SETTINGS GET] Erreur: {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+@app.route('/api/admin/settings', methods=['POST'])
+@admin_required
+def admin_save_settings():
+    """Sauvegarde les paramètres du restaurant."""
+    try:
+        from settings_manager import SettingsManager
+        sm = SettingsManager()
+        settings = request.get_json()
+        result = sm.save_settings(settings)
+        return jsonify(result)
+    except Exception as e:
+        print(f"[SETTINGS SAVE] Erreur: {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
+
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut
     print("Serveur Le Cherimoya demarre sur http://localhost:5000")

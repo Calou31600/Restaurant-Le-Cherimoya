@@ -462,47 +462,12 @@
             }
         }
 
-        async function openResaModal(service) {
-            const modal = document.getElementById('resaModal');
-            const title = document.getElementById('resaModalTitle');
+        // Fonction pour afficher le contenu de la modale
+        function renderModalContent(service) {
             const body = document.getElementById('resaModalBody');
-            const dateEl = document.getElementById('resaModalDate');
             const totalBar = document.getElementById('resaTotalBar');
             const totalCouverts = document.getElementById('resaTotalCouverts');
 
-            const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            dateEl.innerText = todayLabel;
-            title.innerHTML = service === 'midi' ? "🍽️ <span>Service Midi</span>" : "🌙 <span>Service Soir</span>";
-
-            // Ouvrir la modale IMMÉDIATEMENT
-            modal.classList.add('active');
-
-            // Si les stats ne sont pas encore chargées, les récupérer maintenant
-            if (!currentTodayStats) {
-                body.innerHTML = `
-                    <div style="text-align:center;padding:3rem;color:var(--text-dim);">
-                        <div style="font-size:2.5rem;margin-bottom:1rem;">⏳</div>
-                        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">Chargement...</div>
-                    </div>`;
-                totalBar.style.display = 'none';
-                try {
-                    const res = await fetch('/api/admin/stats/today');
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (!data.error) {
-                            data.reservations_midi = data.reservations_midi || [];
-                            data.reservations_soir = data.reservations_soir || [];
-                            currentTodayStats = data;
-                            document.getElementById('stats-midi').innerText = data.midi || '0';
-                            document.getElementById('stats-soir').innerText = data.soir || '0';
-                        }
-                    }
-                } catch (e) {
-                    console.error('[MODAL] Erreur chargement stats:', e);
-                }
-            }
-
-            // Rendre le contenu
             if (!currentTodayStats) {
                 body.innerHTML = `
                     <div style="text-align:center;padding:3rem;border:1px dashed rgba(255,77,77,0.2);border-radius:16px;">
@@ -547,6 +512,58 @@
                         <div class="resa-covers">${resa.couverts}<span>pers.</span></div>`;
                     body.appendChild(item);
                 });
+            }
+        }
+
+        async function openResaModal(service) {
+            const modal = document.getElementById('resaModal');
+            const title = document.getElementById('resaModalTitle');
+            const body = document.getElementById('resaModalBody');
+            const dateEl = document.getElementById('resaModalDate');
+            const totalBar = document.getElementById('resaTotalBar');
+
+            const todayLabel = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            dateEl.innerText = todayLabel;
+            title.innerHTML = service === 'midi' ? "🍽️ <span>Service Midi</span>" : "🌙 <span>Service Soir</span>";
+
+            // Ouvrir la modale IMMÉDIATEMENT
+            modal.classList.add('active');
+
+            // Si les stats ne sont pas encore chargées, les récupérer maintenant
+            if (!currentTodayStats) {
+                body.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:var(--text-dim);">
+                        <div style="font-size:2.5rem;margin-bottom:1rem;">⏳</div>
+                        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">Chargement...</div>
+                    </div>`;
+                totalBar.style.display = 'none';
+
+                try {
+                    const res = await fetch('/api/admin/stats/today');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (!data.error) {
+                            data.reservations_midi = data.reservations_midi || [];
+                            data.reservations_soir = data.reservations_soir || [];
+                            currentTodayStats = data;
+                            document.getElementById('stats-midi').innerText = data.midi || '0';
+                            document.getElementById('stats-soir').innerText = data.soir || '0';
+
+                            // IMPORTANT: Afficher le contenu maintenant que les données sont chargées
+                            renderModalContent(service);
+                        } else {
+                            renderModalContent(service); // Afficher l'erreur
+                        }
+                    } else {
+                        renderModalContent(service); // Afficher l'erreur
+                    }
+                } catch (e) {
+                    console.error('[MODAL] Erreur chargement stats:', e);
+                    renderModalContent(service); // Afficher l'erreur
+                }
+            } else {
+                // Les stats sont déjà disponibles, afficher directement
+                renderModalContent(service);
             }
         }
 

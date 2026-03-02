@@ -565,7 +565,7 @@
 
             const formData = new FormData(e.target);
             const closedDays = Array.from(e.target.querySelectorAll('input[name="closedDays"]:checked'))
-                .map(cb => parseInt(cb.value));
+                .map(cb => String(cb.value));
 
             const settings = {
                 totalSeats: parseInt(formData.get('totalSeats')),

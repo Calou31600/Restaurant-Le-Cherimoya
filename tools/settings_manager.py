@@ -82,7 +82,7 @@ class SettingsManager:
                     "lunchEndTime": settings.get('lunchEndTime'),
                     "dinnerStartTime": settings.get('dinnerStartTime'),
                     "dinnerEndTime": settings.get('dinnerEndTime'),
-                    "closedDays": settings.get('closedDays', []),
+                    "closedDays": [str(day) for day in settings.get('closedDays', [])],
                     "minAdvanceBookingHours": settings.get('minAdvanceBookingHours'),
                     "maxAdvanceBookingDays": settings.get('maxAdvanceBookingDays')
                 }
@@ -98,7 +98,7 @@ class SettingsManager:
                         return {"status": "success", "message": "Paramètres mis à jour avec succès"}
                     else:
                         print(f"[Settings] Erreur PATCH: {update_response.status_code}, {update_response.text}")
-                        return {"status": "error", "error": f"Erreur lors de la mise à jour (code {update_response.status_code})"}
+                        return {"status": "error", "error": f"Erreur Airtable (422): {update_response.text}"}
                 else:
                     # Création d'un nouvel enregistrement
                     payload = {"fields": data}

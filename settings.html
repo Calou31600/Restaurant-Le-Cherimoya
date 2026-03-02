@@ -7,239 +7,331 @@
     <title>Paramètres | Le Chérimoya</title>
     <link rel="stylesheet" href="index.css">
     <style>
-        .settings-container {
+        :root {
+            --glass-bg: rgba(20, 17, 15, 0.7);
+            --glass-border: rgba(207, 168, 110, 0.2);
+            --glass-blur: 16px;
+        }
+
+        body {
+            background: var(--bg-base);
             min-height: 100vh;
-            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-container {
+            flex: 1;
+            padding: 8rem 2rem 4rem;
             position: relative;
             z-index: 10;
         }
 
         .settings-header {
-            max-width: 900px;
-            margin: 0 auto 3rem;
+            max-width: 800px;
+            margin: 0 auto 4rem;
             text-align: center;
+            animation: fadeInDown 0.8s ease-out;
         }
 
         .settings-header h1 {
-            font-size: 3rem;
-            color: var(--text-main);
+            font-size: 3.5rem;
             margin-bottom: 0.5rem;
         }
 
         .settings-header p {
             color: var(--text-dim);
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-style: italic;
+            font-family: var(--font-heading);
         }
 
-        .settings-content {
-            max-width: 900px;
+        .settings-glass-card {
+            max-width: 800px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(207, 168, 110, 0.2);
-            border-radius: 20px;
-            padding: 3rem;
-            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 4rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
         }
 
         .settings-section {
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
         }
 
-        .settings-section:last-child {
-            margin-bottom: 0;
+        .settings-section:last-of-type {
+            margin-bottom: 2rem;
         }
 
         .settings-section h2 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: var(--accent);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(207, 168, 110, 0.2);
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(207, 168, 110, 0.15);
+        }
+
+        .settings-section h2::after {
+            display: none;
+            /* Override index.css h2::after */
+        }
+
+        .settings-section h2 svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
         .form-group label {
             display: block;
             color: var(--text-main);
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
             font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 0.85rem 1.2rem;
+            padding: 1rem 1.25rem;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(207, 168, 110, 0.2);
-            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: var(--text-main);
             font-size: 1rem;
-            transition: all 0.3s;
+            font-family: var(--font-body);
+            transition: var(--transition-smooth);
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 3px rgba(207, 168, 110, 0.1);
+            background: rgba(207, 168, 110, 0.05);
+            box-shadow: 0 0 0 4px rgba(207, 168, 110, 0.1);
         }
 
         .form-group small {
             display: block;
             color: var(--text-dim);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             margin-top: 0.5rem;
+            opacity: 0.8;
         }
 
-        .time-slots-grid {
+        /* Closed Days Grid */
+        .closed-days-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
-        .time-slot-group {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(207, 168, 110, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
+        .day-checkbox {
+            position: relative;
         }
 
-        .time-slot-group h3 {
-            color: var(--text-main);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
+        .day-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .day-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .day-checkbox input:checked+.day-label {
+            background: rgba(207, 168, 110, 0.2);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .day-label:hover {
+            border-color: rgba(207, 168, 110, 0.5);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .time-range {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-group {
-            display: flex;
             gap: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .time-range span {
+            color: var(--accent);
+            font-family: var(--font-heading);
+            font-style: italic;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
             justify-content: flex-end;
-            margin-top: 2rem;
+            gap: 1.5rem;
+            margin-top: 4rem;
             padding-top: 2rem;
-            border-top: 1px solid rgba(207, 168, 110, 0.15);
+            border-top: 1px solid rgba(207, 168, 110, 0.1);
         }
 
-        .btn {
-            padding: 0.85rem 2rem;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), #b8902f);
-            color: #000;
+        .btn-save {
+            background: var(--accent);
+            color: #14110f;
+            min-width: 250px;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(207, 168, 110, 0.3);
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            padding: 1.5rem 2.5rem;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(120%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid transparent;
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(207, 168, 110, 0.2);
-            color: var(--text-main);
+        .notification.active {
+            transform: translateX(0);
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent);
+        .notification.success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #d1fae5;
+        }
+
+        .notification.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #fee2e2;
+        }
+
+        .notification.warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #f59e0b;
+            color: #fef3c7;
+        }
+
+        .warning-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: none;
+            color: #fbbf24;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .warning-banner a {
+            color: #fbbf24;
+            font-weight: 700;
+            text-decoration: underline;
         }
 
         .back-link {
             position: fixed;
-            top: 30px;
-            left: 30px;
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
-            border-radius: 50px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            top: 40px;
+            left: 40px;
+            z-index: 1000;
         }
 
-        .back-link:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-            transform: translateX(-5px);
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .success-message,
-        .error-message {
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            display: none;
-        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-        .success-message {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #4ade80;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-        }
-
-        .warning-message {
-            background: rgba(251, 191, 36, 0.1);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            color: #fbbf24;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            display: none;
-        }
-
-        .warning-message a {
-            color: #fbbf24;
-            text-decoration: underline;
-            font-weight: 600;
-        }
-
-        .warning-message strong {
-            color: #fcd34d;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
-            .settings-content {
-                padding: 2rem 1.5rem;
+            .settings-glass-card {
+                padding: 2rem;
             }
 
-            .time-slots-grid {
+            .form-grid {
                 grid-template-columns: 1fr;
             }
 
-            .btn-group {
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .btn-container {
                 flex-direction: column;
             }
 
-            .settings-header h1 {
-                font-size: 2rem;
+            .btn-save {
+                width: 100%;
             }
         }
     </style>
@@ -247,161 +339,225 @@
 
 <body>
     <div class="hero-bg"></div>
-    <div class="dynamic-overlay"></div>
+    <div class="dynamic-overlay" style="background: rgba(20, 17, 15, 0.9);"></div>
 
-    <a href="/admin" class="back-link">
-        ← Retour au Control Center
-    </a>
+    <div class="back-link">
+        <a href="/admin" class="btn-premium" style="padding: 10px 20px; font-size: 0.8rem;">
+            ← Dashboard
+        </a>
+    </div>
 
     <div class="settings-container">
         <div class="settings-header">
-            <span class="terroir-badge">Configuration</span>
-            <h1>⚙️ Paramètres</h1>
-            <p>Gérez les paramètres globaux de votre restaurant</p>
+            <span class="terroir-badge">Administration</span>
+            <h1>Paramètres</h1>
+            <p>Ajustez l'âme et la logistique du Chérimoya</p>
         </div>
 
-        <div class="settings-content">
-            <div id="warningMessage" class="warning-message">
-                ⚠️ <strong>Table Settings non trouvée dans Airtable</strong><br>
-                Les valeurs par défaut sont affichées. Pour sauvegarder vos paramètres, vous devez créer la table Settings.<br>
-                <a href="https://github.com/Calou31600/Restaurant-Le-Cherimoya#settings" target="_blank">Voir la documentation</a>
+        <div class="settings-glass-card">
+            <div id="warningBanner" class="warning-banner">
+                <svg style="width:20px; vertical-align:middle; margin-right:8px;" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M12 2L1 21h22L12 2zm0 3.45L19.53 19H4.47L12 5.45zM11 16h2v2h-2v-2zm0-7h2v5h-2V9z" />
+                </svg>
+                <strong>Table Settings non initialisée</strong>.
+                Les données sont actuellement lues en mode secours.
+                <a href="/SETUP_SETTINGS_AIRTABLE.md" target="_blank">Suivre le guide de création</a>.
             </div>
-            <div id="successMessage" class="success-message"></div>
-            <div id="errorMessage" class="error-message"></div>
 
             <form id="settingsForm">
-                <!-- Section Places -->
-                <div class="settings-section">
-                    <h2>🪑 Capacité du Restaurant</h2>
-                    <div class="form-group">
-                        <label for="totalSeats">Nombre total de places</label>
-                        <input type="number" id="totalSeats" name="totalSeats" min="1" max="200" required>
-                        <small>Capacité maximale du restaurant en nombre de couverts</small>
+                <!-- Capacité -->
+                <section class="settings-section">
+                    <h2>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z" />
+                        </svg>
+                        Capacité & Flux
+                    </h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="totalSeats">Capacité totale</label>
+                            <input type="number" id="totalSeats" name="totalSeats" min="1" max="200" required>
+                            <small>Nombre de couverts installables</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxReservationsPerDay">Limite quotidienne</label>
+                            <input type="number" id="maxReservationsPerDay" name="maxReservationsPerDay" min="1"
+                                max="500" required>
+                            <small>Plafond maximum de réservations/jour</small>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="maxReservationsPerDay">Réservations maximales par jour</label>
-                        <input type="number" id="maxReservationsPerDay" name="maxReservationsPerDay" min="1" max="500" required>
-                        <small>Nombre maximum de réservations acceptées par jour (tous services confondus)</small>
-                    </div>
-                </div>
+                </section>
 
-                <!-- Section Horaires -->
-                <div class="settings-section">
-                    <h2>🕐 Plages Horaires</h2>
-                    <div class="time-slots-grid">
-                        <div class="time-slot-group">
-                            <h3>☀️ Service Midi</h3>
-                            <div class="form-group">
-                                <label for="lunchStartTime">Heure de début</label>
+                <!-- Horaires -->
+                <section class="settings-section">
+                    <h2>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
+                        </svg>
+                        Services & Horaires
+                    </h2>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Service du Midi</label>
+                            <div class="time-range">
                                 <input type="time" id="lunchStartTime" name="lunchStartTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="lunchEndTime">Heure de fin</label>
+                                <span>à</span>
                                 <input type="time" id="lunchEndTime" name="lunchEndTime" required>
                             </div>
                         </div>
-                        <div class="time-slot-group">
-                            <h3>🌙 Service Soir</h3>
-                            <div class="form-group">
-                                <label for="dinnerStartTime">Heure de début</label>
+                        <div class="form-group full-width">
+                            <label>Service du Soir</label>
+                            <div class="time-range">
                                 <input type="time" id="dinnerStartTime" name="dinnerStartTime" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="dinnerEndTime">Heure de fin</label>
+                                <span>à</span>
                                 <input type="time" id="dinnerEndTime" name="dinnerEndTime" required>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Section Jours de fermeture -->
-                <div class="settings-section">
-                    <h2>📅 Jours de fermeture</h2>
-                    <div class="form-group">
-                        <label for="closedDays">Jours fermés (sélectionnez un ou plusieurs jours)</label>
-                        <select id="closedDays" name="closedDays" multiple size="7" style="height: auto; min-height: 180px;">
-                            <option value="0">Dimanche</option>
-                            <option value="1">Lundi</option>
-                            <option value="2">Mardi</option>
-                            <option value="3">Mercredi</option>
-                            <option value="4">Jeudi</option>
-                            <option value="5">Vendredi</option>
-                            <option value="6">Samedi</option>
-                        </select>
-                        <small>Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs jours</small>
+                <!-- Fermeture -->
+                <section class="settings-section">
+                    <h2>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z" />
+                        </svg>
+                        Jours de Fermeture
+                    </h2>
+                    <div class="form-group full-width">
+                        <label>Sélectionnez les jours fermés de façon récurrente</label>
+                        <div class="closed-days-grid" id="closedDaysGrid">
+                            <!-- JS Generated days -->
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Section Réservation en ligne -->
-                <div class="settings-section">
-                    <h2>💻 Réservation en ligne</h2>
-                    <div class="form-group">
-                        <label for="minAdvanceBookingHours">Délai minimum de réservation (heures)</label>
-                        <input type="number" id="minAdvanceBookingHours" name="minAdvanceBookingHours" min="0" max="168" required>
-                        <small>Nombre d'heures minimum entre la réservation et la date souhaitée</small>
+                <!-- Réservation en ligne -->
+                <section class="settings-section">
+                    <h2>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z" />
+                        </svg>
+                        Délais de Réservation
+                    </h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="minAdvanceBookingHours">Délai minimum (Heures)</label>
+                            <input type="number" id="minAdvanceBookingHours" name="minAdvanceBookingHours" min="0"
+                                max="168" required>
+                            <small>Temps de préparation avant service</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxAdvanceBookingDays">Horizon maximum (Jours)</label>
+                            <input type="number" id="maxAdvanceBookingDays" name="maxAdvanceBookingDays" min="1"
+                                max="365" required>
+                            <small>Jusqu'à quand peut-on réserver ?</small>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="maxAdvanceBookingDays">Délai maximum de réservation (jours)</label>
-                        <input type="number" id="maxAdvanceBookingDays" name="maxAdvanceBookingDays" min="1" max="365" required>
-                        <small>Nombre de jours maximum à l'avance pour réserver</small>
-                    </div>
-                </div>
+                </section>
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/admin'">
+                <div class="btn-container">
+                    <button type="button" class="btn-premium btn-cancel" onclick="window.location.href='/admin'">
                         Annuler
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        💾 Enregistrer les paramètres
+                    <button type="submit" class="btn-premium btn-save">
+                        Enregistrer les Modifications
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Notification system -->
+    <div id="notification" class="notification">
+        <span class="notif-icon"></span>
+        <span class="notif-text"></span>
+    </div>
+
     <script>
-        // Charger les paramètres actuels
+        const DAYS = [
+            { id: 0, name: 'Dimanche' },
+            { id: 1, name: 'Lundi' },
+            { id: 2, name: 'Mardi' },
+            { id: 3, name: 'Mercredi' },
+            { id: 4, name: 'Jeudi' },
+            { id: 5, name: 'Vendredi' },
+            { id: 6, name: 'Samedi' }
+        ];
+
+        // Init days grid
+        const closedDaysGrid = document.getElementById('closedDaysGrid');
+        DAYS.forEach(day => {
+            const div = document.createElement('div');
+            div.className = 'day-checkbox';
+            div.innerHTML = `
+                <input type="checkbox" id="day-${day.id}" name="closedDays" value="${day.id}">
+                <label for="day-${day.id}" class="day-label">${day.name}</label>
+            `;
+            closedDaysGrid.appendChild(div);
+        });
+
+        function showNotification(text, type = 'success') {
+            const notif = document.getElementById('notification');
+            const icon = notif.querySelector('.notif-icon');
+            const content = notif.querySelector('.notif-text');
+
+            notif.className = `notification active ${type}`;
+            content.textContent = text;
+
+            if (type === 'success') icon.innerHTML = '✅';
+            else if (type === 'error') icon.innerHTML = '❌';
+            else icon.innerHTML = '⚠️';
+
+            setTimeout(() => {
+                notif.classList.remove('active');
+            }, 4000);
+        }
+
         async function loadSettings() {
             try {
                 const res = await fetch('/api/admin/settings');
-                if (!res.ok) {
-                    console.error('Erreur chargement paramètres:', res.status);
-                    showError('Impossible de charger les paramètres');
-                    return;
-                }
+                if (!res.ok) throw new Error('Erreur réseau');
+
                 const data = await res.json();
+                if (data.status === 'success' && data.settings) {
+                    const s = data.settings;
+                    document.getElementById('totalSeats').value = s.totalSeats || 50;
+                    document.getElementById('maxReservationsPerDay').value = s.maxReservationsPerDay || 100;
+                    document.getElementById('lunchStartTime').value = s.lunchStartTime || '12:00';
+                    document.getElementById('lunchEndTime').value = s.lunchEndTime || '14:00';
+                    document.getElementById('dinnerStartTime').value = s.dinnerStartTime || '19:00';
+                    document.getElementById('dinnerEndTime').value = s.dinnerEndTime || '22:00';
+                    document.getElementById('minAdvanceBookingHours').value = s.minAdvanceBookingHours || 2;
+                    document.getElementById('maxAdvanceBookingDays').value = s.maxAdvanceBookingDays || 90;
 
-                // Remplir le formulaire avec les données (par défaut ou depuis Airtable)
-                if (data.settings) {
-                    document.getElementById('totalSeats').value = data.settings.totalSeats || 50;
-                    document.getElementById('maxReservationsPerDay').value = data.settings.maxReservationsPerDay || 100;
-                    document.getElementById('lunchStartTime').value = data.settings.lunchStartTime || '12:00';
-                    document.getElementById('lunchEndTime').value = data.settings.lunchEndTime || '14:00';
-                    document.getElementById('dinnerStartTime').value = data.settings.dinnerStartTime || '19:00';
-                    document.getElementById('dinnerEndTime').value = data.settings.dinnerEndTime || '22:00';
-                    document.getElementById('minAdvanceBookingHours').value = data.settings.minAdvanceBookingHours || 2;
-                    document.getElementById('maxAdvanceBookingDays').value = data.settings.maxAdvanceBookingDays || 90;
-
-                    // Jours fermés
-                    const closedDays = data.settings.closedDays || [];
-                    const select = document.getElementById('closedDays');
-                    Array.from(select.options).forEach(option => {
-                        option.selected = closedDays.includes(parseInt(option.value));
+                    // Set checkboxes
+                    const closedDays = s.closedDays || [];
+                    closedDays.forEach(dayId => {
+                        const cb = document.getElementById(`day-${dayId}`);
+                        if (cb) cb.checked = true;
                     });
                 }
             } catch (err) {
-                console.error('Erreur:', err);
-                showError('Impossible de charger les paramètres');
+                showNotification('Impossible de synchroniser les paramètres', 'error');
             }
         }
 
-        // Sauvegarder les paramètres
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const submitBtn = e.target.querySelector('.btn-save');
+            submitBtn.textContent = 'Synchronisation...';
+            submitBtn.style.opacity = '0.7';
+
             const formData = new FormData(e.target);
-            const closedDaysSelect = document.getElementById('closedDays');
-            const closedDays = Array.from(closedDaysSelect.selectedOptions).map(opt => parseInt(opt.value));
+            const closedDays = Array.from(e.target.querySelectorAll('input[name="closedDays"]:checked'))
+                .map(cb => parseInt(cb.value));
 
             const settings = {
                 totalSeats: parseInt(formData.get('totalSeats')),
@@ -418,61 +574,28 @@
             try {
                 const res = await fetch('/api/admin/settings', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(settings)
                 });
 
                 const data = await res.json();
-
                 if (data.status === 'success') {
-                    showSuccess(data.message || 'Paramètres enregistrés avec succès !');
-                    hideWarning();
+                    showNotification(data.message || 'Mise à jour réussie', 'success');
+                    document.getElementById('warningBanner').style.display = 'none';
                 } else {
-                    showError(data.error || 'Erreur lors de l\'enregistrement');
+                    showNotification(data.error || 'Échec de la sauvegarde', 'error');
                     if (data.table_missing) {
-                        showWarning();
+                        document.getElementById('warningBanner').style.display = 'block';
                     }
                 }
             } catch (err) {
-                console.error('Erreur:', err);
-                showError('Erreur réseau lors de l\'enregistrement');
+                showNotification('Erreur de connexion serveur', 'error');
+            } finally {
+                submitBtn.textContent = 'Enregistrer les Modifications';
+                submitBtn.style.opacity = '1';
             }
         });
 
-        function showSuccess(message) {
-            const el = document.getElementById('successMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => {
-                el.style.display = 'none';
-            }, 5000);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showError(message) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => {
-                el.style.display = 'none';
-            }, 5000);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showWarning() {
-            const el = document.getElementById('warningMessage');
-            el.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function hideWarning() {
-            const el = document.getElementById('warningMessage');
-            el.style.display = 'none';
-        }
-
-        // Charger les paramètres au démarrage
         loadSettings();
     </script>
 </body>

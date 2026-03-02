@@ -51,12 +51,17 @@ class SettingsManager:
                     return settings
                 else:
                     # Aucun enregistrement trouvé, retourner les valeurs par défaut
+                    print("[Settings] Aucun enregistrement trouvé, utilisation des valeurs par défaut")
                     return self.default_settings
+            elif response.status_code == 404:
+                # Table non trouvée - cas normal si pas encore créée
+                print(f"[Settings] Table '{self.table_name}' non trouvée, utilisation des valeurs par défaut")
+                return self.default_settings
             else:
-                print(f"Erreur Airtable Settings GET: {response.status_code}")
+                print(f"[Settings] Erreur Airtable GET: {response.status_code} - Utilisation des valeurs par défaut")
                 return self.default_settings
         except Exception as e:
-            print(f"Erreur lors de la récupération des paramètres: {e}")
+            print(f"[Settings] Erreur lors de la récupération: {e} - Utilisation des valeurs par défaut")
             return self.default_settings
 
     def save_settings(self, settings):
@@ -90,23 +95,30 @@ class SettingsManager:
                     update_response = requests.patch(update_url, json=payload, headers=self.headers, timeout=5)
 
                     if update_response.status_code == 200:
-                        return {"status": "success", "message": "Paramètres mis à jour"}
+                        return {"status": "success", "message": "Paramètres mis à jour avec succès"}
                     else:
-                        print(f"Erreur Airtable Settings PATCH: {update_response.status_code}, {update_response.text}")
-                        return {"status": "error", "error": "Erreur lors de la mise à jour"}
+                        print(f"[Settings] Erreur PATCH: {update_response.status_code}, {update_response.text}")
+                        return {"status": "error", "error": f"Erreur lors de la mise à jour (code {update_response.status_code})"}
                 else:
                     # Création d'un nouvel enregistrement
                     payload = {"fields": data}
                     create_response = requests.post(url, json=payload, headers=self.headers, timeout=5)
 
                     if create_response.status_code == 200:
-                        return {"status": "success", "message": "Paramètres créés"}
+                        return {"status": "success", "message": "Paramètres créés avec succès"}
                     else:
-                        print(f"Erreur Airtable Settings POST: {create_response.status_code}, {create_response.text}")
-                        return {"status": "error", "error": "Erreur lors de la création"}
+                        print(f"[Settings] Erreur POST: {create_response.status_code}, {create_response.text}")
+                        return {"status": "error", "error": f"Erreur lors de la création (code {create_response.status_code})"}
+            elif response.status_code == 404:
+                # Table non trouvée
+                error_msg = "La table 'Settings' n'existe pas dans Airtable. Veuillez exécuter le script 'python tools/create_settings_table.py' pour la créer."
+                print(f"[Settings] {error_msg}")
+                return {"status": "error", "error": error_msg, "table_missing": True}
             else:
-                return {"status": "error", "error": f"Erreur de communication avec Airtable: {response.status_code}"}
+                error_msg = f"Impossible d'accéder à la table Settings (code {response.status_code}). Vérifiez que la table existe dans Airtable."
+                print(f"[Settings] {error_msg}")
+                return {"status": "error", "error": error_msg, "table_missing": True}
 
         except Exception as e:
-            print(f"Erreur lors de la sauvegarde des paramètres: {e}")
-            return {"status": "error", "error": str(e)}
+            print(f"[Settings] Exception lors de la sauvegarde: {e}")
+            return {"status": "error", "error": f"Erreur technique: {str(e)}"}

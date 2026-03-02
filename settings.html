@@ -205,6 +205,26 @@
             color: #f87171;
         }
 
+        .warning-message {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .warning-message a {
+            color: #fbbf24;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .warning-message strong {
+            color: #fcd34d;
+        }
+
         @media (max-width: 768px) {
             .settings-content {
                 padding: 2rem 1.5rem;
@@ -241,6 +261,11 @@
         </div>
 
         <div class="settings-content">
+            <div id="warningMessage" class="warning-message">
+                ⚠️ <strong>Table Settings non trouvée dans Airtable</strong><br>
+                Les valeurs par défaut sont affichées. Pour sauvegarder vos paramètres, vous devez créer la table Settings.<br>
+                <a href="https://github.com/Calou31600/Restaurant-Le-Cherimoya#settings" target="_blank">Voir la documentation</a>
+            </div>
             <div id="successMessage" class="success-message"></div>
             <div id="errorMessage" class="error-message"></div>
 
@@ -341,16 +366,12 @@
                 const res = await fetch('/api/admin/settings');
                 if (!res.ok) {
                     console.error('Erreur chargement paramètres:', res.status);
+                    showError('Impossible de charger les paramètres');
                     return;
                 }
                 const data = await res.json();
 
-                if (data.error) {
-                    showError(data.error);
-                    return;
-                }
-
-                // Remplir le formulaire avec les données
+                // Remplir le formulaire avec les données (par défaut ou depuis Airtable)
                 if (data.settings) {
                     document.getElementById('totalSeats').value = data.settings.totalSeats || 50;
                     document.getElementById('maxReservationsPerDay').value = data.settings.maxReservationsPerDay || 100;
@@ -406,9 +427,13 @@
                 const data = await res.json();
 
                 if (data.status === 'success') {
-                    showSuccess('Paramètres enregistrés avec succès !');
+                    showSuccess(data.message || 'Paramètres enregistrés avec succès !');
+                    hideWarning();
                 } else {
                     showError(data.error || 'Erreur lors de l\'enregistrement');
+                    if (data.table_missing) {
+                        showWarning();
+                    }
                 }
             } catch (err) {
                 console.error('Erreur:', err);
@@ -434,6 +459,17 @@
                 el.style.display = 'none';
             }, 5000);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showWarning() {
+            const el = document.getElementById('warningMessage');
+            el.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function hideWarning() {
+            const el = document.getElementById('warningMessage');
+            el.style.display = 'none';
         }
 
         // Charger les paramètres au démarrage

@@ -1,4 +1,4 @@
-# 📝 Guide : Créer la table Settings dans Airtable
+# 📝 Guide : Créer la table Settings_Cherimoya dans Airtable
 
 Ce guide vous explique comment créer manuellement la table Settings dans votre base Airtable.
 
@@ -12,13 +12,14 @@ Ouvrez votre base Airtable (celle configurée dans `AIRTABLE_BASE_ID`)
 
 1. Cliquez sur **"Add or import"** (en bas à gauche)
 2. Sélectionnez **"Create empty table"**
-3. Nommez la table exactement : **`Settings`**
+3. Nommez la table exactement : **`Settings_Cherimoya`**
 
 ### 3. Ajoutez les champs suivants
 
 Pour chaque champ, cliquez sur **"+"** pour ajouter une nouvelle colonne :
 
 #### Champs Number (Type: Number)
+
 - `totalSeats` → **Number** (Nombre entier)
   - Description : Nombre total de places dans le restaurant
   - Valeur par défaut : 50
@@ -36,6 +37,7 @@ Pour chaque champ, cliquez sur **"+"** pour ajouter une nouvelle colonne :
   - Valeur par défaut : 90
 
 #### Champs Text (Type: Single line text)
+
 - `lunchStartTime` → **Single line text**
   - Description : Heure de début du service midi (format HH:MM)
   - Valeur par défaut : 12:00
@@ -53,6 +55,7 @@ Pour chaque champ, cliquez sur **"+"** pour ajouter une nouvelle colonne :
   - Valeur par défaut : 22:00
 
 #### Champ Multiple select (Type: Multiple select)
+
 - `closedDays` → **Multiple select**
   - Description : Jours de fermeture (0=Dimanche, 1=Lundi, etc.)
   - Options à créer :
@@ -69,7 +72,7 @@ Pour chaque champ, cliquez sur **"+"** pour ajouter une nouvelle colonne :
 Cliquez sur **"+"** pour ajouter un nouvel enregistrement avec les valeurs par défaut :
 
 | Champ | Valeur |
-|-------|--------|
+| ------- | -------- |
 | totalSeats | 50 |
 | maxReservationsPerDay | 100 |
 | lunchStartTime | 12:00 |
@@ -114,22 +117,21 @@ Pour vérifier que tout fonctionne :
 ## ❓ Problèmes courants
 
 ### Erreur 403 ou 404
-- Vérifiez que la table s'appelle exactement **`Settings`** (avec un S majuscule)
+
+- Vérifiez que la table s'appelle exactement **`Settings_Cherimoya`** (avec un S majuscule)
 - Vérifiez que tous les champs sont bien créés avec les bons noms
 - Vérifiez vos variables d'environnement sur Vercel :
   - `AIRTABLE_API_KEY`
   - `AIRTABLE_BASE_ID`
 
 ### Les paramètres ne se sauvegardent pas
+
 - Assurez-vous qu'au moins un enregistrement existe dans la table
 - Vérifiez que votre API key Airtable a les permissions d'écriture
 
 ### Les valeurs par défaut s'affichent toujours
+
 - Vérifiez que vous avez bien créé l'enregistrement dans Airtable
 - Videz le cache de votre navigateur et rechargez la page
-
----
-
-## 📚 Documentation complète
 
 Pour plus d'informations, consultez [SETTINGS_README.md](SETTINGS_README.md)

@@ -17,7 +17,7 @@ def create_settings_table():
     base_id = os.getenv('AIRTABLE_BASE_ID')
 
     if not api_key or not base_id:
-        print("❌ Erreur : AIRTABLE_API_KEY ou AIRTABLE_BASE_ID manquant dans .env")
+        print("ERROR: AIRTABLE_API_KEY or AIRTABLE_BASE_ID missing in .env")
         return False
 
     headers = {
@@ -30,18 +30,20 @@ def create_settings_table():
 
     # Définition de la structure de la table Settings
     table_schema = {
-        "name": "Settings",
+        "name": "Settings_Cherimoya",
         "description": "Paramètres globaux du restaurant (capacité, horaires, etc.)",
         "fields": [
             {
                 "name": "totalSeats",
                 "type": "number",
-                "description": "Nombre total de places dans le restaurant"
+                "description": "Nombre total de places dans le restaurant",
+                "options": {"precision": 0}
             },
             {
                 "name": "maxReservationsPerDay",
                 "type": "number",
-                "description": "Nombre maximum de réservations par jour"
+                "description": "Nombre maximum de réservations par jour",
+                "options": {"precision": 0}
             },
             {
                 "name": "lunchStartTime",
@@ -82,24 +84,26 @@ def create_settings_table():
             {
                 "name": "minAdvanceBookingHours",
                 "type": "number",
-                "description": "Délai minimum de réservation en heures"
+                "description": "Délai minimum de réservation en heures",
+                "options": {"precision": 0}
             },
             {
                 "name": "maxAdvanceBookingDays",
                 "type": "number",
-                "description": "Délai maximum de réservation en jours"
+                "description": "Délai maximum de réservation en jours",
+                "options": {"precision": 0}
             }
         ]
     }
 
-    print("🚀 Création de la table Settings dans Airtable...")
+    print("Creating Settings table in Airtable...")
     print(f"   Base ID: {base_id}")
 
     try:
         response = requests.post(url, json=table_schema, headers=headers, timeout=10)
 
         if response.status_code == 200:
-            print("✅ Table Settings créée avec succès!")
+            print("SUCCESS: Settings table created!")
             result = response.json()
             print(f"   Table ID: {result.get('id')}")
 
@@ -107,17 +111,17 @@ def create_settings_table():
             create_default_settings(api_key, base_id)
             return True
         else:
-            print(f"❌ Erreur lors de la création de la table: {response.status_code}")
+            print(f"ERROR: table creation failed: {response.status_code}")
             print(f"   Réponse: {response.text}")
 
             # Si la table existe déjà, c'est OK
             if "TABLE_ALREADY_EXISTS" in response.text or response.status_code == 422:
-                print("ℹ️  La table Settings existe déjà")
+                print("INFO: Settings table already exists")
                 return True
             return False
 
     except Exception as e:
-        print(f"❌ Erreur lors de la requête: {e}")
+        print(f"ERROR: request failed: {e}")
         return False
 
 
@@ -129,7 +133,7 @@ def create_default_settings(api_key, base_id):
         "Content-Type": "application/json"
     }
 
-    url = f"https://api.airtable.com/v0/{base_id}/Settings"
+    url = f"https://api.airtable.com/v0/{base_id}/Settings_Cherimoya"
 
     default_data = {
         "fields": {
@@ -150,15 +154,15 @@ def create_default_settings(api_key, base_id):
         response = requests.post(url, json=default_data, headers=headers, timeout=10)
 
         if response.status_code == 200:
-            print("✅ Paramètres par défaut créés avec succès!")
+            print("SUCCESS: Default settings created!")
             result = response.json()
             print(f"   Record ID: {result.get('id')}")
         else:
-            print(f"⚠️  Impossible de créer l'enregistrement par défaut: {response.status_code}")
+            print(f"WARNING: could not create default settings: {response.status_code}")
             print(f"   (Vous pouvez le créer manuellement depuis l'interface)")
 
     except Exception as e:
-        print(f"⚠️  Erreur lors de la création de l'enregistrement: {e}")
+        print(f"WARNING: error creating record: {e}")
 
 
 if __name__ == "__main__":
@@ -176,7 +180,7 @@ if __name__ == "__main__":
         print("💡 Vous pouvez maintenant accéder aux paramètres via:")
         print("   http://localhost:5000/admin/settings")
     else:
-        print("❌ La configuration a échoué.")
+        print("ERROR: configuration failed.")
         print()
         print("💡 Assurez-vous que:")
         print("   - AIRTABLE_API_KEY et AIRTABLE_BASE_ID sont définis dans .env")

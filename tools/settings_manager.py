@@ -11,7 +11,7 @@ class SettingsManager:
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        self.table_name = "Settings"  # Nom de la table dans Airtable
+        self.table_name = "Settings_Cherimoya"  # Nom de la table dans Airtable
 
         # Valeurs par défaut si aucun paramètre n'est configuré
         self.default_settings = {
@@ -51,7 +51,7 @@ class SettingsManager:
                     return settings
                 else:
                     # Aucun enregistrement trouvé, retourner les valeurs par défaut
-                    print("[Settings] Aucun enregistrement trouvé, utilisation des valeurs par défaut")
+                    print("[Settings_Cherimoya] Aucun enregistrement trouvé, utilisation des valeurs par défaut")
                     return self.default_settings
             elif response.status_code == 404:
                 # Table non trouvée - cas normal si pas encore créée

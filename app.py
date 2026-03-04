@@ -12,7 +12,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 # Ajouter le dossier tools au path pour importer les moteurs
-sys.path.append(os.path.join(os.getcwd(), 'tools'))
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(BASE_PATH, 'tools'))
 
 from main_engine import MainEngine
 

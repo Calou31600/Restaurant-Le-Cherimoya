@@ -748,6 +748,8 @@
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <a href="/admin" class="filter-btn">← Hub</a>
                     <button class="btn-save" id="btn-add-item" onclick="openAddModal()">+ Nouveau Plat</button>
+                    <button class="btn-save" id="btn-add-resa" onclick="openAddResaModal()"
+                        style="display: none; background: #cfa86e; color: #0d0d0d;">+ Nouvelle Réservation</button>
                     <button class="filter-btn" id="btn-sync-clients" onclick="syncClients()" style="display: none;">🔄
                         Synchroniser</button>
                     <button class="filter-btn" id="btn-refresh-resas" onclick="fetchReservations()"
@@ -1004,6 +1006,60 @@
             </div>
         </div>
 
+        <div id="add-resa-overlay" class="upload-overlay">
+            <div class="admin-modal" style="max-width: 500px;">
+                <h3
+                    style="margin-top: 0; margin-bottom: 2rem; font-size: 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; color: var(--text-main);">
+                    Nouvelle Réservation</h3>
+
+                <div class="form-group">
+                    <label>Nom du client</label>
+                    <input type="text" id="add-resa-name" class="form-control" placeholder="Ex: Jean Dupont">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="add-resa-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Heure</label>
+                        <input type="time" id="add-resa-time" class="form-control">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Service</label>
+                        <select id="add-resa-service" class="form-control">
+                            <option value="Midi">☀️ Midi</option>
+                            <option value="Soir">🌙 Soir</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Covers (Nb pers.)</label>
+                        <input type="number" id="add-resa-covers" class="form-control" value="2" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="add-resa-phone" class="form-control" placeholder="06 00 00 00 00">
+                </div>
+
+                <div class="form-group">
+                    <label>Email (Optionnel)</label>
+                    <input type="email" id="add-resa-email" class="form-control" placeholder="client@email.com">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="filter-btn" style="flex:1" onclick="closeAddResaModal()">Annuler</button>
+                    <button class="btn-save" style="flex:2" onclick="saveManualReservation()">Enregistrer la
+                        réservation</button>
+                </div>
+            </div>
+        </div>
+
     </div> <!-- Fin de admin-container -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
@@ -1101,6 +1157,7 @@
 
             // Afficher/Cacher boutons contextuels
             document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
+            document.getElementById('btn-add-resa').style.display = tab === 'reservations' ? 'block' : 'none';
             document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
             document.getElementById('btn-refresh-resas').style.display = tab === 'reservations' ? 'block' : 'none';
 
@@ -1423,6 +1480,68 @@
                 if (card) card.classList.remove('removing');
                 console.error("Erreur réseau handleResa:", err);
                 alert("Erreur réseau. Vérifiez votre connexion.");
+            }
+        }
+
+        // --- NOUVELLE RÉSERVATION MANUELLE ---
+        function openAddResaModal() {
+            // Reset form
+            document.getElementById('add-resa-name').value = '';
+            document.getElementById('add-resa-phone').value = '';
+            document.getElementById('add-resa-email').value = '';
+            document.getElementById('add-resa-covers').value = 2;
+
+            // Pré-remplir date du jour
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('add-resa-date').value = today;
+
+            // Pré-remplir heure selon moment de la journée
+            const now = new Date();
+            const hour = now.getHours();
+            document.getElementById('add-resa-time').value = (hour < 15) ? "12:30" : "20:00";
+            document.getElementById('add-resa-service').value = (hour < 15) ? "Midi" : "Soir";
+
+            document.getElementById('add-resa-overlay').style.display = 'flex';
+        }
+
+        function closeAddResaModal() {
+            document.getElementById('add-resa-overlay').style.display = 'none';
+        }
+
+        async function saveManualReservation() {
+            const name = document.getElementById('add-resa-name').value;
+            const phone = document.getElementById('add-resa-phone').value;
+            const email = document.getElementById('add-resa-email').value;
+            const date = document.getElementById('add-resa-date').value;
+            const time = document.getElementById('add-resa-time').value;
+            const service = document.getElementById('add-resa-service').value;
+            const covers = document.getElementById('add-resa-covers').value;
+
+            if (!name || !date || !time || !service || !covers) {
+                alert("Veuillez remplir les informations essentielles (Nom, Date, Heure, Service, Couverts).");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/reservations/manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, email, date, time, service, covers })
+                });
+
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert("Réservation enregistrée avec succès !");
+                    closeAddResaModal();
+                    fetchReservations();
+                    fetchStats();
+                    switchTab('reservations');
+                } else {
+                    alert("Erreur: " + (data.message || data.error));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de l'enregistrement de la réservation.");
             }
         }
 

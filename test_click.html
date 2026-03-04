@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Hub</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* Mocking specific styles from dashboard_hub.html */
+        .resa-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .resa-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .resa-modal-content {
+            background: #1a1a1a;
+            border: 1px solid #cfa86e;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 580px;
+            padding: 2.5rem;
+            color: white;
+            transform: translateY(30px);
+            transition: transform 0.35s ease;
+        }
+
+        .resa-modal.active .resa-modal-content {
+            transform: translateY(0);
+        }
+
+        .hub-card {
+            cursor: pointer;
+            padding: 2rem;
+            border: 1px solid gold;
+            margin: 2rem;
+        }
+    </style>
+</head>
+
+<body style="background: #000; color: #fff;">
+    <div class="hub-card" onclick="openResaModal('midi')">
+        TEST MIDI (CLIQUE ICI)
+    </div>
+
+    <!-- Modal Liste Réservations -->
+    <div id="resaModal" class="resa-modal" onclick="closeResaModal(event)">
+        <div class="resa-modal-content" onclick="event.stopPropagation()">
+            <div class="resa-modal-header">
+                <div>
+                    <h2 id="resaModalTitle">Détail du Service</h2>
+                    <span class="resa-modal-date" id="resaModalDate"></span>
+                </div>
+                <button class="close-modal-btn" onclick="closeResaModal(event)">✕</button>
+            </div>
+            <div class="resa-total-bar" id="resaTotalBar" style="display:none;">
+                Total couverts : <strong id="resaTotalCouverts">0</strong>
+            </div>
+            <div id="resaModalBody">
+                <!-- Contenu injecté via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTodayStats = {
+            midi: 2,
+            soir: 2,
+            reservations_midi: [{ nom: "Pascal", heure: "12:30", couverts: 2, telephone: "0601020304" }],
+            reservations_soir: [{ nom: "Aline", heure: "20:00", couverts: 2, telephone: "0605060708" }]
+        };
+
+        function renderModalContent(service) {
+            const body = document.getElementById('resaModalBody');
+            const list = service === 'midi' ? currentTodayStats.reservations_midi : currentTodayStats.reservations_soir;
+            body.innerHTML = 'LOADED: ' + list[0].nom;
+        }
+
+        async function openResaModal(service) {
+            console.log('Opening modal for', service);
+            const modal = document.getElementById('resaModal');
+            document.getElementById('resaModalDate').innerText = 'Aujourd\'hui';
+            document.getElementById('resaModalTitle').innerText = service;
+            modal.classList.add('active');
+            renderModalContent(service);
+        }
+
+        function closeResaModal(e) {
+            document.getElementById('resaModal').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>

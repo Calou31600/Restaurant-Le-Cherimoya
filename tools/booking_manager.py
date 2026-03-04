@@ -202,6 +202,33 @@ class BookingManager:
             print(f"EXCEPTION submit_reservation: {e}")
             return False, "Erreur réseau lors de la réservation."
 
+    def create_manual_reservation(self, name, phone, email, date_str, time_str, service, covers):
+        """Action Admin : Crée une réservation confirmée immédiatement, sans règle de temps."""
+        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
+        fields = {
+            "Nom": name,
+            "Telephone": phone,
+            "Email": email if email else "",
+            "Date": date_str,
+            "Heure": time_str,
+            "Service": service,
+            "Couverts": int(covers),
+            "Statut": "Confirm\u00e9e"
+        }
+        try:
+            res = requests.post(url, headers=self.headers, json={"records": [{"fields": fields}], "typecast": True})
+            if res.status_code == 200:
+                booking_data = res.json()['records'][0]['fields']
+                # On met aussi à jour le CRM
+                try:
+                    self._update_crm_from_booking(booking_data)
+                except:
+                    pass
+                return True, "Réservation manuelle créée avec succès."
+            return False, f"Erreur Airtable: {res.text}"
+        except Exception as e:
+            return False, str(e)
+
     def update_reservation_status(self, record_id, action):
         """Met à jour le statut dans Airtable et notifie le client."""
         status_map = {

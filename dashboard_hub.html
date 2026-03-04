@@ -358,9 +358,21 @@
     <a href="/logout" class="logout-btn">Déconnexion</a>
 
     <div class="hub-container">
-        <div class="hub-title" style="margin-bottom: 2rem;">
-            <span class="terroir-badge">Administration</span>
-            <h1>Control Center</h1>
+        <div class="hub-title"
+            style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1000px; margin-left: auto; margin-right: auto;">
+            <div style="text-align: left;">
+                <span class="terroir-badge">Administration</span>
+                <h1 style="margin: 0;">Control Center</h1>
+            </div>
+            <button class="hub-settings-link" onclick="openAddResaModal()"
+                style="background: var(--accent); color: #0d0d0d; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; transition: 0.3s; margin-bottom: 5px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nouvelle Réservation
+            </button>
         </div>
 
         <!-- Section Infos Temps Réel -->
@@ -465,7 +477,142 @@
         </div>
     </div>
 
+    <!-- Modal Nouvelle Réservation -->
+    <div id="add-resa-overlay" class="resa-modal"
+        style="display: none; align-items: center; justify-content: center; z-index: 3000;">
+        <div
+            style="background: #1a1a1a; border: 1px solid var(--accent); border-radius: 20px; padding: 2.5rem; width: 90%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <h3
+                style="margin-top: 0; margin-bottom: 2rem; font-size: 1.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; color: var(--text-main); font-family: var(--font-heading);">
+                Nouvelle Réservation</h3>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Nom du
+                    client</label>
+                <input type="text" id="add-resa-name"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    placeholder="Ex: Jean Dupont">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label
+                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Date</label>
+                    <input type="date" id="add-resa-date"
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                </div>
+                <div>
+                    <label
+                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Heure</label>
+                    <input type="time" id="add-resa-time"
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label
+                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Service</label>
+                    <select id="add-resa-service"
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                        <option value="Midi">☀️ Midi</option>
+                        <option value="Soir">🌙 Soir</option>
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Couverts</label>
+                    <input type="number" id="add-resa-covers" value="2" min="1"
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label
+                    style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Téléphone</label>
+                <input type="tel" id="add-resa-phone"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    placeholder="06 00 00 00 00">
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Email
+                    (Optionnel)</label>
+                <input type="email" id="add-resa-email"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    placeholder="client@email.com">
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="closeAddResaModal()"
+                    style="flex:1; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold;">Annuler</button>
+                <button onclick="saveManualReservation()"
+                    style="flex:2; background: var(--accent); border: none; color: #0d0d0d; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: bold;">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- NOUVELLE RÉSERVATION MANUELLE ---
+        function openAddResaModal() {
+            // Reset form
+            document.getElementById('add-resa-name').value = '';
+            document.getElementById('add-resa-phone').value = '';
+            document.getElementById('add-resa-email').value = '';
+            document.getElementById('add-resa-covers').value = 2;
+
+            // Pré-remplir date du jour
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('add-resa-date').value = today;
+
+            // Pré-remplir heure selon moment de la journée
+            const now = new Date();
+            const hour = now.getHours();
+            document.getElementById('add-resa-time').value = (hour < 15) ? "12:30" : "20:00";
+            document.getElementById('add-resa-service').value = (hour < 15) ? "Midi" : "Soir";
+
+            document.getElementById('add-resa-overlay').style.display = 'flex';
+        }
+
+        function closeAddResaModal() {
+            document.getElementById('add-resa-overlay').style.display = 'none';
+        }
+
+        async function saveManualReservation() {
+            const name = document.getElementById('add-resa-name').value;
+            const phone = document.getElementById('add-resa-phone').value;
+            const email = document.getElementById('add-resa-email').value;
+            const date = document.getElementById('add-resa-date').value;
+            const time = document.getElementById('add-resa-time').value;
+            const service = document.getElementById('add-resa-service').value;
+            const covers = document.getElementById('add-resa-covers').value;
+
+            if (!name || !date || !time || !service || !covers) {
+                alert("Veuillez remplir les informations essentielles (Nom, Date, Heure, Service, Couverts).");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/reservations/manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, email, date, time, service, covers })
+                });
+
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert("Réservation enregistrée avec succès !");
+                    closeAddResaModal();
+                    fetchStats(); // Actualiser les widgets
+                } else {
+                    alert("Erreur: " + (data.message || data.error));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de l'enregistrement de la réservation.");
+            }
+        }
+
         // --- HORLOGE TEMPS RÉEL ---
         function updateClock() {
             const now = new Date();

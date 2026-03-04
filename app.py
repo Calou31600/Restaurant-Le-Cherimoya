@@ -219,6 +219,36 @@ def make_reservation():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/admin/reservations/manual', methods=['POST'])
+@admin_required
+def admin_manual_reservation():
+    """Crée une réservation manuelle (clic depuis dashboard)."""
+    try:
+        data = request.json
+        name = data.get('name')
+        phone = data.get('phone')
+        email = data.get('email')
+        date_str = data.get('date')
+        time_str = data.get('time')
+        service = data.get('service')
+        covers = data.get('covers')
+
+        if not all([name, date_str, time_str, service, covers]):
+            return jsonify({"status": "error", "message": "Nom, Date, Heure, Service et Couverts sont requis."}), 400
+
+        bm = booking_manager
+        if bm is None:
+            from booking_manager import BookingManager as BM
+            bm = BM()
+
+        success, message = bm.create_manual_reservation(name, phone, email, date_str, time_str, service, covers)
+        if success:
+            return jsonify({"status": "success", "message": message})
+        else:
+            return jsonify({"status": "error", "message": message}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/api/reservations/action/<record_id>/<action>', methods=['GET'])
 def handle_reservation_action(record_id, action):
     """Gère les clics depuis l'email de notification."""

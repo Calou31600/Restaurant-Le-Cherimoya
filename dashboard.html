@@ -1013,43 +1013,60 @@
                     Nouvelle Réservation</h3>
 
                 <div class="form-group">
-                    <label>Nom du client</label>
-                    <input type="text" id="add-resa-name" class="form-control" placeholder="Ex: Jean Dupont">
+                    <label
+                        style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Nom
+                        du client</label>
+                    <input type="text" id="add-resa-name" class="form-control" placeholder="Ex: Jean Dupont"
+                        style="box-sizing: border-box;">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="add-resa-date" class="form-control">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group" style="min-width: 0;">
+                        <label
+                            style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Date</label>
+                        <input type="date" id="add-resa-date" class="form-control" style="box-sizing: border-box;">
                     </div>
-                    <div class="form-group">
-                        <label>Heure</label>
-                        <input type="time" id="add-resa-time" class="form-control">
+                    <div class="form-group" style="min-width: 0;">
+                        <label
+                            style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Heure</label>
+                        <select id="add-resa-time" class="form-control" style="box-sizing: border-box;">
+                            <!-- Créneaux injectés par JS -->
+                        </select>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label>Service</label>
-                        <select id="add-resa-service" class="form-control">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group" style="min-width: 0;">
+                        <label
+                            style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Service</label>
+                        <select id="add-resa-service" class="form-control" onchange="updateAddResaTimeSlots()"
+                            style="box-sizing: border-box;">
                             <option value="Midi">☀️ Midi</option>
                             <option value="Soir">🌙 Soir</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Covers (Nb pers.)</label>
-                        <input type="number" id="add-resa-covers" class="form-control" value="2" min="1">
+                    <div class="form-group" style="min-width: 0;">
+                        <label
+                            style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Covers
+                            (Nb pers.)</label>
+                        <input type="number" id="add-resa-covers" class="form-control" value="2" min="1"
+                            style="box-sizing: border-box;">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Téléphone</label>
-                    <input type="tel" id="add-resa-phone" class="form-control" placeholder="06 00 00 00 00">
+                    <label
+                        style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Téléphone</label>
+                    <input type="tel" id="add-resa-phone" class="form-control" placeholder="06 00 00 00 00"
+                        style="box-sizing: border-box;">
                 </div>
 
                 <div class="form-group">
-                    <label>Email (Optionnel)</label>
-                    <input type="email" id="add-resa-email" class="form-control" placeholder="client@email.com">
+                    <label
+                        style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--accent);">Email
+                        (Optionnel)</label>
+                    <input type="email" id="add-resa-email" class="form-control" placeholder="client@email.com"
+                        style="box-sizing: border-box;">
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
@@ -1484,6 +1501,27 @@
         }
 
         // --- NOUVELLE RÉSERVATION MANUELLE ---
+        function updateAddResaTimeSlots() {
+            const service = document.getElementById('add-resa-service').value;
+            const timeSelect = document.getElementById('add-resa-time');
+            if (!timeSelect) return;
+
+            timeSelect.innerHTML = '';
+            let times = [];
+            if (service === 'Midi') {
+                times = ['12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'];
+            } else {
+                times = ['19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00', '21:15', '21:30'];
+            }
+
+            times.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                timeSelect.appendChild(opt);
+            });
+        }
+
         function openAddResaModal() {
             // Reset form
             document.getElementById('add-resa-name').value = '';
@@ -1498,8 +1536,16 @@
             // Pré-remplir heure selon moment de la journée
             const now = new Date();
             const hour = now.getHours();
-            document.getElementById('add-resa-time').value = (hour < 15) ? "12:30" : "20:00";
             document.getElementById('add-resa-service').value = (hour < 15) ? "Midi" : "Soir";
+
+            updateAddResaTimeSlots();
+
+            // Sélectionner une heure par défaut cohérente
+            if (hour < 15) {
+                document.getElementById('add-resa-time').value = "12:30";
+            } else {
+                document.getElementById('add-resa-time').value = "20:00";
+            }
 
             document.getElementById('add-resa-overlay').style.display = 'flex';
         }

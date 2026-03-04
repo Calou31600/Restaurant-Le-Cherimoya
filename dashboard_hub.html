@@ -487,59 +487,62 @@
                 Nouvelle Réservation</h3>
 
             <div style="margin-bottom: 1.5rem;">
-                <label style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Nom du
-                    client</label>
+                <label
+                    style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Nom
+                    du client</label>
                 <input type="text" id="add-resa-name"
-                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;"
                     placeholder="Ex: Jean Dupont">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="min-width: 0;">
                     <label
-                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Date</label>
+                        style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Date</label>
                     <input type="date" id="add-resa-date"
-                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;">
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <label
-                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Heure</label>
-                    <input type="time" id="add-resa-time"
-                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                        style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Heure</label>
+                    <select id="add-resa-time"
+                        style="width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;">
+                    </select>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="min-width: 0;">
                     <label
-                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Service</label>
-                    <select id="add-resa-service"
-                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                        style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Service</label>
+                    <select id="add-resa-service" onchange="updateAddResaTimeSlots()"
+                        style="width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;">
                         <option value="Midi">☀️ Midi</option>
                         <option value="Soir">🌙 Soir</option>
                     </select>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                     <label
-                        style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Couverts</label>
+                        style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Couverts</label>
                     <input type="number" id="add-resa-covers" value="2" min="1"
-                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;">
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;">
                 </div>
             </div>
 
             <div style="margin-bottom: 1.5rem;">
                 <label
-                    style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Téléphone</label>
+                    style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Téléphone</label>
                 <input type="tel" id="add-resa-phone"
-                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;"
                     placeholder="06 00 00 00 00">
             </div>
 
             <div style="margin-bottom: 2rem;">
-                <label style="display:block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.9rem;">Email
+                <label
+                    style="display:block; margin-bottom: 8px; color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Email
                     (Optionnel)</label>
                 <input type="email" id="add-resa-email"
-                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white;"
+                    style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; box-sizing: border-box;"
                     placeholder="client@email.com">
             </div>
 
@@ -554,6 +557,27 @@
 
     <script>
         // --- NOUVELLE RÉSERVATION MANUELLE ---
+        function updateAddResaTimeSlots() {
+            const service = document.getElementById('add-resa-service').value;
+            const timeSelect = document.getElementById('add-resa-time');
+            if (!timeSelect) return;
+
+            timeSelect.innerHTML = '';
+            let times = [];
+            if (service === 'Midi') {
+                times = ['12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'];
+            } else {
+                times = ['19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00', '21:15', '21:30'];
+            }
+
+            times.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                timeSelect.appendChild(opt);
+            });
+        }
+
         function openAddResaModal() {
             // Reset form
             document.getElementById('add-resa-name').value = '';
@@ -568,8 +592,16 @@
             // Pré-remplir heure selon moment de la journée
             const now = new Date();
             const hour = now.getHours();
-            document.getElementById('add-resa-time').value = (hour < 15) ? "12:30" : "20:00";
             document.getElementById('add-resa-service').value = (hour < 15) ? "Midi" : "Soir";
+
+            updateAddResaTimeSlots();
+
+            // Sélectionner une heure par défaut cohérente
+            if (hour < 15) {
+                document.getElementById('add-resa-time').value = "12:30";
+            } else {
+                document.getElementById('add-resa-time').value = "20:00";
+            }
 
             document.getElementById('add-resa-overlay').style.display = 'flex';
         }

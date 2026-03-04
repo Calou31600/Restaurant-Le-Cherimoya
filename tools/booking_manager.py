@@ -1,6 +1,7 @@
 import os
 import requests
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -36,24 +37,28 @@ class BookingManager:
 
     def get_today_stats(self):
         """Récupère les statistiques de réservation pour aujourd'hui en comptant les couverts confirmés dans la table Reservations."""
-        today_str = datetime.now().strftime('%Y-%m-%d')
+        paris_tz = ZoneInfo("Europe/Paris")
+        today_str = datetime.now(paris_tz).strftime('%Y-%m-%d')
         stats = {
             "midi": 0, "soir": 0, "date": today_str,
             "reservations_midi": [], "reservations_soir": []
         }
-        
+
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
-        # On ne compte que les réservations CONFIRMÉES pour aujourd'hui
-        # On filtre sur les deux orthographes possibles de 'Confirmée'
-        formula = f"AND({{Date}}='{today_str}', OR({{Statut}}='Confirm\u00e9e', {{Statut}}='Confirmee'))"
+        # DATESTR() convertit le champ Date en string YYYY-MM-DD (évite les problèmes de timezone Airtable)
+        # LOWER() rend la comparaison de statut insensible à la casse
+        formula = f"AND(DATESTR({{Date}})='{today_str}', OR(LOWER({{Statut}})='confirmée', LOWER({{Statut}})='confirmee'))"
         params = {
             "filterByFormula": formula
         }
         
         try:
+            print(f"[STATS] Requête stats du jour: date={today_str}, formula={formula}")
             response = requests.get(url, headers=self.headers, params=params)
+            print(f"[STATS] Réponse Airtable: HTTP {response.status_code}")
             if response.status_code == 200:
                 records = response.json().get('records', [])
+                print(f"[STATS] {len(records)} réservation(s) confirmée(s) trouvée(s) pour {today_str}")
                 for record in records:
                     fields = record.get('fields', {})
                     service = fields.get('Service')
@@ -73,6 +78,8 @@ class BookingManager:
                     elif service == 'Soir':
                         stats["soir"] += int(covers)
                         stats["reservations_soir"].append(resa_info)
+            else:
+                print(f"[STATS] ERREUR Airtable {response.status_code}: {response.text[:500]}")
             return stats
         except Exception as e:
             print(f"Erreur get_today_stats: {e}")
@@ -86,7 +93,8 @@ class BookingManager:
         service_type: 'Midi' ou 'Soir'
         target_date_str: 'YYYY-MM-DD'
         """
-        now = datetime.now()
+        paris_tz = ZoneInfo("Europe/Paris")
+        now = datetime.now(paris_tz)
         target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
         today = now.date()
 

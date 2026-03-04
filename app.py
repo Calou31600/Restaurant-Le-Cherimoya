@@ -15,7 +15,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(BASE_PATH, 'tools'))
 
-from main_engine import MainEngine
+try:
+    from main_engine import MainEngine
+except ImportError as e:
+    print(f"⚠️ ERREUR IMPORT MainEngine : {e}")
+    MainEngine = None
 
 app = Flask(__name__, static_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")

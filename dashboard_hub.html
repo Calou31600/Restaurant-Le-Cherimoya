@@ -66,6 +66,8 @@
             background: linear-gradient(135deg, rgba(207, 168, 110, 0.1) 0%, transparent 100%);
             opacity: 0;
             transition: var(--transition-smooth);
+            pointer-events: none;
+            /* Empêche de bloquer les clics sur le contenu de la carte */
         }
 
         .hub-card:hover {
@@ -378,9 +380,9 @@
             </div>
 
             <!-- Widget Réservations Aujourd'hui -->
-            <div class="hub-card"
-                style="padding: 1.5rem 3rem; flex-direction: row; gap: 3rem; min-width: 400px; transform: none; cursor: default;">
-                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease;"
+            <div
+                style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(207, 168, 110, 0.2); border-radius: 20px; padding: 1.5rem 3rem; display: flex; flex-direction: row; gap: 3rem; min-width: 400px; backdrop-filter: blur(10px); position: relative; z-index: 20;">
+                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; position: relative; z-index: 30;"
                     onmouseover="this.style.transform='scale(1.05)'; this.style.filter='brightness(1.2)';"
                     onmouseout="this.style.transform='scale(1)'; this.style.filter='brightness(1)';"
                     onclick="openResaModal('midi')">
@@ -393,7 +395,7 @@
                     <div style="font-size: 0.8rem; color: var(--accent);">Portions</div>
                 </div>
                 <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.1);"></div>
-                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease;"
+                <div style="text-align: center; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; position: relative; z-index: 30;"
                     onmouseover="this.style.transform='scale(1.05)'; this.style.filter='brightness(1.2)';"
                     onmouseout="this.style.transform='scale(1)'; this.style.filter='brightness(1)';"
                     onclick="openResaModal('soir')">
@@ -558,6 +560,7 @@
         }
 
         async function openResaModal(service) {
+            console.log("[MODAL] Tentative d'ouverture pour le service:", service);
             const modal = document.getElementById('resaModal');
             const title = document.getElementById('resaModalTitle');
             const body = document.getElementById('resaModalBody');

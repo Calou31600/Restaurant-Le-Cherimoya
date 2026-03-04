@@ -750,13 +750,43 @@
                     item.className = 'resa-item';
                     const phoneDisplay = resa.telephone ? `📞 ${resa.telephone}` : '📞 Non renseigné';
                     const emailDisplay = resa.email ? `✉️ ${resa.email}` : '';
-                    item.innerHTML = `
-                        <div class="resa-info">
-                            <h3>${resa.nom}</h3>
-                            <p>🕐 ${resa.heure || '–'}&nbsp;&nbsp;${phoneDisplay}</p>
-                            ${emailDisplay ? `<p style="opacity:0.6;font-size:0.78rem;margin-top:2px;">${emailDisplay}</p>` : ''}
+
+                    const isPending = (resa.statut || '').includes('confirmer');
+                    const statusBadge = isPending ? `
+                        <span style="display:inline-block; padding:2px 8px; border-radius:4px; background:rgba(207,168,110,0.15); color:var(--accent); font-size:0.65rem; text-transform:uppercase; font-weight:700; border:1px solid var(--accent); margin-bottom:10px;">En attente</span>
+                    ` : '';
+
+                    const actions = isPending ? `
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <button onclick="handleResaAction('${resa.id}', 'confirm', '${service}')" 
+                                    style="background:#28a745; border:none; color:white; font-size:0.75rem; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s; box-shadow: 0 4px 12px rgba(40,167,69,0.2);">
+                                Confirmer
+                            </button>
+                            <button onclick="handleResaAction('${resa.id}', 'cancel', '${service}')" 
+                                    style="background:transparent; border:1px solid rgba(255,77,77,0.4); color:#ff4d4d; font-size:0.75rem; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s;">
+                                Refuser
+                            </button>
                         </div>
-                        <div class="resa-covers">${resa.couverts}<span>pers.</span></div>`;
+                    ` : `
+                        <div style="margin-top:10px;">
+                            <button onclick="handleResaAction('${resa.id}', 'cancel', '${service}')" 
+                                    style="background:transparent; border:1px solid rgba(255,77,77,0.3); color:#ff4d4d; font-size:0.7rem; padding:4px 10px; border-radius:6px; cursor:pointer; opacity:0.7; transition:0.2s;"
+                                    onmouseover="this.style.opacity=1; this.style.background='rgba(255,77,77,0.05)'"
+                                    onmouseout="this.style.opacity=0.7; this.style.background='transparent'">
+                                Annuler
+                            </button>
+                        </div>
+                    `;
+
+                    item.innerHTML = `
+                        <div class="resa-info" style="flex:1;">
+                            ${statusBadge}
+                            <h3 style="margin:0; font-size:1.1rem; letter-spacing:0.02em;">${resa.nom}</h3>
+                            <p style="margin:4px 0;">🕐 <strong>${resa.heure || '–'}</strong>&nbsp;&nbsp;&nbsp;${phoneDisplay}</p>
+                            ${emailDisplay ? `<p style="opacity:0.5; font-size:0.75rem;">${emailDisplay}</p>` : ''}
+                            ${actions}
+                        </div>
+                        <div class="resa-covers" style="margin-left:auto;">${resa.couverts}<span>pers.</span></div>`;
                     body.appendChild(item);
                 });
             }
@@ -821,6 +851,27 @@
 
         function closeResaModal(e) {
             document.getElementById('resaModal').classList.remove('active');
+        }
+
+        async function cancelReservation(recordId, currentService) {
+            if (!confirm("Voulez-vous vraiment annuler cette réservation ?")) return;
+
+            try {
+                const res = await fetch(`/api/admin/reservations/action/${recordId}/cancel`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    // Re-fetch les stats pour mettre à jour la liste locale
+                    await fetchStats();
+                    // Rafraîchir le contenu de la modale pour le service en cours
+                    renderModalContent(currentService);
+                } else {
+                    alert("Erreur lors de l'annulation : " + (data.error || "Inconnue"));
+                }
+            } catch (err) {
+                console.error("Erreur annulation:", err);
+                alert("Une erreur est survenue lors de l'annulation.");
+            }
         }
 
         // Initialisation

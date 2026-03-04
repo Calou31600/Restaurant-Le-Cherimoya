@@ -30,6 +30,7 @@ class BookingManager:
             response = requests.get(url, headers=self.headers, params=params)
             if response.status_code == 200:
                 return response.json().get('records', [])
+            print(f"ERREUR GET Reservations [{response.status_code}]: {response.text}")
             return []
         except Exception as e:
             print(f"Erreur get_reservations: {e}")
@@ -45,9 +46,8 @@ class BookingManager:
         }
 
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
-        # DATESTR() convertit le champ Date en string YYYY-MM-DD (évite les problèmes de timezone Airtable)
-        # LOWER() rend la comparaison de statut insensible à la casse
-        formula = f"AND(DATESTR({{Date}})='{today_str}', OR(LOWER({{Statut}})='confirmée', LOWER({{Statut}})='confirmee'))"
+        # On récupère TOUTES les réservations du jour (confirmées et à confirmer)
+        formula = f"DATESTR({{Date}})='{today_str}'"
         params = {
             "filterByFormula": formula
         }
@@ -65,18 +65,23 @@ class BookingManager:
                     covers = fields.get('Couverts', 0)
                     
                     resa_info = {
+                        "id": record.get('id'),
                         "nom": fields.get('Nom', 'Inconnu'),
                         "couverts": covers,
                         "heure": fields.get('Heure', ''),
                         "telephone": fields.get('Telephone', ''),
-                        "email": fields.get('Email', '')
+                        "email": fields.get('Email', ''),
+                        "statut": fields.get('Statut', 'À confirmer')
                     }
                     
+                    # On ne compte dans le total que les confirmées
+                    is_confirmed = resa_info['statut'].lower() in ['confirmée', 'confirmee']
+                    
                     if service == 'Midi':
-                        stats["midi"] += int(covers)
+                        if is_confirmed: stats["midi"] += int(covers)
                         stats["reservations_midi"].append(resa_info)
                     elif service == 'Soir':
-                        stats["soir"] += int(covers)
+                        if is_confirmed: stats["soir"] += int(covers)
                         stats["reservations_soir"].append(resa_info)
             else:
                 print(f"[STATS] ERREUR Airtable {response.status_code}: {response.text[:500]}")

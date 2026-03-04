@@ -1468,9 +1468,16 @@
                             <span class="status-badge" style="color:${statusColor};background:${statusBg};border:1px solid ${statusColor}44;">${f.Statut}</span>
                         </td>
                         <td>
-                            <span style="font-size:0.8rem;color:var(--text-dim);font-style:italic;">
-                                ${f.Statut === '\u00c0 confirmer' ? 'En attente' : 'Géré'}
-                            </span>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                ${f.Statut === '\u00c0 confirmer' ? `
+                                    <button class="btn-save btn-small" onclick="handleResa('${resa.id}', 'confirm')" style="background:#28a745;color:#fff;padding:4px 8px;font-size:0.75rem;">Confirmer</button>
+                                    <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color:#ff4d4d;color:#ff4d4d;padding:4px 8px;font-size:0.75rem;">Refuser</button>
+                                ` : (f.Statut === 'Confirmée' ? `
+                                    <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color:#ff4d4d;color:#ff4d4d;padding:4px 12px;font-size:0.75rem;border-radius:6px;background:rgba(255,77,77,0.05);">Annuler</button>
+                                ` : `
+                                    <span style="font-size:0.8rem;color:var(--text-dim);font-style:italic;">Archivé</span>
+                                `)}
+                            </div>
                         </td>
                     </tr>`;
             }).join('');

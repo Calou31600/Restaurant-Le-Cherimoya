@@ -23,10 +23,19 @@ except ImportError as e:
 
 app = Flask(__name__, static_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
+
+@app.route('/api/ping')
+def ping():
+    return jsonify({"status": "pong", "timestamp": datetime.now().isoformat()})
+
 CORS(app)
 
 # ProxyFix : permet à Flask de détecter HTTPS derriere le proxy Vercel
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+except Exception as e:
+    print(f"⚠️ ProxyFix Error: {e}")
 
 REDIRECT_URI = "https://restaurant-le-cherimoya.vercel.app/authorize"
 
@@ -56,15 +65,19 @@ if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     print("⚠️ ERREUR : GOOGLE_CLIENT_ID ou SECRET manquant dans les variables d'environnement !")
 
 oauth = OAuth(app)
-google = oauth.register(
-    name='google',
-    client_id=GOOGLE_CLIENT_ID,
-    client_secret=GOOGLE_CLIENT_SECRET,
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
+try:
+    google = oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
+except Exception as e:
+    print(f"⚠️ OAuth Registration Error: {e}")
+    google = None
 
 ADMIN_EMAIL = "lecherimoyarestaurant@gmail.com"
 

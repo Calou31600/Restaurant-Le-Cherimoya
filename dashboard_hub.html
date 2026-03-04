@@ -173,7 +173,7 @@
             height: 100vh;
             background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(8px);
-            z-index: 1000;
+            z-index: 10000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -588,20 +588,24 @@
                             data.reservations_midi = data.reservations_midi || [];
                             data.reservations_soir = data.reservations_soir || [];
                             currentTodayStats = data;
-                            document.getElementById('stats-midi').innerText = data.midi || '0';
-                            document.getElementById('stats-soir').innerText = data.soir || '0';
 
-                            // IMPORTANT: Afficher le contenu maintenant que les données sont chargées
+                            // Mettre à jour les compteurs en passant
+                            const midiEl = document.getElementById('stats-midi');
+                            const soirEl = document.getElementById('stats-soir');
+                            if (midiEl) midiEl.innerText = data.midi || '0';
+                            if (soirEl) soirEl.innerText = data.soir || '0';
+
+                            // Afficher le contenu
                             renderModalContent(service);
                         } else {
-                            renderModalContent(service); // Afficher l'erreur
+                            renderModalContent(service);
                         }
                     } else {
-                        renderModalContent(service); // Afficher l'erreur
+                        renderModalContent(service);
                     }
                 } catch (e) {
                     console.error('[MODAL] Erreur chargement stats:', e);
-                    renderModalContent(service); // Afficher l'erreur
+                    renderModalContent(service);
                 }
             } else {
                 // Les stats sont déjà disponibles, afficher directement

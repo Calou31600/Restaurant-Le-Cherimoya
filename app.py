@@ -529,6 +529,37 @@ def admin_save_settings():
         print(f"[SETTINGS SAVE] Erreur: {e}")
         return jsonify({"status": "error", "error": str(e)}), 500
 
+@app.route('/api/admin/reservations/manual', methods=['POST'])
+@admin_required
+def admin_manual_reservation():
+    """Crée une réservation manuelle (Admin)."""
+    try:
+        data = request.json
+        name = data.get('name')
+        phone = data.get('phone')
+        email = data.get('email')
+        date = data.get('date')
+        time = data.get('time')
+        service = data.get('service')
+        covers = data.get('covers')
+
+        if not name or not date or not time or not service or not covers:
+            return jsonify({"status": "error", "message": "Champs obligatoires manquants."}), 400
+
+        bm = booking_manager
+        if bm is None:
+            from booking_manager import BookingManager as BM
+            bm = BM()
+
+        success, message = bm.create_manual_reservation(name, phone, email, date, time, service, covers)
+        
+        if success:
+            return jsonify({"status": "success", "message": message})
+        return jsonify({"status": "error", "message": message}), 500
+    except Exception as e:
+        print(f"[MANUAL RESERVATION] Erreur: {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
+
 if __name__ == '__main__':
     # On tourne sur le port 5000 par défaut
     print("Serveur Le Cherimoya demarre sur http://localhost:5000")

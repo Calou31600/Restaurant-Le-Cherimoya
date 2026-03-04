@@ -481,7 +481,7 @@
 
         async function fetchStats() {
             try {
-                const res = await fetch('/api/admin/stats/today');
+                const res = await fetch(`/api/admin/stats/today?_t=${Date.now()}`);
                 if (!res.ok) {
                     console.error('[STATS] HTTP', res.status);
                     return;
@@ -581,7 +581,7 @@
                 totalBar.style.display = 'none';
 
                 try {
-                    const res = await fetch('/api/admin/stats/today');
+                    const res = await fetch(`/api/admin/stats/today?_t=${Date.now()}`);
                     if (res.ok) {
                         const data = await res.json();
                         if (!data.error) {

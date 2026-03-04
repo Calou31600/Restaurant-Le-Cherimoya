@@ -908,7 +908,7 @@
 
         async function fetchStats() {
             try {
-                const res = await fetch('/api/admin/stats/today');
+                const res = await fetch(`/api/admin/stats/today?_t=${Date.now()}`);
                 const data = await res.json();
                 document.getElementById('stats-midi').innerText = data.midi || '0';
                 document.getElementById('stats-soir').innerText = data.soir || '0';

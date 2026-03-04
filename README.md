@@ -17,34 +17,36 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 - **Avis Google Dynamiques** : Récupération automatique de la note, du nombre d'avis et des commentaires clients via l'API Google Places.
 - **Optimisation SEO, AEO & GEO** : Implémentation du format JSON-LD, balises sémantiques, et Meta Tags pour une visibilité maximale.
 
-### Côté Administrateur (Dashboard)
+### Côté Administrateur (Dashboard & Control Center)
 
-- **Gestion du Parcours Client** : Confirmation ou refus des réservations avec envoi de mail automatique.
+- **Gestion du Parcours Client** : Confirmation, refus ou annulation des réservations avec envoi de mail automatique d'un simple clic.
+- **Réservation Manuelle Avancée** : Formulaire optimisé avec sélection de créneaux horaires dynamiques (intervalles de 15 min adaptés au service Midi/Soir).
+- **Control Center Temps Réel** : Vue par service (Midi/Soir) avec visibilité totale sur les réservations confirmées et en attente, permettant une gestion fluide directement depuis la salle.
+- **Interface Premium & Responsive** : Design soigné avec charte graphique "Vibe" (accent color #cfa86e), typographie moderne et support complet du mode sombre.
 - **Gestion Complète du Menu (CRUD)** : Ajouter, Modifier, et Supprimer les plats en temps réel.
 - **Upload & Recadrage d'Images** : Intégration de Cropper.js et hébergement optimisé sur Cloudinary.
-- **Gestion de l'Inventaire** : Synchronisation des tables `Disponibilites` et `Reservations` pour éviter le surbooking.
-- **Engine de Génération d'Images (IA)** : Intégration de Google Gemini Image Generation pour créer des visuels gastronomiques sur-mesure. Ce système garantit une charte graphique cohérente ("Vibe") sur l'ensemble du menu.
-- **Batch Image Sync (`tools/batch_update_images.py`)** : Script de synchronisation automatisé pour l'import massif des visuels vers Cloudinary et la mise à jour déterministe d'Airtable (`typecast: true`).
-- **Filtrage Intelligent** : Le frontend (`index.html`) détecte et ignore les URLs Airtable temporaires expirées pour garantir un affichage permanent et de haute qualité.
+- **Engine de Génération d'Images (IA)** : Intégration de Google Gemini Image Generation pour créer des visuels gastronomiques sur-mesure.
+- **Batch Image Sync (`tools/batch_update_images.py`)** : Script de synchronisation automatisé pour l'import massif des visuels vers Cloudinary.
 
 ## 🛠️ Stack Technique
 
-- **Frontend** : HTML5, Vanilla CSS, JS natif, Cropper.js.
-- **Backend** : Python 3 / Flask.
-- **IA Gėnérative** : Google Gemini (Images & SEO).
-- **Bases de Données** : Airtable (Architecture A.N.T.).
-- **Images** : Cloudinary (Transformation à la volée `f_auto,q_auto`).
-- **Météo** : OpenWeather API.
+- **Frontend** : HTML5, Vanilla CSS (Premium Design System), JS natif, Cropper.js.
+- **Backend** : Python 3 / Flask / BookingManager (Logique métier complexe).
+- **IA Gėnérative** : Google Gemini (Images, SEO & Analyse de données).
+- **Bases de Données** : Airtable (Architecture A.N.T. : Architecture, Navigation, Tools).
+- **Images & Assets** : Cloudinary (Transformation à la volée `f_auto,q_auto`).
+- **Météo** : OpenWeather API (Weather-Driven UI).
 
 ## ⚙️ Maintenance & Évolutions
 
+- **Optimisation Réservations (04/03/2026)** :
+  - Refonte de la visibilité dans le Control Center : toutes les réservations du jour (y compris les saisies manuelles en attente) sont désormais immédiatement visibles.
+  - Implémentation des boutons d'action rapide : Confirmer, Refuser ou Annuler en un clic avec demande de confirmation sécurisée.
+  - Correction du rendu des listes déroulantes (Select) en mode sombre pour une lisibilité parfaite.
 - **Maintenance du Menu (02/03/2026)** :
-  - Nettoyage massif de la base de données Airtable (suppression des corruptions JSON et restauration des métadonnées via `dishes.json`).
-  - Intégration de 16 nouveaux visuels haute résolution via Cloudinary.
-  - Correction des liens d'images cassés : le dashboard et le site utilisent désormais une logique de résolution d'images robuste qui privilégie les URLs Cloudinary permanentes et ignore les liens Airtable temporaires expirés.
-- **Ajout de Plats** : Après avoir ajouté un plat dans Airtable, lancer `tools/batch_update_images.py` pour générer et synchroniser automatiquement le visuel.
-- **SEO** : Le fichier `googlec1c6060347935c2d.html` permet le suivi en temps réel sur Google Search Console.
-- **Sitemap** : Toujours vérifier `sitemap.xml` après une modification structurelle majeure.
+  - Nettoyage de la base Airtable et intégration de 16 nouveaux visuels HD.
+  - Consolidation de la logique de résolution d'images (Cloudinary vs Airtable).
+- **Automation** : Le script `tools/batch_update_images.py` reste l'outil privilégié pour synchroniser les nouveaux plats.
 
 ## ⚙️ Installation & Lancement en local
 
@@ -72,11 +74,6 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
    OPENWEATHER_API_KEY=votre_clef
    ```
 
-4. **Scripts de maintenance (tools/)** :
-   - `audit_airtable.py` : Vérifie l'intégrité de la carte.
-   - `setup_full_airtable.py` : Configure automatiquement les tables de réservation.
-   - `check_missing_photos.py` : Identifie les plats sans images.
-
 ## 🔐 Sécurité & Administration
 
 L'accès au Dashboard est sécurisé par **Google OAuth2**.
@@ -86,7 +83,7 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 
 - `GOOGLE_CLIENT_ID` : Obtenu sur Google Cloud Console.
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
-- `FLASK_SECRET_KEY` : Une clé aléatoire pour sécuriser les sessions.
+- `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

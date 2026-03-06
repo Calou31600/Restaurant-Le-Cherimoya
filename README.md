@@ -39,6 +39,10 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 ## ⚙️ Maintenance & Évolutions
 
+- **Optimisation Navigation Android (06/03/2026)** :
+  - Intégration de l'**API History** (`pushState` / `popstate`) sur l'ensemble des modales (`index.html`, `dashboard_hub.html`, `dashboard.html`).
+  - Correction du bug crash "Bouton Retour" : l'appui sur le bouton retour physique d'un appareil Android ferme désormais proprement la modale active au lieu de quitter l'application ou de naviguer vers la page précédente.
+  - Gestion intelligente de l'historique : nettoyage automatique des états d'historique lors de la fermeture manuelle des modales pour éviter les désynchronisations.
 - **Optimisation Réservations (04/03/2026)** :
   - Refonte de la visibilité dans le Control Center : toutes les réservations du jour (y compris les saisies manuelles en attente) sont désormais immédiatement visibles.
   - Implémentation des boutons d'action rapide : Confirmer, Refuser ou Annuler en un clic avec demande de confirmation sécurisée.

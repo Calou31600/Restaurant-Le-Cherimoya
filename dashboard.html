@@ -1532,7 +1532,27 @@
             }
         }
 
-        // --- NOUVELLE RÉSERVATION MANUELLE ---
+        // Gérer le bouton retour d'Android (History API)
+        window.onpopstate = function (event) {
+            const addResaOverlay = document.getElementById('add-resa-overlay');
+            const editOverlay = document.getElementById('edit-overlay');
+            const deleteOverlay = document.getElementById('delete-overlay');
+            const cropperOverlay = document.getElementById('cropper-overlay');
+
+            if (addResaOverlay && addResaOverlay.style.display === 'flex') {
+                closeAddResaModal(true);
+            }
+            if (editOverlay && editOverlay.style.display === 'flex') {
+                closeEditModal(true);
+            }
+            if (deleteOverlay && deleteOverlay.style.display === 'flex') {
+                closeDeleteModal(); // Pas de pushState dédié pour celui-ci pour l'instant
+            }
+            if (cropperOverlay && cropperOverlay.style.display === 'flex') {
+                closeCropperModal(true);
+            }
+        };
+
         function updateAddResaTimeSlots() {
             const service = document.getElementById('add-resa-service').value;
             const timeSelect = document.getElementById('add-resa-time');
@@ -1580,10 +1600,18 @@
             }
 
             document.getElementById('add-resa-overlay').style.display = 'flex';
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'add-resa' }, "");
         }
 
-        function closeAddResaModal() {
+        function closeAddResaModal(isPopState = false) {
             document.getElementById('add-resa-overlay').style.display = 'none';
+
+            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
+            if (!isPopState && window.history.state && window.history.state.modal === 'add-resa') {
+                window.history.back();
+            }
         }
 
         async function saveManualReservation() {
@@ -1926,6 +1954,9 @@
             });
 
             document.getElementById('edit-overlay').style.display = 'flex';
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'edit-plate' }, "");
         }
 
         function openAddModal() {
@@ -1950,10 +1981,18 @@
             document.querySelectorAll('.meteo-checkbox').forEach(cb => cb.checked = false);
 
             document.getElementById('edit-overlay').style.display = 'flex';
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'add-plate' }, "");
         }
 
-        function closeEditModal() {
+        function closeEditModal(isPopState = false) {
             document.getElementById('edit-overlay').style.display = 'none';
+
+            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
+            if (!isPopState && window.history.state && (window.history.state.modal === 'edit-plate' || window.history.state.modal === 'add-plate')) {
+                window.history.back();
+            }
         }
 
         document.getElementById('btn-save-all').onclick = async () => {

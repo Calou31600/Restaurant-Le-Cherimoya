@@ -829,7 +829,20 @@
             document.getElementById('live-date').innerText = dateStr;
         }
 
-        // --- STATS RÉSERVATIONS ---
+        // Gérer le bouton retour d'Android (History API)
+        window.onpopstate = function (event) {
+            const resaModal = document.getElementById('resaModal');
+            const addResaOverlay = document.getElementById('add-resa-overlay');
+
+            if (resaModal && resaModal.classList.contains('active')) {
+                closeResaModal(true);
+            }
+            if (addResaOverlay && addResaOverlay.style.display === 'flex') {
+                closeAddResaModal(true);
+            }
+        };
+
+        // --- GESTION DES RÉSERVATIONS (ACTIONS) ---
         let currentTodayStats = null;
 
         async function fetchStats() {
@@ -995,10 +1008,19 @@
                 // Les stats sont déjà disponibles, afficher directement
                 renderModalContent(service);
             }
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'resa-details' }, "");
         }
 
-        function closeResaModal(e) {
-            document.getElementById('resaModal').classList.remove('active');
+        function closeResaModal(isPopState = false) {
+            const modal = document.getElementById('resaModal');
+            modal.classList.remove('active');
+
+            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
+            if (!isPopState && window.history.state && window.history.state.modal === 'resa-details') {
+                window.history.back();
+            }
         }
 
         async function handleResaAction(recordId, action, currentService) {

@@ -390,11 +390,31 @@
             }
         };
 
+        // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
+
+        /** 
+         * Synchronise l'état visuel avec l'historique (pour le bouton retour Android)
+         * C'est le point d'entrée central pour fermer les modals via popstate.
+         */
+        window.addEventListener('popstate', function (event) {
+            const formulaModal = document.getElementById('formula-modal');
+            const bookingModal = document.getElementById('booking-modal');
+
+            // On ferme tout ce qui est actif
+            if (formulaModal && formulaModal.classList.contains('active')) {
+                closeFormulaModal(true);
+            }
+            if (bookingModal && bookingModal.classList.contains('active')) {
+                closeBookingModal(true);
+            }
+        });
+
         function openFormulaModal() {
             const t = modalTranslations[currentLang];
             const modal = document.getElementById('formula-modal');
             const body = document.getElementById('modal-body');
 
+            // Injection du contenu
             body.innerHTML = `
                 <div class="formula-detail-section">
                     <h4>${t.starter}</h4>
@@ -446,8 +466,10 @@
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
-            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
-            history.pushState({ modal: 'formula' }, "");
+            // IMPORTANT: Ajouter l'état AVANT pour que le bouton retour "piège" l'utilisateur sur la page
+            if (!history.state || history.state.modal !== 'formula') {
+                history.pushState({ modal: 'formula' }, "");
+            }
         }
 
         function openKidModal() {
@@ -505,112 +527,129 @@
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
-            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
-            history.pushState({ modal: 'kid' }, "");
+            if (!history.state || history.state.modal !== 'kid') {
+                history.pushState({ modal: 'kid' }, "");
+            }
         }
 
         function closeFormulaModal(isPopState = false) {
             const modal = document.getElementById('formula-modal');
+            if (!modal.classList.contains('active')) return;
+
             modal.classList.remove('active');
             setTimeout(() => {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
+                if (!modal.classList.contains('active')) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
             }, 400);
 
-            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
-            if (!isPopState && window.history.state && (window.history.state.modal === 'formula' || window.history.state.modal === 'kid')) {
-                window.history.back();
+            // Si fermeture manuelle (pas via bouton retour), on retire l'entrée d'historique
+            if (!isPopState && history.state && (history.state.modal === 'formula' || history.state.modal === 'kid')) {
+                history.back();
             }
         }
 
         window.onclick = function (event) {
             const modal = document.getElementById('formula-modal');
             const bookingModal = document.getElementById('booking-modal');
-            if (event.target == modal) {
-                closeFormulaModal();
-            }
-            if (event.target == bookingModal) {
-                closeBookingModal();
-            }
+            if (event.target == modal) closeFormulaModal();
+            if (event.target == bookingModal) closeBookingModal();
         }
-
-        // Gérer le bouton retour d'Android (History API)
-        window.onpopstate = function (event) {
-            const formulaModal = document.getElementById('formula-modal');
-            const bookingModal = document.getElementById('booking-modal');
-
-            if (formulaModal && formulaModal.classList.contains('active')) {
-                closeFormulaModal(true);
-            }
-            if (bookingModal && bookingModal.classList.contains('active')) {
-                closeBookingModal(true);
-            }
-        };
 
         // --- LOGIQUE RÉSERVATION ---
         function openBookingModal() {
             const modal = document.getElementById('booking-modal');
             modal.style.display = 'flex';
 
-            // Set min date to today
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('bk-date');
-            dateInput.setAttribute('min', today);
-
-            // Listener to warn about Mon/Tue
-            dateInput.addEventListener('change', function () {
-                const day = new Date(this.value).getUTCDay();
-                const status = document.getElementById('bk-status');
-                if ([1, 2].includes(day)) { // 1=Mon, 2=Tue
-                    status.style.color = "#ff4d4d";
-                    status.innerText = "Le restaurant est fermé le lundi et le mardi.";
-                } else {
-                    status.innerText = "";
-                }
-            });
+            if (dateInput) dateInput.setAttribute('min', today);
 
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
             // Reset status
-            document.getElementById('bk-status').innerText = '';
+            const status = document.getElementById('bk-status');
+            if (status) status.innerText = '';
 
-            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
-            history.pushState({ modal: 'booking' }, "");
+            // Trappe l'historique
+            if (!history.state || history.state.modal !== 'booking') {
+                history.pushState({ modal: 'booking' }, "");
+            }
         }
 
         function closeBookingModal(isPopState = false) {
             const modal = document.getElementById('booking-modal');
+            if (!modal.classList.contains('active')) return;
+
             modal.classList.remove('active');
             setTimeout(() => {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
+                if (!modal.classList.contains('active')) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
             }, 400);
 
-            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
-            if (!isPopState && window.history.state && window.history.state.modal === 'booking') {
-                window.history.back();
+            if (!isPopState && history.state && history.state.modal === 'booking') {
+                history.back();
             }
         }
 
         function updateTimeSlots() {
-            const service = document.getElementById('bk-service').value;
+            const dateInput = document.getElementById('bk-date');
+            const serviceSelect = document.getElementById('bk-service');
             const timeSelect = document.getElementById('bk-time');
+            
+            if (!timeSelect || !dateInput || !serviceSelect) return;
+            
+            const selectedDate = dateInput.value;
+            const service = serviceSelect.value;
             timeSelect.innerHTML = '';
 
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Heures de service plus précises
             let times = [];
             if (service === 'Midi') {
-                times = ['12:00', '12:30', '13:00', '13:30'];
+                times = ['12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'];
             } else if (service === 'Soir') {
-                times = ['19:30', '20:00', '20:30', '21:00'];
+                times = ['19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00', '21:15', '21:30'];
             }
 
             if (times.length === 0) {
                 timeSelect.innerHTML = '<option value="">Choisir le service d\'abord</option>';
             } else {
+                let hasValidTime = false;
                 times.forEach(t => {
-                    timeSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                    const [h, m] = t.split(':').map(Number);
+                    
+                    // Création d'un objet Date pour le créneau
+                    const slotTime = new Date(selectedDate);
+                    slotTime.setHours(h, m, 0, 0);
+                    
+                    // Règle métier : Interdiction à moins de 2h du service
+                    const minTime = new Date(now.getTime() + 2 * 60 * 60 * 1000); 
+                    
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.innerText = t;
+                    
+                    // Si on réserve pour aujourd'hui, on vérifie le délai de 2h
+                    if (selectedDate === today && slotTime < minTime) {
+                        opt.disabled = true;
+                        opt.innerText += (currentLang === 'fr' ? " (Indisponible)" : " (Unavailable)");
+                    } else {
+                        hasValidTime = true;
+                    }
+                    timeSelect.appendChild(opt);
                 });
+                
+                // Si tous les créneaux sont expirés pour aujourd'hui
+                if (!hasValidTime && selectedDate === today && service !== "") {
+                    timeSelect.innerHTML = `<option value="">${currentLang === 'fr' ? "Délai dépassé pour ce service" : "Time limit reached"}</option>`;
+                }
             }
         }
 

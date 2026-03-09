@@ -737,6 +737,7 @@
             timeSelect.innerHTML = '';
             let times = [];
             if (service === 'Midi') {
+                // Créneaux de 15 min pour plus de flexibilité
                 times = ['12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'];
             } else {
                 times = ['19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00', '21:15', '21:30'];
@@ -776,10 +777,18 @@
             }
 
             document.getElementById('add-resa-overlay').style.display = 'flex';
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'add-resa' }, "");
         }
 
-        function closeAddResaModal() {
+        function closeAddResaModal(isPopState = false) {
             document.getElementById('add-resa-overlay').style.display = 'none';
+
+            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
+            if (!isPopState && window.history.state && window.history.state.modal === 'add-resa') {
+                window.history.back();
+            }
         }
 
         async function saveManualReservation() {
@@ -829,8 +838,12 @@
             document.getElementById('live-date').innerText = dateStr;
         }
 
-        // Gérer le bouton retour d'Android (History API)
-        window.onpopstate = function (event) {
+        // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
+
+        /** 
+         * Point d'entrée central pour le bouton retour Android
+         */
+        window.addEventListener('popstate', function (event) {
             const resaModal = document.getElementById('resaModal');
             const addResaOverlay = document.getElementById('add-resa-overlay');
 
@@ -840,7 +853,7 @@
             if (addResaOverlay && addResaOverlay.style.display === 'flex') {
                 closeAddResaModal(true);
             }
-        };
+        });
 
         // --- GESTION DES RÉSERVATIONS (ACTIONS) ---
         let currentTodayStats = null;
@@ -1015,6 +1028,8 @@
 
         function closeResaModal(isPopState = false) {
             const modal = document.getElementById('resaModal');
+            if (!modal) return;
+            
             modal.classList.remove('active');
 
             // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
@@ -1043,94 +1058,7 @@
             }
         }
 
-        // --- NOUVELLE RÉSERVATION MANUELLE ---
-        function updateAddResaTimeSlots() {
-            const service = document.getElementById('add-resa-service').value;
-            const timeSelect = document.getElementById('add-resa-time');
-            if (!timeSelect) return;
 
-            timeSelect.innerHTML = '';
-            let times = [];
-            if (service === 'Midi') {
-                times = ['12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30'];
-            } else {
-                times = ['19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00', '21:15', '21:30'];
-            }
-
-            times.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.innerText = t;
-                timeSelect.appendChild(opt);
-            });
-        }
-
-        function openAddResaModal() {
-            // Reset form
-            document.getElementById('add-resa-name').value = '';
-            document.getElementById('add-resa-phone').value = '';
-            document.getElementById('add-resa-email').value = '';
-            document.getElementById('add-resa-covers').value = 2;
-
-            // Pré-remplir date du jour
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('add-resa-date').value = today;
-
-            // Pré-remplir heure selon moment de la journée
-            const now = new Date();
-            const hour = now.getHours();
-            document.getElementById('add-resa-service').value = (hour < 15) ? "Midi" : "Soir";
-
-            updateAddResaTimeSlots();
-
-            // Sélectionner une heure par défaut cohérente
-            if (hour < 15) {
-                document.getElementById('add-resa-time').value = "12:30";
-            } else {
-                document.getElementById('add-resa-time').value = "20:00";
-            }
-
-            document.getElementById('add-resa-overlay').style.display = 'flex';
-        }
-
-        function closeAddResaModal() {
-            document.getElementById('add-resa-overlay').style.display = 'none';
-        }
-
-        async function saveManualReservation() {
-            const name = document.getElementById('add-resa-name').value;
-            const phone = document.getElementById('add-resa-phone').value;
-            const email = document.getElementById('add-resa-email').value;
-            const date = document.getElementById('add-resa-date').value;
-            const time = document.getElementById('add-resa-time').value;
-            const service = document.getElementById('add-resa-service').value;
-            const covers = document.getElementById('add-resa-covers').value;
-
-            if (!name || !date || !time || !service || !covers) {
-                alert("Veuillez remplir les informations essentielles (Nom, Date, Heure, Service, Couverts).");
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/admin/reservations/manual', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, email, date, time, service, covers })
-                });
-
-                const data = await res.json();
-                if (data.status === 'success') {
-                    alert("Réservation enregistrée avec succès !");
-                    closeAddResaModal();
-                    fetchStats();
-                } else {
-                    alert("Erreur: " + (data.message || data.error));
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur lors de l'enregistrement de la réservation.");
-            }
-        }
 
         // Initialisation
         setInterval(updateClock, 1000);

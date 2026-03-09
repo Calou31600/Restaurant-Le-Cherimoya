@@ -1334,10 +1334,18 @@
                 // Les stats sont déjà disponibles, afficher directement
                 renderModalContent(service);
             }
+
+            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
+            history.pushState({ modal: 'resa-details' }, "");
         }
 
-        function closeResaModal(e) {
+        function closeResaModal(isPopState = false) {
             document.getElementById('resaModal').classList.remove('active');
+
+            // Si fermeture manuelle (pas via bouton retour), on nettoie l'historique
+            if (!isPopState && window.history.state && window.history.state.modal === 'resa-details') {
+                window.history.back();
+            }
         }
 
         async function fetchMenu() {
@@ -1532,13 +1540,21 @@
             }
         }
 
-        // Gérer le bouton retour d'Android (History API)
-        window.onpopstate = function (event) {
+        // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
+
+        /** 
+         * Point d'entrée central pour le bouton retour Android
+         */
+        window.addEventListener('popstate', function (event) {
+            const resaModal = document.getElementById('resaModal');
             const addResaOverlay = document.getElementById('add-resa-overlay');
             const editOverlay = document.getElementById('edit-overlay');
             const deleteOverlay = document.getElementById('delete-overlay');
             const cropperOverlay = document.getElementById('cropper-overlay');
 
+            if (resaModal && resaModal.classList.contains('active')) {
+                closeResaModal(true);
+            }
             if (addResaOverlay && addResaOverlay.style.display === 'flex') {
                 closeAddResaModal(true);
             }
@@ -1546,12 +1562,12 @@
                 closeEditModal(true);
             }
             if (deleteOverlay && deleteOverlay.style.display === 'flex') {
-                closeDeleteModal(); // Pas de pushState dédié pour celui-ci pour l'instant
+                closeDeleteModal(true);
             }
             if (cropperOverlay && cropperOverlay.style.display === 'flex') {
                 closeCropperModal(true);
             }
-        };
+        });
 
         function updateAddResaTimeSlots() {
             const service = document.getElementById('add-resa-service').value;
@@ -2086,10 +2102,19 @@
 
             document.getElementById('delete-item-name').innerText = `"${item.fields.Plat}"`;
             document.getElementById('delete-overlay').style.display = 'flex';
+            
+            // Trappe l'historique
+            if (!history.state || history.state.modal !== 'delete-confirm') {
+                history.pushState({ modal: 'delete-confirm' }, "");
+            }
         }
 
-        function closeDeleteModal() {
+        function closeDeleteModal(isPopState = false) {
             document.getElementById('delete-overlay').style.display = 'none';
+            // Nettoyage historique si fermeture manuelle
+            if (!isPopState && window.history.state && window.history.state.modal === 'delete-confirm') {
+                window.history.back();
+            }
         }
 
         async function confirmDeleteAction() {
@@ -2136,12 +2161,17 @@
                         autoCropArea: 1,
                         responsive: true
                     });
+                    
+                    // Trappe l'historique pour le cropper
+                    if (!history.state || history.state.modal !== 'cropper') {
+                        history.pushState({ modal: 'cropper' }, "");
+                    }
                 };
                 reader.readAsDataURL(files[0]);
             }
         });
 
-        function closeCropperModal(resetInput = true) {
+        function closeCropperModal(isPopState = false, resetInput = true) {
             document.getElementById('cropper-overlay').style.display = 'none';
             if (cropperInstance) {
                 cropperInstance.destroy();
@@ -2150,6 +2180,10 @@
             if (resetInput) {
                 document.getElementById('edit-file').value = '';
                 currentCroppedBlob = null;
+            }
+            // Nettoyage historique si fermeture manuelle
+            if (!isPopState && window.history.state && window.history.state.modal === 'cropper') {
+                window.history.back();
             }
         }
 

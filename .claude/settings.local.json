@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.vailles.fr)",
+      "Bash(explorer.exe:*)"
+    ]
+  }
+}

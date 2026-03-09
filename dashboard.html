@@ -1542,6 +1542,11 @@
 
         // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
 
+        // Initialisation de l'état de base pour éviter de quitter le site sur un history.back()
+        if (!window.history.state) {
+            window.history.replaceState({ modal: null }, "");
+        }
+
         /** 
          * Point d'entrée central pour le bouton retour Android
          */
@@ -1552,20 +1557,23 @@
             const deleteOverlay = document.getElementById('delete-overlay');
             const cropperOverlay = document.getElementById('cropper-overlay');
 
-            if (resaModal && resaModal.classList.contains('active')) {
-                closeResaModal(true);
-            }
-            if (addResaOverlay && addResaOverlay.style.display === 'flex') {
-                closeAddResaModal(true);
-            }
-            if (editOverlay && editOverlay.style.display === 'flex') {
-                closeEditModal(true);
-            }
-            if (deleteOverlay && deleteOverlay.style.display === 'flex') {
-                closeDeleteModal(true);
-            }
-            if (cropperOverlay && cropperOverlay.style.display === 'flex') {
-                closeCropperModal(true);
+            // On ferme tout ce qui est actif
+            if (!event.state || !event.state.modal) {
+                if (resaModal && resaModal.classList.contains('active')) {
+                    closeResaModal(true);
+                }
+                if (addResaOverlay && addResaOverlay.style.display === 'flex') {
+                    closeAddResaModal(true);
+                }
+                if (editOverlay && editOverlay.style.display === 'flex') {
+                    closeEditModal(true);
+                }
+                if (deleteOverlay && deleteOverlay.style.display === 'flex') {
+                    closeDeleteModal(true);
+                }
+                if (cropperOverlay && cropperOverlay.style.display === 'flex') {
+                    closeCropperModal(true);
+                }
             }
         });
 

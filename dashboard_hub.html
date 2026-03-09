@@ -840,6 +840,11 @@
 
         // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
 
+        // Initialisation de l'état de base pour éviter de quitter le site sur un history.back()
+        if (!window.history.state) {
+            window.history.replaceState({ modal: null }, "");
+        }
+
         /** 
          * Point d'entrée central pour le bouton retour Android
          */
@@ -847,11 +852,14 @@
             const resaModal = document.getElementById('resaModal');
             const addResaOverlay = document.getElementById('add-resa-overlay');
 
-            if (resaModal && resaModal.classList.contains('active')) {
-                closeResaModal(true);
-            }
-            if (addResaOverlay && addResaOverlay.style.display === 'flex') {
-                closeAddResaModal(true);
+            // On ferme tout ce qui est actif
+            if (!event.state || !event.state.modal) {
+                if (resaModal && resaModal.classList.contains('active')) {
+                    closeResaModal(true);
+                }
+                if (addResaOverlay && addResaOverlay.style.display === 'flex') {
+                    closeAddResaModal(true);
+                }
             }
         });
 

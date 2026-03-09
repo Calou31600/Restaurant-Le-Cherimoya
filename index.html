@@ -392,6 +392,11 @@
 
         // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
 
+        // Initialisation de l'état de base pour éviter de quitter le site sur un history.back()
+        if (!window.history.state) {
+            window.history.replaceState({ modal: null }, "");
+        }
+
         /** 
          * Synchronise l'état visuel avec l'historique (pour le bouton retour Android)
          * C'est le point d'entrée central pour fermer les modals via popstate.
@@ -400,12 +405,14 @@
             const formulaModal = document.getElementById('formula-modal');
             const bookingModal = document.getElementById('booking-modal');
 
-            // On ferme tout ce qui est actif
-            if (formulaModal && formulaModal.classList.contains('active')) {
-                closeFormulaModal(true);
-            }
-            if (bookingModal && bookingModal.classList.contains('active')) {
-                closeBookingModal(true);
+            // On ferme tout ce qui est actif si l'état actuel ne correspond plus à une modale
+            if (!event.state || !event.state.modal) {
+                if (formulaModal && formulaModal.classList.contains('active')) {
+                    closeFormulaModal(true);
+                }
+                if (bookingModal && bookingModal.classList.contains('active')) {
+                    closeBookingModal(true);
+                }
             }
         });
 
@@ -467,8 +474,8 @@
             document.body.style.overflow = 'hidden';
 
             // IMPORTANT: Ajouter l'état AVANT pour que le bouton retour "piège" l'utilisateur sur la page
-            if (!history.state || history.state.modal !== 'formula') {
-                history.pushState({ modal: 'formula' }, "");
+            if (!window.history.state || window.history.state.modal !== 'formula') {
+                window.history.pushState({ modal: 'formula' }, "");
             }
         }
 
@@ -527,14 +534,14 @@
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
-            if (!history.state || history.state.modal !== 'kid') {
-                history.pushState({ modal: 'kid' }, "");
+            if (!window.history.state || window.history.state.modal !== 'kid') {
+                window.history.pushState({ modal: 'kid' }, "");
             }
         }
 
         function closeFormulaModal(isPopState = false) {
             const modal = document.getElementById('formula-modal');
-            if (!modal.classList.contains('active')) return;
+            if (!modal || !modal.classList.contains('active')) return;
 
             modal.classList.remove('active');
             setTimeout(() => {
@@ -545,8 +552,8 @@
             }, 400);
 
             // Si fermeture manuelle (pas via bouton retour), on retire l'entrée d'historique
-            if (!isPopState && history.state && (history.state.modal === 'formula' || history.state.modal === 'kid')) {
-                history.back();
+            if (!isPopState && window.history.state && (window.history.state.modal === 'formula' || window.history.state.modal === 'kid')) {
+                window.history.back();
             }
         }
 
@@ -574,14 +581,14 @@
             if (status) status.innerText = '';
 
             // Trappe l'historique
-            if (!history.state || history.state.modal !== 'booking') {
-                history.pushState({ modal: 'booking' }, "");
+            if (!window.history.state || window.history.state.modal !== 'booking') {
+                window.history.pushState({ modal: 'booking' }, "");
             }
         }
 
         function closeBookingModal(isPopState = false) {
             const modal = document.getElementById('booking-modal');
-            if (!modal.classList.contains('active')) return;
+            if (!modal || !modal.classList.contains('active')) return;
 
             modal.classList.remove('active');
             setTimeout(() => {
@@ -591,8 +598,9 @@
                 }
             }, 400);
 
-            if (!isPopState && history.state && history.state.modal === 'booking') {
-                history.back();
+            // Sécurité : n'appeler back() que si l'état actuel est bien celui de la modale booking
+            if (!isPopState && window.history.state && window.history.state.modal === 'booking') {
+                window.history.back();
             }
         }
 

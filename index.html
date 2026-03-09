@@ -392,14 +392,25 @@
 
         // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
 
-        // Initialisation de l'état de base pour éviter de quitter le site sur un history.back()
-        if (!window.history.state) {
-            window.history.replaceState({ modal: null }, "");
+        /** 
+         * Initialisation d'un buffer d'historique.
+         * Cela permet d'avoir toujours une étape "Retour" qui reste sur le site 
+         * même si on vient d'un site externe (Google, Facebook, etc.)
+         */
+        function initHistoryBuffer() {
+            if (!window.history.state || window.history.state.modal === undefined) {
+                // On marque l'état actuel et on en pousse un nouveau identique pour servir de tampon
+                window.history.replaceState({ modal: null }, "");
+                window.history.pushState({ modal: null }, "");
+                console.log("History Buffer initialized");
+            }
         }
+
+        // On initialise le buffer dès que possible
+        initHistoryBuffer();
 
         /** 
          * Synchronise l'état visuel avec l'historique (pour le bouton retour Android)
-         * C'est le point d'entrée central pour fermer les modals via popstate.
          */
         window.addEventListener('popstate', function (event) {
             const formulaModal = document.getElementById('formula-modal');
@@ -473,10 +484,8 @@
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
-            // IMPORTANT: Ajouter l'état AVANT pour que le bouton retour "piège" l'utilisateur sur la page
-            if (!window.history.state || window.history.state.modal !== 'formula') {
-                window.history.pushState({ modal: 'formula' }, "");
-            }
+            // IMPORTANT: Ajout à l'historique pour "piéger" le bouton retour
+            window.history.pushState({ modal: 'formula' }, "");
         }
 
         function openKidModal() {
@@ -534,9 +543,7 @@
             setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
 
-            if (!window.history.state || window.history.state.modal !== 'kid') {
-                window.history.pushState({ modal: 'kid' }, "");
-            }
+            window.history.pushState({ modal: 'kid' }, "");
         }
 
         function closeFormulaModal(isPopState = false) {
@@ -581,9 +588,7 @@
             if (status) status.innerText = '';
 
             // Trappe l'historique
-            if (!window.history.state || window.history.state.modal !== 'booking') {
-                window.history.pushState({ modal: 'booking' }, "");
-            }
+            window.history.pushState({ modal: 'booking' }, "");
         }
 
         function closeBookingModal(isPopState = false) {

@@ -1542,10 +1542,13 @@
 
         // --- GESTION DES MODALS ET DU BOUTON RETOUR ---
 
-        // Initialisation de l'état de base pour éviter de quitter le site sur un history.back()
-        if (!window.history.state) {
-            window.history.replaceState({ modal: null }, "");
+        function initHistoryBuffer() {
+            if (!window.history.state || window.history.state.modal === undefined) {
+                window.history.replaceState({ modal: null }, "");
+                window.history.pushState({ modal: null }, "");
+            }
         }
+        initHistoryBuffer();
 
         /** 
          * Point d'entrée central pour le bouton retour Android

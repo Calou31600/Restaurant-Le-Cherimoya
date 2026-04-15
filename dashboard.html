@@ -1952,7 +1952,7 @@
             // Afficher le bouton supprimer
             document.getElementById('delete-btn').style.display = 'block';
 
-            document.getElementById('edit-current-img').src = (f.Photo && f.Photo.length > 0) ? f.Photo[0].url : 'assets/dish1.png';
+            document.getElementById('edit-current-img').src = resolveImg(f);
             document.getElementById('edit-name').value = f.Plat || '';
             document.getElementById('edit-name-en').value = f.Plat_EN || '';
             document.getElementById('edit-desc').value = f.description_geo || '';

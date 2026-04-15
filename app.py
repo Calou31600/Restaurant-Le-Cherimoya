@@ -295,6 +295,10 @@ def admin_get_menu():
 def admin_update_item(record_id):
     try:
         fields = request.json.get('fields', {})
+        # is_featured est un champ multilineText dans Airtable : False doit être ""
+        # sinon Airtable stocke la chaîne "false" qui est truthy en JS
+        if 'is_featured' in fields:
+            fields['is_featured'] = "true" if fields['is_featured'] else ""
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
         res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
         if res.status_code == 200:
@@ -322,6 +326,8 @@ def admin_delete_item(record_id):
 def admin_create_item():
     try:
         fields = request.json.get('fields', {})
+        if 'is_featured' in fields:
+            fields['is_featured'] = "true" if fields['is_featured'] else ""
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu"
         res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
         if res.status_code == 200:

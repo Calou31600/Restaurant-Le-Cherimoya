@@ -1942,16 +1942,29 @@
 
         let currentEditId = null;
 
-        function openEditModal(id) {
+        async function openEditModal(id) {
             const item = currentMenu.find(i => i.id === id);
             if (!item) return;
-            const f = item.fields;
             currentEditId = id;
+
+            // Afficher la modale immédiatement avec les données en cache
+            populateEditModal(item.fields);
+            document.getElementById('edit-overlay').style.display = 'flex';
+            history.pushState({ modal: 'edit-plate' }, "");
+
+            // Rafraîchir l'image depuis Airtable (URLs signées temporaires qui expirent)
+            try {
+                const res = await fetch(`/api/admin/menu/${id}`);
+                if (res.ok) {
+                    const fresh = await res.json();
+                    document.getElementById('edit-current-img').src = resolveImg(fresh.fields);
+                }
+            } catch (e) { /* silencieux, on conserve l'image en cache */ }
+        }
+
+        function populateEditModal(f) {
             document.getElementById('modal-title').innerText = "Modifier : " + (f.Plat || "");
-
-            // Afficher le bouton supprimer
             document.getElementById('delete-btn').style.display = 'block';
-
             document.getElementById('edit-current-img').src = resolveImg(f);
             document.getElementById('edit-name').value = f.Plat || '';
             document.getElementById('edit-name-en').value = f.Plat_EN || '';
@@ -1979,11 +1992,6 @@
             document.querySelectorAll('.meteo-checkbox').forEach(cb => {
                 cb.checked = currentMeteo.includes(cb.value);
             });
-
-            document.getElementById('edit-overlay').style.display = 'flex';
-
-            // Ajouter une entrée dans l'historique pour le bouton retour (Android)
-            history.pushState({ modal: 'edit-plate' }, "");
         }
 
         function openAddModal() {

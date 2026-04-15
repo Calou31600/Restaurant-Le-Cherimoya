@@ -290,6 +290,18 @@ def admin_get_menu():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/menu/<record_id>', methods=['GET'])
+@admin_required
+def admin_get_item(record_id):
+    try:
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
+        res = http_requests.get(url, headers=engine.headers)
+        if res.status_code == 200:
+            return jsonify(res.json())
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/admin/menu/<record_id>', methods=['PATCH'])
 @admin_required
 def admin_update_item(record_id):

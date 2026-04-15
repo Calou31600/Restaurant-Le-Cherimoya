@@ -2039,13 +2039,16 @@
                 let rawPrice = document.getElementById('edit-price').value;
                 let cleanPrice = String(rawPrice).replace(',', '.').replace(/[^\d.]/g, '');
                 let prixVal = parseFloat(cleanPrice) || 0;
+                // Le champ Airtable "prix" est un singleSelect, il s'attend à une chaîne de caractères
+                // formatée comme "€15.90" et non un nombre flottant (ce qui cause INVALID_VALUE_FOR_COLUMN)
+                let formattedPrix = "€" + prixVal.toFixed(2);
 
                 const fieldsToUpdate = {
                     Plat: document.getElementById('edit-name').value,
                     Plat_EN: document.getElementById('edit-name-en').value,
                     description_geo: document.getElementById('edit-desc').value,
                     description_geo_EN: document.getElementById('edit-desc-en').value,
-                    prix: prixVal,
+                    prix: formattedPrix,
                     is_featured: document.getElementById('edit-featured').checked,
                     Menu: checkedCats,
                     intolerances: checkedIntolerances,

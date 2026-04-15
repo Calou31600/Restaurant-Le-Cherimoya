@@ -175,12 +175,16 @@ def logout():
 @app.route('/admin')
 @admin_required
 def admin():
-    return send_from_directory('.', 'dashboard_hub.html')
+    response = make_response(send_from_directory('.', 'dashboard_hub.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
 
 @app.route('/admin/dashboard')
 @admin_required
 def admin_dashboard():
-    return send_from_directory('.', 'dashboard.html')
+    response = make_response(send_from_directory('.', 'dashboard.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
 
 @app.route('/admin/settings')
 @admin_required

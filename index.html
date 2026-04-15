@@ -967,7 +967,7 @@
                             ${intolerancesHtml}
                         </h3>
                         <p>${displayDesc}</p>
-                        <div class="price">${item.prix}€</div>
+                        <div class="price">${String(item.prix).replace(/[^\d.,]/g, '').replace('.', ',')}€</div>
                     </div>
                 </div>
             `}).join('');

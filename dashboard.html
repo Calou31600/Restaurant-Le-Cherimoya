@@ -2035,12 +2035,17 @@
                 // Récupération des tags météo cochés
                 const checkedMeteo = Array.from(document.querySelectorAll('.meteo-checkbox:checked')).map(cb => cb.value);
 
+                // Nettoyage et robustesse du prix (gestion virgule et symboles)
+                let rawPrice = document.getElementById('edit-price').value;
+                let cleanPrice = String(rawPrice).replace(',', '.').replace(/[^\d.]/g, '');
+                let prixVal = parseFloat(cleanPrice) || 0;
+
                 const fieldsToUpdate = {
                     Plat: document.getElementById('edit-name').value,
                     Plat_EN: document.getElementById('edit-name-en').value,
                     description_geo: document.getElementById('edit-desc').value,
                     description_geo_EN: document.getElementById('edit-desc-en').value,
-                    prix: parseFloat(document.getElementById('edit-price').value),
+                    prix: prixVal,
                     is_featured: document.getElementById('edit-featured').checked,
                     Menu: checkedCats,
                     intolerances: checkedIntolerances,

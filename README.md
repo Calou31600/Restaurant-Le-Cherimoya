@@ -43,6 +43,9 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
   - **Dashboard** : Sécurisation de la saisie avec gestion intelligente de la virgule et nettoyage des symboles parasites (remplacement automatise `,` par `.`).
   - **Site Public** : Formatage de l'affichage pour garantir une présentation propre (2 décimales, séparation virgule) et éviter les doublons de symboles monétaires.
   - **Airtable Sync** : Passage au type numérique pour une meilleure intégrité de la base de données.
+- **Création de Contenu IA (16/04/2026)** :
+  - Génération d'une photographie réaliste premium d'une Tarte Tropézienne via Gemini.
+  - Sauvegarde et intégration directe dans la base de données Airtable (Catégorie Desserts) avec upload optimisé sur Cloudinary.
 - **Correction Base de Données (15/04/2026)** :
   - Restauration du prix et de l'image pour le plat "4 nems poulet croustillants" (correction du parsing de type de données textuelles sur Airtable et upload dynamique vers Cloudinary).
 - **Optimisation Navigation & Réservation (09/03/2026)** :

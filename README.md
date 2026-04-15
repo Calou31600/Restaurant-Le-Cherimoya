@@ -39,6 +39,8 @@ Bienvenue dans le dépôt du site vitrine et de l'interface d'administration du 
 
 ## ⚙️ Maintenance & Évolutions
 
+- **Correction Base de Données (15/04/2026)** :
+  - Restauration du prix et de l'image pour le plat "4 nems poulet croustillants" (correction du parsing de type de données textuelles sur Airtable et upload dynamique vers Cloudinary).
 - **Optimisation Navigation & Réservation (09/03/2026)** :
   - **Refonte Navigation Mobile** : Généralisation de l'**API History** (`pushState` / `popstate`) sur l'ensemble de l'écosystème (site public, Hub, Dashboard). L'expérience "Bouton Retour" est désormais infaillible, y compris pour les confirmations de suppression et le recadrage d'images.
   - **Réservation Dynamique** : Implémentation de la règle métier "Délai de 2h" (calculé en temps réel) et passage à des créneaux de 15 minutes pour une gestion plus fine du flux client.

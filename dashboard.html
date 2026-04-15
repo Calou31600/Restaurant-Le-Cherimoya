@@ -1957,7 +1957,7 @@
             document.getElementById('edit-name-en').value = f.Plat_EN || '';
             document.getElementById('edit-desc').value = f.description_geo || '';
             document.getElementById('edit-desc-en').value = f.description_geo_EN || '';
-            document.getElementById('edit-price').value = f.prix || 0;
+            document.getElementById('edit-price').value = parseFloat(String(f.prix || '0').replace(',', '.').replace(/[^\d.]/g, '')) || 0;
             document.getElementById('edit-featured').checked = !!f.is_featured;
             document.getElementById('edit-file').value = '';
             currentCroppedBlob = null;

@@ -128,6 +128,24 @@
             </div>
         </header>
 
+        <!-- MENU ÉVÉNEMENT SPÉCIAL (affiché si actif selon la date) -->
+        <section id="special-menu-section" style="display:none;padding:3rem 0;">
+            <div id="special-menu-banner" style="border-radius:24px;padding:3rem;position:relative;overflow:hidden;backdrop-filter:blur(16px);border:1px solid rgba(207,168,110,0.3);">
+                <div style="position:absolute;inset:0;opacity:0.07;font-size:12rem;display:flex;align-items:center;justify-content:center;pointer-events:none;line-height:1;" id="sm-bg-icon"></div>
+                <div style="position:relative;z-index:1;text-align:center;">
+                    <div id="sm-icon" style="font-size:3.5rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px currentColor);"></div>
+                    <div id="sm-label" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.8rem;opacity:0.8;"></div>
+                    <h2 id="sm-name" style="font-size:clamp(2rem,5vw,3rem);margin-bottom:0.5rem;font-family:var(--font-heading);"></h2>
+                    <p id="sm-subtitle" style="font-style:italic;opacity:0.75;margin-bottom:0.5rem;font-size:1.1rem;"></p>
+                    <p id="sm-dates" style="font-size:0.85rem;opacity:0.6;letter-spacing:0.05em;margin-bottom:2rem;"></p>
+
+                    <div id="sm-courses" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;max-width:800px;margin:0 auto 2rem;text-align:left;"></div>
+
+                    <div id="sm-price" style="display:inline-block;font-size:1.3rem;font-weight:700;padding:0.6rem 2rem;border-radius:50px;border:1px solid;"></div>
+                </div>
+            </div>
+        </section>
+
         <section aria-labelledby="menu-title" id="menu" style="padding-top: 4rem; padding-bottom: 4rem;">
             <div class="menu-header fade-in">
                 <h2 id="menu-title" data-i18n="menu_title">L'Inspiration du Moment</h2>
@@ -1004,7 +1022,73 @@
             renderMenu(filtered);
         }
 
-        window.onload = loadAppData;
+        window.onload = async function() {
+            loadAppData();
+            loadSpecialMenu();
+        };
+
+        async function loadSpecialMenu() {
+            try {
+                const res = await fetch('/api/special-menus/active');
+                const menu = await res.json();
+                if (!menu || !menu.id) return;
+
+                const THEMES = {
+                    'noel':           { label: 'Menu de Noël',          icon: '🎄', color: '#c41e3a', bg: 'rgba(196,30,58,0.12)' },
+                    'nouvel-an':      { label: 'Menu du Nouvel An',      icon: '🥂', color: '#ffd700', bg: 'rgba(255,215,0,0.1)' },
+                    'fete-des-meres': { label: 'Menu Fête des Mères',    icon: '🌸', color: '#e91e8c', bg: 'rgba(233,30,140,0.1)' },
+                    'saint-valentin': { label: 'Menu Saint-Valentin',    icon: '❤️', color: '#dc143c', bg: 'rgba(220,20,60,0.1)' },
+                    'paques':         { label: 'Menu de Pâques',         icon: '🐣', color: '#7cb342', bg: 'rgba(124,179,66,0.1)' },
+                    'ete':            { label: 'Menu d\'Été',            icon: '☀️', color: '#ff8f00', bg: 'rgba(255,143,0,0.1)' },
+                    'personnalise':   { label: 'Menu Événement Spécial', icon: '⭐', color: '#cfa86e', bg: 'rgba(207,168,110,0.1)' }
+                };
+                const th = THEMES[menu.theme] || THEMES['personnalise'];
+
+                const banner = document.getElementById('special-menu-banner');
+                banner.style.background = th.bg;
+                banner.style.borderColor = th.color + '55';
+
+                document.getElementById('sm-bg-icon').textContent = th.icon;
+                document.getElementById('sm-icon').textContent = th.icon;
+                document.getElementById('sm-icon').style.color = th.color;
+                document.getElementById('sm-label').textContent = th.label;
+                document.getElementById('sm-label').style.color = th.color;
+                document.getElementById('sm-name').textContent = menu.name;
+                document.getElementById('sm-name').style.color = th.color;
+
+                if (menu.subtitle) document.getElementById('sm-subtitle').textContent = menu.subtitle;
+
+                const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('sm-dates').textContent = `Du ${fmt(menu.start_date)} au ${fmt(menu.end_date)}`;
+
+                const coursesEl = document.getElementById('sm-courses');
+                const sections = [
+                    { label: 'Entrées', items: menu.entrees || [] },
+                    { label: 'Plats',   items: menu.plats   || [] },
+                    { label: 'Desserts',items: menu.desserts|| [] }
+                ].filter(s => s.items.length > 0);
+
+                coursesEl.innerHTML = sections.map(s => `
+                    <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:1.2rem 1.5rem;">
+                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.15em;color:${th.color};margin-bottom:0.8rem;font-weight:700;">${s.label}</div>
+                        ${s.items.map(item => `<div style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.95rem;">${item}</div>`).join('')}
+                    </div>`).join('');
+
+                if (menu.price) {
+                    const priceEl = document.getElementById('sm-price');
+                    priceEl.textContent = menu.price;
+                    priceEl.style.color = th.color;
+                    priceEl.style.borderColor = th.color + '66';
+                    priceEl.style.background = th.bg;
+                } else {
+                    document.getElementById('sm-price').style.display = 'none';
+                }
+
+                document.getElementById('special-menu-section').style.display = 'block';
+            } catch (err) {
+                console.warn('Menu spécial non disponible:', err);
+            }
+        }
     </script>
     <script>
         // Gestion dynamique de la visibilité de l'adresse flottante

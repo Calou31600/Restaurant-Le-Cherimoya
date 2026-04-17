@@ -700,6 +700,75 @@ def close_billing():
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
+# --- ROUTES MENUS ÉVÉNEMENTS ---
+
+SPECIAL_MENUS_FILE = os.path.join(BASE_PATH, 'special_menus.json')
+
+def load_special_menus():
+    if os.path.exists(SPECIAL_MENUS_FILE):
+        with open(SPECIAL_MENUS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+def save_special_menus(menus):
+    with open(SPECIAL_MENUS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(menus, f, ensure_ascii=False, indent=2)
+
+@app.route('/api/special-menus/active', methods=['GET'])
+def get_active_special_menu():
+    today = datetime.now().strftime('%Y-%m-%d')
+    for m in load_special_menus():
+        if m.get('active', True) and m.get('start_date', '') <= today <= m.get('end_date', ''):
+            return jsonify(m)
+    return jsonify(None)
+
+@app.route('/api/admin/special-menus', methods=['GET'])
+@admin_required
+def admin_get_special_menus():
+    return jsonify(load_special_menus())
+
+@app.route('/api/admin/special-menus', methods=['POST'])
+@admin_required
+def admin_create_special_menu():
+    import uuid
+    data = request.json
+    menu = {
+        'id': str(uuid.uuid4()),
+        'name': data.get('name', ''),
+        'theme': data.get('theme', 'personnalise'),
+        'start_date': data.get('start_date', ''),
+        'end_date': data.get('end_date', ''),
+        'active': data.get('active', True),
+        'price': data.get('price', ''),
+        'subtitle': data.get('subtitle', ''),
+        'entrees': data.get('entrees', []),
+        'plats': data.get('plats', []),
+        'desserts': data.get('desserts', [])
+    }
+    menus = load_special_menus()
+    menus.append(menu)
+    save_special_menus(menus)
+    return jsonify({'status': 'success', 'menu': menu})
+
+@app.route('/api/admin/special-menus/<menu_id>', methods=['PATCH'])
+@admin_required
+def admin_update_special_menu(menu_id):
+    data = request.json
+    menus = load_special_menus()
+    for m in menus:
+        if m['id'] == menu_id:
+            m.update(data)
+            break
+    save_special_menus(menus)
+    return jsonify({'status': 'success'})
+
+@app.route('/api/admin/special-menus/<menu_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_special_menu(menu_id):
+    menus = [m for m in load_special_menus() if m['id'] != menu_id]
+    save_special_menus(menus)
+    return jsonify({'status': 'success'})
+
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('.', path)

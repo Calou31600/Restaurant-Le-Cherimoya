@@ -1007,6 +1007,7 @@
                         Synchroniser</button>
                     <button class="filter-btn" id="btn-refresh-resas" onclick="fetchReservations()"
                         style="display: none;">🔄 Actualiser</button>
+                    <button class="btn-save" id="btn-add-event" onclick="openEventModal()" style="display:none;background:#6c3483;border-color:#6c3483;">+ Nouvel Événement</button>
                     <a href="/" class="filter-btn">Site Public</a>
                 </div>
             </div>
@@ -1015,7 +1016,8 @@
                 <div class="nav-tab active" data-tab="menu" onclick="switchTab('menu')">Carte</div>
                 <div class="nav-tab" data-tab="wines" onclick="switchTab('wines')">🍷 Vins</div>
                 <div class="nav-tab" data-tab="reservations" onclick="switchTab('reservations')">Réservations</div>
-                <div class="nav-tab" data-tab="clients" data-tab="clients" onclick="switchTab('clients')">Clients</div>
+                <div class="nav-tab" data-tab="clients" onclick="switchTab('clients')">Clients</div>
+                <div class="nav-tab" data-tab="events" onclick="switchTab('events')">🎉 Événements</div>
             </nav>
         </header>
 
@@ -1093,6 +1095,82 @@
 
         <div id="wines-tab" class="tab-content">
             <div id="wines-grid" class="admin-grid"></div>
+        </div>
+
+        <div id="events-tab" class="tab-content">
+            <div id="events-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
+        </div>
+
+        <!-- Modal Événement -->
+        <div id="event-overlay" class="upload-overlay" style="display:none;">
+            <div class="admin-modal" style="max-width:700px;">
+                <h3 id="event-modal-title" style="margin-top:0;margin-bottom:2rem;font-size:1.8rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:1rem;color:var(--text-main);">Nouveau Menu Événement</h3>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                    <div class="form-group">
+                        <label>Nom de l'événement *</label>
+                        <input type="text" id="ev-name" class="form-control" placeholder="Ex: Menu de Noël">
+                    </div>
+                    <div class="form-group">
+                        <label>Thème visuel</label>
+                        <select id="ev-theme" class="form-control">
+                            <option value="noel">🎄 Noël</option>
+                            <option value="nouvel-an">🥂 Nouvel An</option>
+                            <option value="fete-des-meres">🌸 Fête des Mères</option>
+                            <option value="saint-valentin">❤️ Saint-Valentin</option>
+                            <option value="paques">🐣 Pâques</option>
+                            <option value="ete">☀️ Été</option>
+                            <option value="personnalise" selected>⭐ Personnalisé</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date de début *</label>
+                        <input type="date" id="ev-start" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Date de fin *</label>
+                        <input type="date" id="ev-end" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Prix du menu</label>
+                        <input type="text" id="ev-price" class="form-control" placeholder="Ex: 65 € par personne">
+                    </div>
+                    <div class="form-group">
+                        <label>Sous-titre / accroche</label>
+                        <input type="text" id="ev-subtitle" class="form-control" placeholder="Ex: Un repas d'exception en famille">
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
+                    <div class="form-group">
+                        <label>Entrées</label>
+                        <div id="ev-entrees-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('entrees')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Plats</label>
+                        <div id="ev-plats-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('plats')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Desserts</label>
+                        <div id="ev-desserts-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('desserts')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;margin-bottom:2rem;">
+                    <label style="font-size:0.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;">Actif</label>
+                    <input type="checkbox" id="ev-active" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;">
+                    <span style="font-size:0.85rem;color:var(--text-dim);">Afficher selon les dates</span>
+                </div>
+
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button id="ev-btn-delete" class="filter-btn" onclick="deleteEvent()" style="display:none;border-color:#ff4d4d;color:#ff4d4d;">Supprimer</button>
+                    <button class="filter-btn" onclick="closeEventModal()">Annuler</button>
+                    <button class="btn-save" id="ev-btn-save" onclick="saveEvent()">Enregistrer</button>
+                </div>
+            </div>
         </div>
 
         <!-- Modal Vin -->
@@ -1575,16 +1653,15 @@
             document.getElementById('btn-add-resa').style.display = tab === 'reservations' ? 'block' : 'none';
             document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
             document.getElementById('btn-refresh-resas').style.display = tab === 'reservations' ? 'block' : 'none';
-
-            // Masquer les stats dans l'onglet clients pour purifier la vue si besoin
-            // document.getElementById('header-stats').style.display = tab === 'clients' ? 'none' : 'flex';
+            document.getElementById('btn-add-event').style.display = tab === 'events' ? 'block' : 'none';
 
             if (tab === 'menu') fetchMenu();
             if (tab === 'clients') fetchClients();
             if (tab === 'reservations') fetchReservations();
             if (tab === 'wines') fetchWines();
+            if (tab === 'events') fetchEvents();
 
-            fetchStats(); // Toujours rafraîchir les stats du jour au switch
+            fetchStats();
         }
 
         async function fetchStats() {
@@ -3123,6 +3200,185 @@
             fetchMenu();
         }
         fetchStats();
+
+        // ---- MENUS ÉVÉNEMENTS ----
+
+        const EV_THEMES = {
+            'noel':           { label: 'Noël',            icon: '🎄', color: '#c41e3a', border: 'rgba(196,30,58,0.4)' },
+            'nouvel-an':      { label: 'Nouvel An',        icon: '🥂', color: '#ffd700', border: 'rgba(255,215,0,0.4)' },
+            'fete-des-meres': { label: 'Fête des Mères',   icon: '🌸', color: '#e91e8c', border: 'rgba(233,30,140,0.4)' },
+            'saint-valentin': { label: 'Saint-Valentin',   icon: '❤️', color: '#dc143c', border: 'rgba(220,20,60,0.4)' },
+            'paques':         { label: 'Pâques',           icon: '🐣', color: '#7cb342', border: 'rgba(124,179,66,0.4)' },
+            'ete':            { label: 'Été',              icon: '☀️', color: '#ff8f00', border: 'rgba(255,143,0,0.4)' },
+            'personnalise':   { label: 'Événement Spécial',icon: '⭐', color: '#cfa86e', border: 'rgba(207,168,110,0.4)' }
+        };
+
+        let currentEventId = null;
+
+        async function fetchEvents() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const res = await fetch('/api/admin/special-menus');
+                if (res.status === 401) { window.location.href = '/login'; return; }
+                const menus = await res.json();
+                renderEvents(menus);
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error('[EVENTS]', err);
+            }
+        }
+
+        function getEventStatus(m) {
+            const today = new Date().toISOString().split('T')[0];
+            if (!m.active) return { label: 'Désactivé', color: '#888' };
+            if (today < m.start_date) return { label: 'À venir', color: '#4fc3f7' };
+            if (today > m.end_date)   return { label: 'Terminé',  color: '#888' };
+            return { label: 'En cours', color: '#28a745' };
+        }
+
+        function renderEvents(menus) {
+            const list = document.getElementById('events-list');
+            if (menus.length === 0) {
+                list.innerHTML = `<div style="text-align:center;padding:4rem;color:var(--text-dim);opacity:0.5;">
+                    <div style="font-size:3rem;margin-bottom:1rem;">🎉</div>
+                    <div>Aucun menu événement. Cliquez sur "+ Nouvel Événement" pour commencer.</div>
+                </div>`;
+                return;
+            }
+            list.innerHTML = menus.map(m => {
+                const th = EV_THEMES[m.theme] || EV_THEMES['personnalise'];
+                const st = getEventStatus(m);
+                const courses = [
+                    m.entrees?.length ? `<span style="opacity:.7">Entrées:</span> ${m.entrees.join(', ')}` : '',
+                    m.plats?.length   ? `<span style="opacity:.7">Plats:</span> ${m.plats.join(', ')}`   : '',
+                    m.desserts?.length? `<span style="opacity:.7">Desserts:</span> ${m.desserts.join(', ')}` : ''
+                ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+                return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${th.border};border-radius:16px;padding:1.4rem 1.8rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;cursor:pointer;transition:0.3s;" onclick="editEvent(${JSON.stringify(m).replace(/"/g,'&quot;')})">
+                    <div style="font-size:2.5rem;filter:drop-shadow(0 0 8px ${th.color}44);">${th.icon}</div>
+                    <div>
+                        <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.3rem;">
+                            <span style="font-family:var(--font-heading);font-size:1.2rem;color:var(--text-main);">${m.name}</span>
+                            <span style="font-size:0.72rem;padding:2px 10px;border-radius:20px;border:1px solid ${st.color}55;color:${st.color};background:${st.color}11;">${st.label}</span>
+                        </div>
+                        <div style="font-size:0.82rem;color:var(--text-dim);">📅 ${m.start_date} → ${m.end_date}${m.price ? '&nbsp;&nbsp;·&nbsp;&nbsp;💰 '+m.price : ''}</div>
+                        ${courses ? `<div style="font-size:0.8rem;color:var(--text-dim);margin-top:0.4rem;opacity:0.8;">${courses}</div>` : ''}
+                    </div>
+                    <div style="font-size:0.75rem;color:${th.color};text-transform:uppercase;letter-spacing:0.1em;">${th.label}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function openEventModal() {
+            currentEventId = null;
+            document.getElementById('event-modal-title').textContent = 'Nouveau Menu Événement';
+            document.getElementById('ev-name').value = '';
+            document.getElementById('ev-theme').value = 'personnalise';
+            document.getElementById('ev-start').value = '';
+            document.getElementById('ev-end').value = '';
+            document.getElementById('ev-price').value = '';
+            document.getElementById('ev-subtitle').value = '';
+            document.getElementById('ev-active').checked = true;
+            document.getElementById('ev-entrees-list').innerHTML = '';
+            document.getElementById('ev-plats-list').innerHTML = '';
+            document.getElementById('ev-desserts-list').innerHTML = '';
+            document.getElementById('ev-btn-delete').style.display = 'none';
+            document.getElementById('event-overlay').style.display = 'flex';
+            history.pushState({ modal: 'event' }, '');
+        }
+
+        function editEvent(m) {
+            currentEventId = m.id;
+            document.getElementById('event-modal-title').textContent = 'Modifier le Menu Événement';
+            document.getElementById('ev-name').value = m.name || '';
+            document.getElementById('ev-theme').value = m.theme || 'personnalise';
+            document.getElementById('ev-start').value = m.start_date || '';
+            document.getElementById('ev-end').value = m.end_date || '';
+            document.getElementById('ev-price').value = m.price || '';
+            document.getElementById('ev-subtitle').value = m.subtitle || '';
+            document.getElementById('ev-active').checked = m.active !== false;
+            renderEvCourseList('entrees', m.entrees || []);
+            renderEvCourseList('plats', m.plats || []);
+            renderEvCourseList('desserts', m.desserts || []);
+            document.getElementById('ev-btn-delete').style.display = 'inline-block';
+            document.getElementById('event-overlay').style.display = 'flex';
+            history.pushState({ modal: 'event' }, '');
+        }
+
+        function closeEventModal(isPopState = false) {
+            document.getElementById('event-overlay').style.display = 'none';
+            if (!isPopState && window.history.state?.modal === 'event') window.history.back();
+        }
+
+        function renderEvCourseList(type, items) {
+            const container = document.getElementById(`ev-${type}-list`);
+            container.innerHTML = items.map((v, i) => `
+                <div style="display:flex;gap:0.4rem;">
+                    <input type="text" value="${v}" class="form-control ev-course-input" data-type="${type}" data-idx="${i}" style="padding:8px 12px;font-size:0.85rem;">
+                    <button type="button" onclick="removeEvCourse('${type}',${i})" style="background:none;border:1px solid rgba(255,77,77,0.3);color:#ff4d4d;border-radius:8px;padding:0 10px;cursor:pointer;font-size:1rem;">×</button>
+                </div>`).join('');
+        }
+
+        function addEvCourse(type) {
+            const container = document.getElementById(`ev-${type}-list`);
+            const idx = container.children.length;
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex;gap:0.4rem;';
+            div.innerHTML = `<input type="text" placeholder="Nom du plat" class="form-control ev-course-input" data-type="${type}" data-idx="${idx}" style="padding:8px 12px;font-size:0.85rem;">
+                <button type="button" onclick="removeEvCourse('${type}',${idx})" style="background:none;border:1px solid rgba(255,77,77,0.3);color:#ff4d4d;border-radius:8px;padding:0 10px;cursor:pointer;font-size:1rem;">×</button>`;
+            container.appendChild(div);
+        }
+
+        function removeEvCourse(type, idx) {
+            const container = document.getElementById(`ev-${type}-list`);
+            const inputs = container.querySelectorAll('.ev-course-input');
+            const vals = Array.from(inputs).map(i => i.value).filter((_, i2) => i2 !== idx);
+            renderEvCourseList(type, vals);
+        }
+
+        function getEvCourses(type) {
+            return Array.from(document.querySelectorAll(`#ev-${type}-list .ev-course-input`))
+                .map(i => i.value.trim()).filter(Boolean);
+        }
+
+        async function saveEvent() {
+            const btn = document.getElementById('ev-btn-save');
+            btn.disabled = true; btn.textContent = 'Enregistrement...';
+            const payload = {
+                name:       document.getElementById('ev-name').value.trim(),
+                theme:      document.getElementById('ev-theme').value,
+                start_date: document.getElementById('ev-start').value,
+                end_date:   document.getElementById('ev-end').value,
+                price:      document.getElementById('ev-price').value.trim(),
+                subtitle:   document.getElementById('ev-subtitle').value.trim(),
+                active:     document.getElementById('ev-active').checked,
+                entrees:    getEvCourses('entrees'),
+                plats:      getEvCourses('plats'),
+                desserts:   getEvCourses('desserts')
+            };
+            if (!payload.name || !payload.start_date || !payload.end_date) {
+                alert('Nom, date de début et date de fin sont obligatoires.');
+                btn.disabled = false; btn.textContent = 'Enregistrer';
+                return;
+            }
+            try {
+                const url = currentEventId ? `/api/admin/special-menus/${currentEventId}` : '/api/admin/special-menus';
+                const method = currentEventId ? 'PATCH' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (res.ok) { closeEventModal(); fetchEvents(); }
+                else alert('Erreur lors de l\'enregistrement.');
+            } catch (err) { alert('Erreur réseau.'); }
+            btn.disabled = false; btn.textContent = 'Enregistrer';
+        }
+
+        async function deleteEvent() {
+            if (!currentEventId || !confirm('Supprimer ce menu événement ?')) return;
+            try {
+                const res = await fetch(`/api/admin/special-menus/${currentEventId}`, { method: 'DELETE' });
+                if (res.ok) { closeEventModal(); fetchEvents(); }
+                else alert('Erreur lors de la suppression.');
+            } catch (err) { alert('Erreur réseau.'); }
+        }
+
     </script>
     </div>
 </body>

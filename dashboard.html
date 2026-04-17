@@ -876,8 +876,13 @@
                     <!-- Colonne Droite -->
                     <div class="form-col">
                         <div class="form-group">
-                            <label>Nom du vin</label>
+                            <label>Nom du vin (Français)</label>
                             <input type="text" id="wine-nom" class="form-control" placeholder="Ex: Château Margaux">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Wine name (English)</label>
+                            <input type="text" id="wine-nom-en" class="form-control" placeholder="Ex: Château Margaux">
                         </div>
 
                         <div class="form-group">
@@ -898,8 +903,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Notes de dégustation</label>
-                            <textarea id="wine-description" class="form-control" rows="4" placeholder="Arômes, goût, accords mets-vins..."></textarea>
+                            <label>Notes de dégustation (Français)</label>
+                            <textarea id="wine-description" class="form-control" rows="3" placeholder="Arômes, goût, accords mets-vins..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tasting notes (English)</label>
+                            <textarea id="wine-description-en" class="form-control" rows="3" placeholder="Aromas, taste, food pairings..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1545,11 +1555,13 @@
             const photo = f.Photo;
             document.getElementById('wine-current-img').src = (photo && photo.startsWith('http')) ? photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : 'assets/dish1.png';
             document.getElementById('wine-nom').value = f.Nom || '';
+            document.getElementById('wine-nom-en').value = f.Nom_EN || '';
             document.getElementById('wine-appellation').value = f.Appellation || '';
             document.getElementById('wine-millesime').value = f.Millesime || '';
             document.getElementById('wine-prix-verre').value = parseFloat(String(f.Prix_Verre || '0').replace(/[^\d.]/g, '')) || '';
             document.getElementById('wine-prix-bouteille').value = parseFloat(String(f.Prix_Bouteille || '0').replace(/[^\d.]/g, '')) || '';
             document.getElementById('wine-description').value = f.Description || '';
+            document.getElementById('wine-description-en').value = f.Description_EN || '';
             document.getElementById('wine-file').value = '';
             currentWineCroppedBlob = null;
             document.querySelectorAll('.wine-type-radio').forEach(r => { r.checked = r.value === f.Type; });
@@ -1561,11 +1573,13 @@
             document.getElementById('wine-delete-btn').style.display = 'none';
             document.getElementById('wine-current-img').src = 'assets/dish1.png';
             document.getElementById('wine-nom').value = '';
+            document.getElementById('wine-nom-en').value = '';
             document.getElementById('wine-appellation').value = '';
             document.getElementById('wine-millesime').value = '';
             document.getElementById('wine-prix-verre').value = '';
             document.getElementById('wine-prix-bouteille').value = '';
             document.getElementById('wine-description').value = '';
+            document.getElementById('wine-description-en').value = '';
             document.getElementById('wine-file').value = '';
             currentWineCroppedBlob = null;
             document.querySelectorAll('.wine-type-radio').forEach(r => r.checked = false);
@@ -1591,11 +1605,13 @@
 
                 const fields = {
                     Nom: document.getElementById('wine-nom').value,
+                    Nom_EN: document.getElementById('wine-nom-en').value,
                     Appellation: document.getElementById('wine-appellation').value,
                     Millesime: document.getElementById('wine-millesime').value,
                     Prix_Verre: rawVerre ? '€' + parseFloat(rawVerre).toFixed(2) : '',
                     Prix_Bouteille: rawBout ? '€' + parseFloat(rawBout).toFixed(2) : '',
                     Description: document.getElementById('wine-description').value,
+                    Description_EN: document.getElementById('wine-description-en').value,
                     Type: selectedType ? selectedType.value : ''
                 };
 

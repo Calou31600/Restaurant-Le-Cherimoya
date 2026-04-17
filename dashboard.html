@@ -193,6 +193,75 @@
         }
 
         /* Modal "Fiche Produit" */
+        /* Styles formulaire événement */
+        .ev-label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+        .ev-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .ev-tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-dim);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            transition: 0.2s;
+            margin-bottom: -1px;
+        }
+        .ev-tab:hover { color: var(--text-main); }
+        .ev-tab-active {
+            color: var(--accent) !important;
+            border-bottom-color: var(--accent) !important;
+        }
+        .ev-add-btn {
+            width: 100%;
+            background: rgba(207,168,110,0.05);
+            border: 1px dashed rgba(207,168,110,0.3);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .ev-add-btn:hover { background: rgba(207,168,110,0.1); }
+        .ev-course-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .ev-course-row input {
+            flex: 1;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            box-sizing: border-box;
+        }
+        .ev-course-row button {
+            flex-shrink: 0;
+            background: none;
+            border: 1px solid rgba(255,77,77,0.3);
+            color: #ff6b6b;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            transition: 0.2s;
+        }
+        .ev-course-row button:hover { background: rgba(255,77,77,0.1); }
+
         .upload-overlay {
             display: none;
             position: fixed;
@@ -1103,91 +1172,92 @@
 
         <!-- Modal Événement -->
         <div id="event-overlay" class="upload-overlay" style="display:none;">
-            <div class="admin-modal" style="max-width:640px;">
-                <h3 id="event-modal-title" style="margin-top:0;margin-bottom:2rem;font-size:1.8rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:1rem;color:var(--text-main);">Nouveau Menu Événement</h3>
+            <div class="admin-modal" style="max-width:580px;padding:2.5rem;">
 
-                <!-- Ligne 1 : Nom + Thème -->
-                <div style="display:flex;gap:1.2rem;margin-bottom:1.2rem;">
-                    <div class="form-group" style="flex:2;margin-bottom:0;">
-                        <label>Nom de l'événement *</label>
-                        <input type="text" id="ev-name" class="form-control" placeholder="Ex: Menu de Noël">
+                <!-- En-tête -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(255,255,255,0.07);">
+                    <h3 id="event-modal-title" style="margin:0;font-size:1.6rem;color:var(--text-main);">Nouveau Menu Événement</h3>
+                    <button onclick="closeEventModal()" style="background:none;border:none;color:var(--text-dim);font-size:1.5rem;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-dim)'">×</button>
+                </div>
+
+                <!-- Section 1 : Identité -->
+                <div style="margin-bottom:1.2rem;">
+                    <label class="ev-label">Nom de l'événement *</label>
+                    <input type="text" id="ev-name" class="form-control ev-input" placeholder="Ex : Menu de Noël">
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label class="ev-label">Thème visuel</label>
+                    <select id="ev-theme" class="form-control ev-input">
+                        <option value="noel">🎄  Noël</option>
+                        <option value="nouvel-an">🥂  Nouvel An</option>
+                        <option value="fete-des-meres">🌸  Fête des Mères</option>
+                        <option value="saint-valentin">❤️  Saint-Valentin</option>
+                        <option value="paques">🐣  Pâques</option>
+                        <option value="ete">☀️  Été</option>
+                        <option value="personnalise" selected>⭐  Personnalisé</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label class="ev-label">Sous-titre / accroche</label>
+                    <input type="text" id="ev-subtitle" class="form-control ev-input" placeholder="Ex : Un repas d'exception en famille">
+                </div>
+
+                <!-- Section 2 : Dates & Prix côte à côte avec grid propre -->
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.8rem;">
+                    <div>
+                        <label class="ev-label">Début *</label>
+                        <input type="date" id="ev-start" class="form-control ev-input">
                     </div>
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Thème visuel</label>
-                        <select id="ev-theme" class="form-control">
-                            <option value="noel">🎄 Noël</option>
-                            <option value="nouvel-an">🥂 Nouvel An</option>
-                            <option value="fete-des-meres">🌸 Fête des Mères</option>
-                            <option value="saint-valentin">❤️ Saint-Valentin</option>
-                            <option value="paques">🐣 Pâques</option>
-                            <option value="ete">☀️ Été</option>
-                            <option value="personnalise" selected>⭐ Personnalisé</option>
-                        </select>
+                    <div>
+                        <label class="ev-label">Fin *</label>
+                        <input type="date" id="ev-end" class="form-control ev-input">
+                    </div>
+                    <div>
+                        <label class="ev-label">Prix</label>
+                        <input type="text" id="ev-price" class="form-control ev-input" placeholder="65 €">
                     </div>
                 </div>
 
-                <!-- Ligne 2 : Dates -->
-                <div style="display:flex;gap:1.2rem;margin-bottom:1.2rem;">
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Date de début *</label>
-                        <input type="date" id="ev-start" class="form-control">
+                <!-- Section 3 : Plats avec onglets -->
+                <div style="margin-bottom:1.8rem;">
+                    <label class="ev-label" style="margin-bottom:0.8rem;display:block;">Composition du menu</label>
+                    <div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:1rem;">
+                        <button type="button" id="ev-tab-entrees" onclick="switchEvTab('entrees')" class="ev-tab ev-tab-active">Entrées</button>
+                        <button type="button" id="ev-tab-plats"   onclick="switchEvTab('plats')"   class="ev-tab">Plats</button>
+                        <button type="button" id="ev-tab-desserts" onclick="switchEvTab('desserts')" class="ev-tab">Desserts</button>
                     </div>
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Date de fin *</label>
-                        <input type="date" id="ev-end" class="form-control">
+                    <div id="ev-entrees-panel">
+                        <div id="ev-entrees-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.6rem;"></div>
+                        <button type="button" onclick="addEvCourse('entrees')" class="ev-add-btn">+ Ajouter une entrée</button>
                     </div>
-                </div>
-
-                <!-- Ligne 3 : Prix + Sous-titre -->
-                <div style="display:flex;gap:1.2rem;margin-bottom:1.5rem;">
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Prix du menu</label>
-                        <input type="text" id="ev-price" class="form-control" placeholder="Ex: 65 € par personne">
+                    <div id="ev-plats-panel" style="display:none;">
+                        <div id="ev-plats-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.6rem;"></div>
+                        <button type="button" onclick="addEvCourse('plats')" class="ev-add-btn">+ Ajouter un plat</button>
                     </div>
-                    <div class="form-group" style="flex:2;margin-bottom:0;">
-                        <label>Sous-titre / accroche</label>
-                        <input type="text" id="ev-subtitle" class="form-control" placeholder="Ex: Un repas d'exception en famille">
+                    <div id="ev-desserts-panel" style="display:none;">
+                        <div id="ev-desserts-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.6rem;"></div>
+                        <button type="button" onclick="addEvCourse('desserts')" class="ev-add-btn">+ Ajouter un dessert</button>
                     </div>
                 </div>
 
-                <!-- Séparateur -->
-                <div style="border-top:1px solid rgba(255,255,255,0.05);margin-bottom:1.5rem;"></div>
-
-                <!-- Plats par section -->
-                <div style="display:flex;gap:1.2rem;margin-bottom:1.5rem;">
-                    <div style="flex:1;">
-                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Entrées</div>
-                        <div id="ev-entrees-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('entrees')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Plats</div>
-                        <div id="ev-plats-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('plats')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Desserts</div>
-                        <div id="ev-desserts-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('desserts')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
-                    </div>
-                </div>
-
-                <!-- Séparateur -->
-                <div style="border-top:1px solid rgba(255,255,255,0.05);margin-bottom:1.2rem;"></div>
-
-                <!-- Actif -->
-                <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:2rem;">
+                <!-- Section 4 : Actif -->
+                <label style="display:flex;align-items:center;gap:0.8rem;cursor:pointer;padding:1rem;background:rgba(207,168,110,0.05);border:1px solid rgba(207,168,110,0.15);border-radius:12px;margin-bottom:2rem;">
                     <input type="checkbox" id="ev-active" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;">
                     <div>
-                        <span style="font-size:0.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;">Menu actif</span>
-                        <span style="font-size:0.82rem;color:var(--text-dim);margin-left:0.5rem;">— s'affichera automatiquement selon les dates</span>
+                        <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">Menu actif</div>
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-top:2px;">S'affiche sur la page d'accueil uniquement dans la fenêtre de dates</div>
                     </div>
-                </div>
+                </label>
 
-                <div style="display:flex;gap:1rem;justify-content:flex-end;">
-                    <button id="ev-btn-delete" class="filter-btn" onclick="deleteEvent()" style="display:none;border-color:#ff4d4d;color:#ff4d4d;">Supprimer</button>
-                    <button class="filter-btn" onclick="closeEventModal()">Annuler</button>
-                    <button class="btn-save" id="ev-btn-save" onclick="saveEvent()">Enregistrer</button>
+                <!-- Actions -->
+                <div style="display:flex;gap:0.8rem;justify-content:space-between;align-items:center;">
+                    <button id="ev-btn-delete" onclick="deleteEvent()" style="display:none;background:none;border:1px solid rgba(255,77,77,0.4);color:#ff4d4d;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:0.85rem;transition:0.2s;" onmouseover="this.style.background='rgba(255,77,77,0.1)'" onmouseout="this.style.background='none'">🗑 Supprimer</button>
+                    <div style="display:flex;gap:0.8rem;margin-left:auto;">
+                        <button onclick="closeEventModal()" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-dim);padding:10px 20px;border-radius:10px;cursor:pointer;font-size:0.9rem;transition:0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">Annuler</button>
+                        <button id="ev-btn-save" onclick="saveEvent()" class="btn-save" style="padding:10px 24px;">Enregistrer</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3301,6 +3371,7 @@
             document.getElementById('ev-plats-list').innerHTML = '';
             document.getElementById('ev-desserts-list').innerHTML = '';
             document.getElementById('ev-btn-delete').style.display = 'none';
+            switchEvTab('entrees');
             document.getElementById('event-overlay').style.display = 'flex';
             history.pushState({ modal: 'event' }, '');
         }
@@ -3319,6 +3390,7 @@
             renderEvCourseList('plats', m.plats || []);
             renderEvCourseList('desserts', m.desserts || []);
             document.getElementById('ev-btn-delete').style.display = 'inline-block';
+            switchEvTab('entrees');
             document.getElementById('event-overlay').style.display = 'flex';
             history.pushState({ modal: 'event' }, '');
         }
@@ -3328,12 +3400,19 @@
             if (!isPopState && window.history.state?.modal === 'event') window.history.back();
         }
 
+        function switchEvTab(type) {
+            ['entrees','plats','desserts'].forEach(t => {
+                document.getElementById(`ev-${t}-panel`).style.display = t === type ? 'block' : 'none';
+                document.getElementById(`ev-tab-${t}`).classList.toggle('ev-tab-active', t === type);
+            });
+        }
+
         function renderEvCourseList(type, items) {
             const container = document.getElementById(`ev-${type}-list`);
             container.innerHTML = items.map((v, i) => `
-                <div style="display:flex;gap:0.4rem;">
-                    <input type="text" value="${v}" class="form-control ev-course-input" data-type="${type}" data-idx="${i}" style="padding:8px 12px;font-size:0.85rem;">
-                    <button type="button" onclick="removeEvCourse('${type}',${i})" style="background:none;border:1px solid rgba(255,77,77,0.3);color:#ff4d4d;border-radius:8px;padding:0 10px;cursor:pointer;font-size:1rem;">×</button>
+                <div class="ev-course-row">
+                    <input type="text" value="${v.replace(/"/g,'&quot;')}" class="form-control ev-course-input" data-type="${type}" data-idx="${i}" placeholder="Nom du plat">
+                    <button type="button" onclick="removeEvCourse('${type}',${i})">×</button>
                 </div>`).join('');
         }
 
@@ -3341,10 +3420,11 @@
             const container = document.getElementById(`ev-${type}-list`);
             const idx = container.children.length;
             const div = document.createElement('div');
-            div.style.cssText = 'display:flex;gap:0.4rem;';
-            div.innerHTML = `<input type="text" placeholder="Nom du plat" class="form-control ev-course-input" data-type="${type}" data-idx="${idx}" style="padding:8px 12px;font-size:0.85rem;">
-                <button type="button" onclick="removeEvCourse('${type}',${idx})" style="background:none;border:1px solid rgba(255,77,77,0.3);color:#ff4d4d;border-radius:8px;padding:0 10px;cursor:pointer;font-size:1rem;">×</button>`;
+            div.className = 'ev-course-row';
+            div.innerHTML = `<input type="text" placeholder="Nom du plat" class="form-control ev-course-input" data-type="${type}" data-idx="${idx}">
+                <button type="button" onclick="removeEvCourse('${type}',${idx})">×</button>`;
             container.appendChild(div);
+            div.querySelector('input').focus();
         }
 
         function removeEvCourse(type, idx) {

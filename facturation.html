@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturation | Le Chérimoya</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            background: #0f0f1a;
+            color: #e8d5b0;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .billing-header {
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(207, 168, 110, 0.2);
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .billing-header h1 {
+            font-size: 1.4rem;
+            color: var(--accent, #cfa86e);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .billing-header a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+
+        .billing-header a:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+
+        .billing-main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* --- Sélection table --- */
+        .table-selector {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(207,168,110,0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .table-selector label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent, #cfa86e);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .table-selector select {
+            background: #1a1a1a;
+            border: 1px solid rgba(207,168,110,0.3);
+            color: #fff;
+            padding: 12px 40px 12px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23cfa86e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1.1em;
+            min-width: 180px;
+            transition: border-color 0.3s;
+        }
+
+        .table-selector select:focus { outline: none; border-color: var(--accent, #cfa86e); }
+
+        .btn-load {
+            background: var(--accent, #cfa86e);
+            color: #000;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-load:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-load:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* --- Facture --- */
+        #invoice-section { display: none; }
+
+        .invoice-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(207,168,110,0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-card-header {
+            background: rgba(207,168,110,0.08);
+            border-bottom: 1px solid rgba(207,168,110,0.2);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-card-header h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent, #cfa86e);
+            margin: 0;
+        }
+
+        .invoice-date {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* --- Tableau articles --- */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table thead tr {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .items-table th {
+            padding: 0.9rem 1.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.4);
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .items-table th.text-right { text-align: right; }
+
+        .items-table tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s;
+        }
+
+        .items-table tbody tr:last-child { border-bottom: none; }
+        .items-table tbody tr:hover { background: rgba(207,168,110,0.04); }
+
+        .items-table td {
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .items-table td.text-right { text-align: right; }
+
+        .tva-badge {
+            display: inline-block;
+            background: rgba(207,168,110,0.12);
+            color: var(--accent, #cfa86e);
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .item-cat {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 2px;
+        }
+
+        /* --- Totaux --- */
+        .totals-block {
+            border-top: 1px solid rgba(207,168,110,0.15);
+        }
+
+        .totals-inner {
+            padding: 1.5rem;
+            max-width: 380px;
+            margin-left: auto;
+        }
+
+        .tva-detail {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .tva-detail-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.7rem;
+        }
+
+        .tva-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            padding: 0.3rem 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .tva-row .tva-label { color: rgba(255,255,255,0.5); }
+
+        .total-rows { margin-top: 0.5rem; }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .total-row:last-child { border-bottom: none; }
+
+        .total-row.grand-total {
+            margin-top: 0.5rem;
+            padding-top: 0.8rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent, #cfa86e);
+            border-top: 2px solid rgba(207,168,110,0.3);
+            border-bottom: none;
+        }
+
+        /* --- Actions --- */
+        .actions-bar {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(207,168,110,0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .payment-methods label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.4);
+            width: 100%;
+            margin-bottom: 0.4rem;
+        }
+
+        .pay-btn {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.7);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.25s;
+            white-space: nowrap;
+        }
+
+        .pay-btn:hover,
+        .pay-btn.selected {
+            background: rgba(207,168,110,0.12);
+            border-color: var(--accent, #cfa86e);
+            color: var(--accent, #cfa86e);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-print {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.8);
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .btn-print:hover { background: rgba(255,255,255,0.1); }
+
+        .btn-close {
+            background: #2a7a2a;
+            border: 1px solid #3a9a3a;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-close:hover { background: #348a34; filter: brightness(1.1); }
+        .btn-close:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* --- Empty / Error state --- */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed rgba(207,168,110,0.2);
+            border-radius: 16px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+        .empty-state p { margin: 0; font-size: 0.9rem; }
+
+        /* --- Toast --- */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e1e1e;
+            border: 1px solid rgba(207,168,110,0.4);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            z-index: 9999;
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { border-color: #3a9a3a; }
+        .toast.error { border-color: #cc3333; }
+
+        /* --- Print styles --- */
+        @media print {
+            body { background: #fff !important; color: #111 !important; }
+            .billing-header, .table-selector, .actions-bar, .toast { display: none !important; }
+            #invoice-section { display: block !important; }
+            .invoice-card {
+                background: #fff !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+            .invoice-card-header { background: #f5f5f5 !important; }
+            .invoice-card-header h2, .total-row.grand-total { color: #7a5c20 !important; }
+            .tva-badge { background: #f5ecd8 !important; color: #7a5c20 !important; }
+            .tva-detail { background: #fafafa !important; border: 1px solid #eee !important; }
+            .items-table tbody tr:hover { background: none !important; }
+            .billing-main { padding: 0 !important; }
+            .print-header { display: block !important; }
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .print-header h2 { font-size: 1.6rem; margin: 0 0 4px; }
+        .print-header p { margin: 0; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+
+<body>
+    <div class="hero-bg"></div>
+
+    <div class="billing-header">
+        <h1>Facturation</h1>
+        <a href="/admin">← Retour admin</a>
+    </div>
+
+    <div class="billing-main">
+
+        <!-- Sélection table -->
+        <div class="table-selector">
+            <label>Table</label>
+            <select id="table-select">
+                <option value="">— Choisir une table —</option>
+            </select>
+            <button class="btn-load" id="btn-load" onclick="loadBilling()" disabled>Charger la facture</button>
+        </div>
+
+        <!-- Zone facture -->
+        <div id="invoice-section">
+
+            <!-- En-tête impression seulement -->
+            <div class="print-header">
+                <h2>Le Chérimoya</h2>
+                <p id="print-date"></p>
+            </div>
+
+            <div class="invoice-card" id="invoice-card">
+                <div class="invoice-card-header">
+                    <h2 id="invoice-title">Table —</h2>
+                    <span class="invoice-date" id="invoice-date"></span>
+                </div>
+
+                <!-- Articles -->
+                <div style="overflow-x:auto;">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Article</th>
+                                <th class="text-right" style="width:60px;">Qté</th>
+                                <th class="text-right" style="width:110px;">Prix unit.</th>
+                                <th class="text-right" style="width:110px;">Total TTC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Totaux -->
+                <div class="totals-block">
+                    <div class="totals-inner">
+                        <div class="tva-detail">
+                            <div class="tva-detail-title">Détail TVA</div>
+                            <div id="tva-detail-rows"></div>
+                        </div>
+                        <div class="total-rows" id="total-rows"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-bar">
+                <div class="payment-methods">
+                    <label>Mode de règlement</label>
+                    <button class="pay-btn selected" data-method="CB" onclick="selectPayment(this)">💳 CB</button>
+                    <button class="pay-btn" data-method="Espèces" onclick="selectPayment(this)">💵 Espèces</button>
+                    <button class="pay-btn" data-method="Chèque" onclick="selectPayment(this)">✍️ Chèque</button>
+                </div>
+                <div class="action-btns">
+                    <button class="btn-print" onclick="window.print()">🖨️ Imprimer</button>
+                    <button class="btn-close" id="btn-close" onclick="closeBilling()">✅ Clôturer la table</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- État vide initial -->
+        <div id="empty-state" class="empty-state">
+            <div class="icon">🧾</div>
+            <p>Sélectionnez une table puis chargez la facture.</p>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const TVA_RATES = { 'Boissons': 0.20 };
+        const DEFAULT_TVA = 0.10;
+
+        let currentCommandeIds = [];
+        let selectedPayment = 'CB';
+
+        function getTVARate(categorie) {
+            return TVA_RATES[categorie] ?? DEFAULT_TVA;
+        }
+
+        function fmt(n) {
+            return Number(n).toFixed(2).replace('.', ',') + ' €';
+        }
+
+        function fmtPct(rate) {
+            return (rate * 100).toFixed(0) + '%';
+        }
+
+        // Peupler le select des tables
+        (function initTableSelect() {
+            const sel = document.getElementById('table-select');
+            for (let i = 1; i <= 15; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Table ${i}`;
+                sel.appendChild(opt);
+            }
+            sel.addEventListener('change', () => {
+                document.getElementById('btn-load').disabled = !sel.value;
+            });
+        })();
+
+        function selectPayment(btn) {
+            document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPayment = btn.dataset.method;
+        }
+
+        async function loadBilling() {
+            const tableNum = document.getElementById('table-select').value;
+            if (!tableNum) return;
+
+            const btn = document.getElementById('btn-load');
+            btn.disabled = true;
+            btn.textContent = 'Chargement…';
+
+            try {
+                const res = await fetch(`/api/billing/table/${tableNum}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    showToast('Erreur : ' + data.error, 'error');
+                    return;
+                }
+
+                if (!data.items || data.items.length === 0) {
+                    document.getElementById('invoice-section').style.display = 'none';
+                    document.getElementById('empty-state').innerHTML = `
+                        <div class="icon">✅</div>
+                        <p>Aucune commande active pour la Table ${tableNum}.</p>`;
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+
+                currentCommandeIds = data.commande_ids;
+                renderInvoice(tableNum, data.items);
+
+            } catch (err) {
+                showToast('Erreur réseau.', 'error');
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Charger la facture';
+            }
+        }
+
+        function renderInvoice(tableNum, items) {
+            // En-tête
+            const now = new Date();
+            document.getElementById('invoice-title').textContent = `Table ${tableNum}`;
+            const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('invoice-date').textContent = `${dateStr} — ${timeStr}`;
+            document.getElementById('print-date').textContent = `Facture générée le ${dateStr} à ${timeStr}`;
+
+            // Articles
+            const tbody = document.getElementById('items-tbody');
+            tbody.innerHTML = '';
+            items.forEach(item => {
+                const tvaRate = getTVARate(item.categorie);
+                const total = item.prix * item.qty;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div>${escHtml(item.nom)} <span class="tva-badge">TVA ${fmtPct(tvaRate)}</span></div>
+                        ${item.categorie ? `<div class="item-cat">${escHtml(item.categorie)}</div>` : ''}
+                    </td>
+                    <td class="text-right">×${item.qty}</td>
+                    <td class="text-right">${fmt(item.prix)}</td>
+                    <td class="text-right">${fmt(total)}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            // Calcul TVA
+            const tvaGroups = {};
+            let grandTotalTTC = 0;
+            items.forEach(item => {
+                const tvaRate = getTVARate(item.categorie);
+                const totalTTC = item.prix * item.qty;
+                grandTotalTTC += totalTTC;
+                const key = fmtPct(tvaRate);
+                if (!tvaGroups[key]) tvaGroups[key] = { rate: tvaRate, totalTTC: 0 };
+                tvaGroups[key].totalTTC += totalTTC;
+            });
+
+            let totalHT = 0;
+            let totalTVA = 0;
+
+            const tvaDetailRows = document.getElementById('tva-detail-rows');
+            tvaDetailRows.innerHTML = '';
+            Object.entries(tvaGroups).sort().forEach(([pct, g]) => {
+                const ht = g.totalTTC / (1 + g.rate);
+                const tva = g.totalTTC - ht;
+                totalHT += ht;
+                totalTVA += tva;
+                const row = document.createElement('div');
+                row.className = 'tva-row';
+                row.innerHTML = `
+                    <span class="tva-label">TVA ${pct} sur ${fmt(ht)} HT</span>
+                    <span>${fmt(tva)}</span>`;
+                tvaDetailRows.appendChild(row);
+            });
+
+            const totalRows = document.getElementById('total-rows');
+            totalRows.innerHTML = `
+                <div class="total-row"><span>Total HT</span><span>${fmt(totalHT)}</span></div>
+                <div class="total-row"><span>Total TVA</span><span>${fmt(totalTVA)}</span></div>
+                <div class="total-row grand-total"><span>TOTAL TTC</span><span>${fmt(grandTotalTTC)}</span></div>`;
+
+            // Afficher
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('invoice-section').style.display = 'block';
+        }
+
+        async function closeBilling() {
+            if (!currentCommandeIds.length) return;
+
+            const tableNum = document.getElementById('table-select').value;
+            if (!confirm(`Confirmer le règlement de la Table ${tableNum} par ${selectedPayment} et clôturer ?`)) return;
+
+            const btn = document.getElementById('btn-close');
+            btn.disabled = true;
+            btn.textContent = 'Clôture en cours…';
+
+            try {
+                const res = await fetch('/api/billing/close', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        table_num: tableNum,
+                        commande_ids: currentCommandeIds,
+                        methode_paiement: selectedPayment
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    showToast(`✅ Table ${tableNum} clôturée — Règlement ${selectedPayment}`, 'success');
+                    setTimeout(() => {
+                        document.getElementById('invoice-section').style.display = 'none';
+                        document.getElementById('empty-state').innerHTML = `
+                            <div class="icon">✅</div>
+                            <p>Table ${tableNum} clôturée. Choisissez une nouvelle table.</p>`;
+                        document.getElementById('empty-state').style.display = 'block';
+                        document.getElementById('table-select').value = '';
+                        document.getElementById('btn-load').disabled = true;
+                        currentCommandeIds = [];
+                    }, 1200);
+                } else {
+                    showToast('Erreur lors de la clôture.', 'error');
+                }
+            } catch (err) {
+                showToast('Erreur réseau.', 'error');
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✅ Clôturer la table';
+            }
+        }
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type}`;
+            void t.offsetWidth;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+
+</html>

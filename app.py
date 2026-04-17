@@ -504,6 +504,12 @@ def kitchen_page():
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return response
 
+@app.route('/facturation')
+def facturation_page():
+    response = make_response(send_from_directory('.', 'facturation.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
 @app.route('/api/menu/public', methods=['GET'])
 def get_public_menu():
     try:
@@ -621,6 +627,76 @@ def update_order_status(record_id):
         if res.status_code == 200:
             return jsonify({"status": "success"})
         return jsonify({"status": "error", "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+@app.route('/api/billing/table/<int:table_num>', methods=['GET'])
+def get_billing_table(table_num):
+    try:
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}"}
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
+        params = {
+            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Annulé')))"
+        }
+        res = http_requests.get(url, headers=at_headers, params=params)
+        if res.status_code != 200:
+            return jsonify({"error": res.text}), res.status_code
+
+        records = res.json().get('records', [])
+        commande_ids = [r['id'] for r in records]
+
+        aggregated = {}
+        for record in records:
+            fields = record.get('fields', {})
+            items_raw = fields.get('Items', '[]')
+            try:
+                items = json.loads(items_raw)
+            except Exception:
+                items = []
+            for item in items:
+                item_id = item.get('id', item.get('nom', ''))
+                if item_id in aggregated:
+                    aggregated[item_id]['qty'] += item.get('qty', 1)
+                else:
+                    aggregated[item_id] = {
+                        'nom': item.get('nom', ''),
+                        'prix': float(item.get('prix', 0)),
+                        'qty': item.get('qty', 1),
+                        'categorie': item.get('categorie', item.get('categories', [''])[0] if isinstance(item.get('categories'), list) else '')
+                    }
+
+        return jsonify({
+            "table": table_num,
+            "commande_ids": commande_ids,
+            "items": list(aggregated.values())
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/billing/close', methods=['POST'])
+def close_billing():
+    try:
+        data = request.json
+        commande_ids = data.get('commande_ids', [])
+        if not commande_ids:
+            return jsonify({"status": "error", "message": "Aucune commande à clôturer"}), 400
+
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
+
+        errors = []
+        for record_id in commande_ids:
+            url = f"https://api.airtable.com/v0/{base_id}/Commandes/{record_id}"
+            res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": "Servi"}})
+            if res.status_code != 200:
+                errors.append(record_id)
+
+        if errors:
+            return jsonify({"status": "error", "message": f"Erreur sur {len(errors)} commande(s)"}), 500
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 

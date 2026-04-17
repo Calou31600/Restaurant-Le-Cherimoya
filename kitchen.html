@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Chérimoya — Cuisine</title>
+  <style>
+    :root {
+      --bg: #0d0d18;
+      --surface: #161626;
+      --card: #1e1e30;
+      --accent: #cfa86e;
+      --text: #e8e8f0;
+      --text-muted: #6e6e90;
+      --border: #28284a;
+      --waiting: #c87941;
+      --cooking: #b8a020;
+      --served: #2a8a2a;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    header h1 { font-size: 1.2rem; color: var(--accent); font-weight: 700; }
+    .time-display { font-size: 1.1rem; font-weight: 600; color: var(--text-muted); }
+
+    .refresh-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .refresh-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+    .refresh-dot.updating { background: var(--accent); animation: none; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── FILTRES ── */
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      padding: 8px 18px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #1a1a2e; font-weight: 700; }
+    .filter-count {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .filter-btn.active .filter-count { background: rgba(26,26,46,0.4); color: #1a1a2e; }
+
+    /* ── BOARD ── */
+    #orders-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 20px;
+    }
+    .empty-board {
+      grid-column: 1/-1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+      gap: 12px;
+    }
+    .empty-board .icon { font-size: 3rem; }
+    .empty-board p { font-size: 1rem; }
+
+    /* ── ORDER CARD ── */
+    .order-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .order-card.waiting { border-color: var(--waiting); }
+    .order-card.cooking { border-color: var(--cooking); }
+    .order-card.served  { border-color: var(--served); opacity: 0.7; }
+
+    .card-header {
+      padding: 14px 18px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-table {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .card-time {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .card-time-heure { font-size: 0.85rem; color: var(--text-muted); }
+    .card-time-elapsed {
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .card-time-elapsed.urgent { color: #ff6b6b; }
+    .card-time-elapsed.warn   { color: var(--waiting); }
+
+    .card-status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 10px;
+    }
+    .badge-waiting { background: rgba(200,121,65,.2); color: var(--waiting); }
+    .badge-cooking { background: rgba(184,160,32,.2); color: var(--cooking); }
+    .badge-served  { background: rgba(42,138,42,.2); color: #4caf50; }
+
+    .card-items {
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item-line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .item-qty {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+      min-width: 22px;
+    }
+    .item-name { color: var(--text); flex: 1; }
+    .item-price { color: var(--text-muted); font-size: 0.82rem; }
+
+    .card-total {
+      padding: 8px 18px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .card-total-label { font-size: 0.82rem; color: var(--text-muted); }
+    .card-total-value { font-size: 1rem; font-weight: 700; color: var(--accent); }
+
+    .card-notes {
+      padding: 8px 18px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-style: italic;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-actions {
+      padding: 12px 18px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .action-btn {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .action-btn:active { opacity: 0.7; }
+    .btn-cooking { background: var(--cooking); color: #1a1a2e; }
+    .btn-served  { background: var(--served); color: #fff; }
+    .btn-cancel  { background: var(--card); border: 1px solid var(--border); color: var(--text-muted); flex: 0; padding: 12px 14px; }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 500px) {
+      #orders-board { grid-template-columns: 1fr; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>🍳 Cuisine — Le Chérimoya</h1>
+    <span class="time-display" id="time-display"></span>
+  </div>
+  <div class="refresh-status">
+    <div class="refresh-dot" id="refresh-dot"></div>
+    <span id="refresh-label">Actualisation auto</span>
+  </div>
+</header>
+
+<nav>
+  <button class="filter-btn active" data-filter="">
+    Tous <span class="filter-count" id="count-all">0</span>
+  </button>
+  <button class="filter-btn" data-filter="En attente">
+    En attente <span class="filter-count" id="count-waiting">0</span>
+  </button>
+  <button class="filter-btn" data-filter="En cuisine">
+    En cuisine <span class="filter-count" id="count-cooking">0</span>
+  </button>
+  <button class="filter-btn" data-filter="Servi">
+    Servi <span class="filter-count" id="count-served">0</span>
+  </button>
+</nav>
+
+<div id="orders-board">
+  <div class="loading-overlay"><div class="spinner"></div>Chargement…</div>
+</div>
+
+<script>
+  let allOrders = [];
+  let activeFilter = '';
+  let refreshInterval = null;
+  const REFRESH_MS = 20000;
+
+  // ── HORLOGE ──────────────────────────────────────────────────────────────────
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('time-display').textContent =
+      now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── CHARGEMENT ───────────────────────────────────────────────────────────────
+
+  async function loadOrders() {
+    const dot = document.getElementById('refresh-dot');
+    const lbl = document.getElementById('refresh-label');
+    dot.classList.add('updating');
+    lbl.textContent = 'Actualisation…';
+    try {
+      const res = await fetch('/api/orders');
+      const records = await res.json();
+      if (Array.isArray(records)) {
+        allOrders = records.filter(r => r.fields?.Statut !== 'Annulé');
+        renderBoard();
+        updateCounts();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    dot.classList.remove('updating');
+    const lastUpdate = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    lbl.textContent = `Màj ${lastUpdate}`;
+  }
+
+  // ── FILTRES ───────────────────────────────────────────────────────────────────
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderBoard();
+    });
+  });
+
+  function updateCounts() {
+    document.getElementById('count-all').textContent = allOrders.length;
+    document.getElementById('count-waiting').textContent =
+      allOrders.filter(r => r.fields?.Statut === 'En attente').length;
+    document.getElementById('count-cooking').textContent =
+      allOrders.filter(r => r.fields?.Statut === 'En cuisine').length;
+    document.getElementById('count-served').textContent =
+      allOrders.filter(r => r.fields?.Statut === 'Servi').length;
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────────────
+
+  function renderBoard() {
+    const board = document.getElementById('orders-board');
+    board.innerHTML = '';
+    const filtered = activeFilter
+      ? allOrders.filter(r => r.fields?.Statut === activeFilter)
+      : allOrders;
+
+    if (filtered.length === 0) {
+      board.innerHTML = `<div class="empty-board">
+        <div class="icon">✅</div>
+        <p>${activeFilter ? 'Aucune commande dans cette catégorie' : 'Aucune commande en cours'}</p>
+      </div>`;
+      return;
+    }
+
+    // Sort: En attente first, then En cuisine, then Servi; within each by time asc
+    const order = { 'En attente': 0, 'En cuisine': 1, 'Servi': 2 };
+    filtered.sort((a, b) => {
+      const sa = order[a.fields?.Statut] ?? 3;
+      const sb = order[b.fields?.Statut] ?? 3;
+      if (sa !== sb) return sa - sb;
+      return (a.fields?.Heure || '') < (b.fields?.Heure || '') ? -1 : 1;
+    });
+
+    filtered.forEach(r => board.appendChild(buildCard(r)));
+  }
+
+  function buildCard(record) {
+    const f = record.fields || {};
+    const statut = f.Statut || 'En attente';
+    const tableN = f.Table_N || '?';
+    const heure = f.Heure ? new Date(f.Heure) : null;
+    const total = f.Total || 0;
+    const notes = f.Notes || '';
+
+    let items = [];
+    try { items = JSON.parse(f.Items || '[]'); } catch (e) { items = []; }
+
+    const elapsed = heure ? elapsedStr(heure) : '';
+    const elapsedClass = heure ? elapsedClass_(heure) : '';
+
+    const heureStr = heure
+      ? heure.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      : '';
+
+    const statusCls = statut === 'En attente' ? 'waiting' : statut === 'En cuisine' ? 'cooking' : 'served';
+    const badgeCls  = statut === 'En attente' ? 'badge-waiting' : statut === 'En cuisine' ? 'badge-cooking' : 'badge-served';
+
+    const card = document.createElement('div');
+    card.className = `order-card ${statusCls}`;
+    card.dataset.id = record.id;
+
+    const itemsHtml = items.map(it => `
+      <div class="item-line">
+        <span class="item-qty">${it.qty}×</span>
+        <span class="item-name">${it.nom}</span>
+        <span class="item-price">${it.prix ? fmtPrice(it.prix * it.qty) : ''}</span>
+      </div>`).join('');
+
+    let actionsHtml = '';
+    if (statut === 'En attente') {
+      actionsHtml = `
+        <button class="action-btn btn-cooking" data-id="${record.id}" data-statut="En cuisine">🍳 En cuisine</button>
+        <button class="action-btn btn-cancel"  data-id="${record.id}" data-statut="Annulé">✕</button>`;
+    } else if (statut === 'En cuisine') {
+      actionsHtml = `
+        <button class="action-btn btn-served" data-id="${record.id}" data-statut="Servi">✅ Servi</button>
+        <button class="action-btn btn-cancel" data-id="${record.id}" data-statut="Annulé">✕</button>`;
+    } else if (statut === 'Servi') {
+      actionsHtml = `
+        <button class="action-btn btn-cancel" data-id="${record.id}" data-statut="Annulé" style="flex:1">Archiver ✕</button>`;
+    }
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div>
+          <div class="card-table">Table ${tableN}</div>
+          <span class="card-status-badge ${badgeCls}">${statut}</span>
+        </div>
+        <div class="card-time">
+          <span class="card-time-heure">${heureStr}</span>
+          ${elapsed ? `<span class="card-time-elapsed ${elapsedClass}">${elapsed}</span>` : ''}
+        </div>
+      </div>
+      <div class="card-items">${itemsHtml || '<div style="color:var(--text-muted);font-size:.85rem">—</div>'}</div>
+      ${notes ? `<div class="card-notes">📝 ${notes}</div>` : ''}
+      <div class="card-total">
+        <span class="card-total-label">Total</span>
+        <span class="card-total-value">${fmtPrice(total)}</span>
+      </div>
+      <div class="card-actions">${actionsHtml}</div>`;
+
+    card.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', () => updateStatus(btn.dataset.id, btn.dataset.statut));
+    });
+    return card;
+  }
+
+  // ── MISE À JOUR STATUT ────────────────────────────────────────────────────────
+
+  async function updateStatus(id, statut) {
+    const card = document.querySelector(`.order-card[data-id="${id}"]`);
+    if (card) card.style.opacity = '0.5';
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ statut })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        await loadOrders();
+      } else {
+        if (card) card.style.opacity = '1';
+      }
+    } catch (e) {
+      if (card) card.style.opacity = '1';
+    }
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────────────────────────
+
+  function fmtPrice(p) {
+    return Number(p).toFixed(2).replace('.', ',') + ' €';
+  }
+
+  function elapsedStr(date) {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins < 1)  return 'À l\'instant';
+    if (mins < 60) return `${mins} min`;
+    return `${Math.floor(mins / 60)}h${String(mins % 60).padStart(2, '0')}`;
+  }
+
+  function elapsedClass_(date) {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins >= 20) return 'urgent';
+    if (mins >= 10) return 'warn';
+    return '';
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────────
+
+  loadOrders();
+  refreshInterval = setInterval(loadOrders, REFRESH_MS);
+</script>
+</body>
+</html>

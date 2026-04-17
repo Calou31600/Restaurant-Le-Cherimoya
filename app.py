@@ -5,6 +5,7 @@ from flask import Flask, jsonify, send_from_directory, request, session, redirec
 from flask_cors import CORS
 from functools import wraps
 from datetime import datetime
+import json
 
 # Configuration Cloudinary et Authlib
 import cloudinary
@@ -486,6 +487,140 @@ def admin_save_settings():
         from settings_manager import SettingsManager
         sm = SettingsManager()
         return jsonify(sm.save_settings(request.get_json()))
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+# --- ROUTES COMMANDES (tablette salle) ---
+
+@app.route('/order')
+def order_page():
+    response = make_response(send_from_directory('.', 'order.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+@app.route('/kitchen')
+def kitchen_page():
+    response = make_response(send_from_directory('.', 'kitchen.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
+@app.route('/api/menu/public', methods=['GET'])
+def get_public_menu():
+    try:
+        if not engine:
+            return jsonify({"error": "Engine non chargé"}), 500
+        records = engine.get_featured_menu()
+        menu = []
+        for r in records:
+            f = r.get('fields', {})
+            prix_raw = f.get('prix', '') or ''
+            prix = 0.0
+            try:
+                prix = float(prix_raw.replace('€', '').replace(',', '.').strip())
+            except Exception:
+                pass
+            categories = f.get('Menu', [])
+            if isinstance(categories, str):
+                categories = [categories]
+            menu.append({
+                'id': r['id'],
+                'nom': f.get('Plat', ''),
+                'description': f.get('description_geo', ''),
+                'prix': prix,
+                'prix_label': prix_raw,
+                'photo': f.get('Photo', ''),
+                'categories': categories,
+                'intolerances': f.get('intolerances', '')
+            })
+        return jsonify(menu)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/orders', methods=['GET'])
+def get_orders():
+    try:
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}"}
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
+        params = {"sort[0][field]": "Heure", "sort[0][direction]": "asc"}
+        statut = request.args.get('statut')
+        if statut:
+            params["filterByFormula"] = f"{{Statut}}='{statut}'"
+        res = http_requests.get(url, headers=at_headers, params=params)
+        if res.status_code == 200:
+            return jsonify(res.json().get('records', []))
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/orders/table/<int:table_num>', methods=['GET'])
+def get_table_orders(table_num):
+    try:
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}"}
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
+        params = {
+            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Annulé')))"
+        }
+        res = http_requests.get(url, headers=at_headers, params=params)
+        if res.status_code == 200:
+            return jsonify(res.json().get('records', []))
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/orders', methods=['POST'])
+def create_order():
+    try:
+        data = request.json
+        table_num = data.get('table_num')
+        items = data.get('items', [])
+        total = data.get('total', 0)
+        notes = data.get('notes', '')
+        if not table_num or not items:
+            return jsonify({"status": "error", "message": "Table et articles requis"}), 400
+        now = datetime.now()
+        service = "Midi" if now.hour < 17 else "Soir"
+        heure_iso = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        ref = f"Table {table_num} - {now.strftime('%H:%M')}"
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
+        fields = {
+            "Ref": ref,
+            "Table_N": int(table_num),
+            "Items": json.dumps(items, ensure_ascii=False),
+            "Total": float(total),
+            "Statut": "En attente",
+            "Heure": heure_iso,
+            "Service": service,
+            "Notes": notes
+        }
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
+        res = http_requests.post(url, headers=at_headers, json={"records": [{"fields": fields}]})
+        if res.status_code == 200:
+            return jsonify({"status": "success", "record": res.json()})
+        return jsonify({"status": "error", "error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+@app.route('/api/orders/<record_id>', methods=['PATCH'])
+def update_order_status(record_id):
+    try:
+        data = request.json
+        statut = data.get('statut')
+        if not statut:
+            return jsonify({"status": "error", "message": "Statut requis"}), 400
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes/{record_id}"
+        res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": statut}})
+        if res.status_code == 200:
+            return jsonify({"status": "success"})
+        return jsonify({"status": "error", "error": res.text}), res.status_code
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 

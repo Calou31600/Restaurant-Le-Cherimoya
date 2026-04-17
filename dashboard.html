@@ -772,7 +772,7 @@
 
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <a href="/admin" class="filter-btn">← Hub</a>
-                    <button class="btn-save" id="btn-add-item" onclick="openAddModal()">+ Nouveau Plat</button>
+                    <button class="btn-save" id="btn-add-item" onclick="handleAddButton()">+ Nouveau Plat</button>
                     <button class="btn-save" id="btn-add-resa" onclick="openAddResaModal()"
                         style="display: none; background: #cfa86e; color: #0d0d0d;">+ Nouvelle Réservation</button>
                     <button class="filter-btn" id="btn-sync-clients" onclick="syncClients()" style="display: none;">🔄
@@ -785,6 +785,7 @@
 
             <nav class="admin-nav">
                 <div class="nav-tab active" data-tab="menu" onclick="switchTab('menu')">Carte</div>
+                <div class="nav-tab" data-tab="wines" onclick="switchTab('wines')">🍷 Vins</div>
                 <div class="nav-tab" data-tab="reservations" onclick="switchTab('reservations')">Réservations</div>
                 <div class="nav-tab" data-tab="clients" data-tab="clients" onclick="switchTab('clients')">Clients</div>
             </nav>
@@ -831,6 +832,104 @@
             <div id="clients-grid"
                 style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.2rem;padding:0.5rem 0;">
                 <!-- Cartes clients injectées ici -->
+            </div>
+        </div>
+
+        <div id="wines-tab" class="tab-content">
+            <div id="wines-grid" class="admin-grid"></div>
+        </div>
+
+        <!-- Modal Vin -->
+        <div id="wine-edit-overlay" class="upload-overlay" style="display:none;">
+            <div class="admin-modal">
+                <h3 id="wine-modal-title"
+                    style="margin-top:0;margin-bottom:2.5rem;font-size:2rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:1rem;color:var(--text-main);">
+                    Fiche Vin</h3>
+
+                <div class="form-section">
+                    <!-- Colonne Gauche -->
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Visuel du vin</label>
+                            <img id="wine-current-img" src="assets/dish1.png"
+                                onerror="this.src='assets/dish1.png'"
+                                style="width:100%;height:250px;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-bottom:1.5rem;">
+                            <input type="file" id="wine-file" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Type</label>
+                            <div class="check-grid">
+                                <label class="check-item"><input type="radio" name="wine-type" value="Rouge" class="wine-type-radio"> Rouge 🔴</label>
+                                <label class="check-item"><input type="radio" name="wine-type" value="Blanc" class="wine-type-radio"> Blanc 🟡</label>
+                                <label class="check-item"><input type="radio" name="wine-type" value="Rosé" class="wine-type-radio"> Rosé 🌸</label>
+                                <label class="check-item"><input type="radio" name="wine-type" value="Pétillant" class="wine-type-radio"> Pétillant 🫧</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Millésime</label>
+                            <input type="text" id="wine-millesime" class="form-control" placeholder="Ex: 2021">
+                        </div>
+                    </div>
+
+                    <!-- Colonne Droite -->
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Nom du vin</label>
+                            <input type="text" id="wine-nom" class="form-control" placeholder="Ex: Château Margaux">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Appellation / Région</label>
+                            <input type="text" id="wine-appellation" class="form-control" placeholder="Ex: Bordeaux AOC">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prix au verre (€)</label>
+                            <input type="number" step="0.5" id="wine-prix-verre" class="form-control"
+                                style="font-size:1.3rem;color:var(--accent);font-weight:bold;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prix à la bouteille (€)</label>
+                            <input type="number" step="0.5" id="wine-prix-bouteille" class="form-control"
+                                style="font-size:1.3rem;color:var(--accent);font-weight:bold;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Notes de dégustation</label>
+                            <textarea id="wine-description" class="form-control" rows="4" placeholder="Arômes, goût, accords mets-vins..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <footer style="display:flex;justify-content:space-between;align-items:center;margin-top:4rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.05);">
+                    <button id="wine-delete-btn" onclick="deleteCurrentWine()" class="filter-btn"
+                        style="color:#ff4d4d;border-color:rgba(255,77,77,0.2);display:none;">
+                        🗑️ Supprimer
+                    </button>
+                    <div style="display:flex;gap:1.5rem;margin-left:auto;">
+                        <button class="filter-btn" onclick="closeWineModal()" style="border:none;">Annuler</button>
+                        <button class="btn-save" id="wine-btn-save" onclick="saveWine()">Enregistrer le vin</button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Modal Confirmation Suppression Vin -->
+        <div id="wine-delete-overlay" class="upload-overlay" style="display:none;z-index:5500;">
+            <div class="admin-modal" style="max-width:480px;text-align:center;">
+                <h3 style="color:#ff4d4d;margin-bottom:1rem;">Supprimer ce vin ?</h3>
+                <p style="color:var(--text-dim);margin-bottom:2rem;">
+                    Vous êtes sur le point de supprimer <strong id="wine-delete-name" style="color:var(--text-main);"></strong>.
+                    Cette action est irréversible.
+                </p>
+                <div style="display:flex;gap:1rem;justify-content:center;">
+                    <button class="filter-btn" onclick="closeWineDeleteModal()">Annuler</button>
+                    <button class="btn-save" onclick="confirmWineDeleteAction()"
+                        style="background:#ff4d4d;">Supprimer définitivement</button>
+                </div>
             </div>
         </div>
 
@@ -1109,6 +1208,10 @@
     <script>
         let currentMenu = [];
         let currentClients = [];
+        let currentWines = [];
+        let currentWineEditId = null;
+        let currentWineCroppedBlob = null;
+        let wineCropperInstance = null;
         let activeTab = 'menu';
         let cropperInstance = null;
         let currentCroppedBlob = null;
@@ -1199,7 +1302,10 @@
             });
 
             // Afficher/Cacher boutons contextuels
-            document.getElementById('btn-add-item').style.display = tab === 'menu' ? 'block' : 'none';
+            const addBtn = document.getElementById('btn-add-item');
+            if (tab === 'menu') { addBtn.style.display = 'block'; addBtn.innerText = '+ Nouveau Plat'; }
+            else if (tab === 'wines') { addBtn.style.display = 'block'; addBtn.innerText = '+ Nouveau Vin'; }
+            else { addBtn.style.display = 'none'; }
             document.getElementById('btn-add-resa').style.display = tab === 'reservations' ? 'block' : 'none';
             document.getElementById('btn-sync-clients').style.display = tab === 'clients' ? 'block' : 'none';
             document.getElementById('btn-refresh-resas').style.display = tab === 'reservations' ? 'block' : 'none';
@@ -1210,6 +1316,7 @@
             if (tab === 'menu') fetchMenu();
             if (tab === 'clients') fetchClients();
             if (tab === 'reservations') fetchReservations();
+            if (tab === 'wines') fetchWines();
 
             fetchStats(); // Toujours rafraîchir les stats du jour au switch
         }
@@ -1348,6 +1455,256 @@
                 window.history.back();
             }
         }
+
+        function handleAddButton() {
+            if (activeTab === 'wines') openAddWineModal();
+            else openAddModal();
+        }
+
+        // =============================================
+        // GESTION DE LA CARTE DES VINS
+        // =============================================
+
+        async function fetchWines() {
+            try {
+                const res = await fetch('/api/admin/wines');
+                if (res.status === 401) { window.location.href = '/login'; return; }
+                currentWines = await res.json();
+                renderWines();
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error('[VINS] Erreur fetch:', err);
+            }
+        }
+
+        function renderWines() {
+            const grid = document.getElementById('wines-grid');
+            const countElement = document.getElementById('menu-count');
+            const total = currentWines.length;
+            countElement.innerText = `${total} vin${total > 1 ? 's' : ''} à la carte`;
+
+            if (total === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-dim);opacity:0.5;">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;">🍷</div>
+                    <div>Aucun vin dans la carte. Cliquez sur "+ Nouveau Vin" pour commencer.</div>
+                </div>`;
+                return;
+            }
+
+            const typeColors = { 'Rouge': '#c0392b', 'Blanc': '#f0c040', 'Rosé': '#e91e8c', 'Pétillant': '#4fc3f7' };
+            const typeEmoji = { 'Rouge': '🔴', 'Blanc': '🟡', 'Rosé': '🌸', 'Pétillant': '🫧' };
+
+            grid.innerHTML = currentWines.map(item => {
+                const f = item.fields;
+                const imgSrc = (f.Photo && f.Photo.startsWith('http')) ? f.Photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : 'assets/dish1.png';
+                const typeColor = typeColors[f.Type] || 'var(--accent)';
+                const emoji = typeEmoji[f.Type] || '🍷';
+
+                return `
+                    <div class="admin-card" onclick="openWineModal('${item.id}')">
+                        <img src="${imgSrc}" class="admin-img" onerror="this.src='assets/dish1.png'">
+                        <div class="admin-info">
+                            <h4>${f.Nom || 'Sans nom'}</h4>
+                            <div style="color:${typeColor};font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">
+                                ${emoji} ${f.Type || '–'} ${f.Millesime ? '· ' + f.Millesime : ''}
+                                ${f.Appellation ? '<span style="opacity:0.5;margin:0 4px;">|</span>' + f.Appellation : ''}
+                            </div>
+                            <p>${f.Description || 'Aucune description'}</p>
+                        </div>
+                        <div class="admin-price" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                            ${f.Prix_Verre ? `<span style="font-size:0.85rem;color:var(--text-dim);">verre</span><span>${f.Prix_Verre} €</span>` : ''}
+                            ${f.Prix_Bouteille ? `<span style="font-size:0.85rem;color:var(--text-dim);">bout.</span><span>${f.Prix_Bouteille} €</span>` : ''}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        async function openWineModal(id) {
+            const item = currentWines.find(i => i.id === id);
+            if (!item) return;
+            currentWineEditId = id;
+            populateWineModal(item.fields);
+            document.getElementById('wine-edit-overlay').style.display = 'flex';
+            history.pushState({ modal: 'edit-wine' }, "");
+
+            try {
+                const res = await fetch(`/api/admin/wines/${id}`);
+                if (res.ok) {
+                    const fresh = await res.json();
+                    const photo = fresh.fields.Photo;
+                    if (photo && photo.startsWith('http')) {
+                        document.getElementById('wine-current-img').src = photo.replace('upload/', 'upload/f_auto,q_auto,w_600/');
+                    }
+                }
+            } catch (e) { /* silencieux */ }
+        }
+
+        function populateWineModal(f) {
+            document.getElementById('wine-modal-title').innerText = 'Modifier : ' + (f.Nom || '');
+            document.getElementById('wine-delete-btn').style.display = 'block';
+            const photo = f.Photo;
+            document.getElementById('wine-current-img').src = (photo && photo.startsWith('http')) ? photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : 'assets/dish1.png';
+            document.getElementById('wine-nom').value = f.Nom || '';
+            document.getElementById('wine-appellation').value = f.Appellation || '';
+            document.getElementById('wine-millesime').value = f.Millesime || '';
+            document.getElementById('wine-prix-verre').value = parseFloat(String(f.Prix_Verre || '0').replace(/[^\d.]/g, '')) || '';
+            document.getElementById('wine-prix-bouteille').value = parseFloat(String(f.Prix_Bouteille || '0').replace(/[^\d.]/g, '')) || '';
+            document.getElementById('wine-description').value = f.Description || '';
+            document.getElementById('wine-file').value = '';
+            currentWineCroppedBlob = null;
+            document.querySelectorAll('.wine-type-radio').forEach(r => { r.checked = r.value === f.Type; });
+        }
+
+        function openAddWineModal() {
+            currentWineEditId = null;
+            document.getElementById('wine-modal-title').innerText = '➕ Nouveau Vin';
+            document.getElementById('wine-delete-btn').style.display = 'none';
+            document.getElementById('wine-current-img').src = 'assets/dish1.png';
+            document.getElementById('wine-nom').value = '';
+            document.getElementById('wine-appellation').value = '';
+            document.getElementById('wine-millesime').value = '';
+            document.getElementById('wine-prix-verre').value = '';
+            document.getElementById('wine-prix-bouteille').value = '';
+            document.getElementById('wine-description').value = '';
+            document.getElementById('wine-file').value = '';
+            currentWineCroppedBlob = null;
+            document.querySelectorAll('.wine-type-radio').forEach(r => r.checked = false);
+            document.getElementById('wine-edit-overlay').style.display = 'flex';
+            history.pushState({ modal: 'add-wine' }, "");
+        }
+
+        function closeWineModal(isPopState = false) {
+            document.getElementById('wine-edit-overlay').style.display = 'none';
+            if (!isPopState && window.history.state && (window.history.state.modal === 'edit-wine' || window.history.state.modal === 'add-wine')) {
+                window.history.back();
+            }
+        }
+
+        async function saveWine() {
+            const btn = document.getElementById('wine-btn-save');
+            btn.disabled = true;
+            btn.innerText = 'Enregistrement...';
+            try {
+                const selectedType = document.querySelector('.wine-type-radio:checked');
+                const rawVerre = document.getElementById('wine-prix-verre').value;
+                const rawBout = document.getElementById('wine-prix-bouteille').value;
+
+                const fields = {
+                    Nom: document.getElementById('wine-nom').value,
+                    Appellation: document.getElementById('wine-appellation').value,
+                    Millesime: document.getElementById('wine-millesime').value,
+                    Prix_Verre: rawVerre ? '€' + parseFloat(rawVerre).toFixed(2) : '',
+                    Prix_Bouteille: rawBout ? '€' + parseFloat(rawBout).toFixed(2) : '',
+                    Description: document.getElementById('wine-description').value,
+                    Type: selectedType ? selectedType.value : ''
+                };
+
+                const fileInput = document.getElementById('wine-file');
+                const fileToUpload = currentWineCroppedBlob || (fileInput.files.length > 0 ? fileInput.files[0] : null);
+
+                if (fileToUpload) {
+                    btn.innerText = 'Upload de la photo...';
+                    const formData = new FormData();
+                    formData.append('file', fileToUpload, 'wine_image.jpg');
+                    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) fields.Photo = uploadData.url;
+                }
+
+                btn.innerText = 'Enregistrement Airtable...';
+                const apiUrl = currentWineEditId ? `/api/admin/wines/${currentWineEditId}` : '/api/admin/wines';
+                const apiMethod = currentWineEditId ? 'PATCH' : 'POST';
+
+                const res = await fetch(apiUrl, {
+                    method: apiMethod,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields })
+                });
+
+                if (res.ok) {
+                    btn.innerText = '✅ Succès';
+                    setTimeout(() => {
+                        closeWineModal();
+                        btn.disabled = false;
+                        btn.innerText = 'Enregistrer le vin';
+                        fetchWines();
+                    }, 1000);
+                } else {
+                    const errText = await res.text();
+                    throw new Error(`Erreur serveur : ${errText}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erreur lors de la sauvegarde : ' + err.message);
+                btn.disabled = false;
+                btn.innerText = 'Enregistrer le vin';
+            }
+        }
+
+        function deleteCurrentWine() {
+            if (!currentWineEditId) return;
+            const item = currentWines.find(i => i.id === currentWineEditId);
+            if (!item) return;
+            document.getElementById('wine-delete-name').innerText = `"${item.fields.Nom || 'ce vin'}"`;
+            document.getElementById('wine-delete-overlay').style.display = 'flex';
+            if (!history.state || history.state.modal !== 'wine-delete-confirm') {
+                history.pushState({ modal: 'wine-delete-confirm' }, "");
+            }
+        }
+
+        function closeWineDeleteModal(isPopState = false) {
+            document.getElementById('wine-delete-overlay').style.display = 'none';
+            if (!isPopState && window.history.state && window.history.state.modal === 'wine-delete-confirm') {
+                window.history.back();
+            }
+        }
+
+        async function confirmWineDeleteAction() {
+            closeWineDeleteModal();
+            try {
+                const res = await fetch(`/api/admin/wines/${currentWineEditId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    closeWineModal();
+                    fetchWines();
+                } else {
+                    alert('Erreur lors de la suppression : ' + await res.text());
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erreur réseau lors de la suppression.');
+            }
+        }
+
+        // Cropper pour les vins
+        document.getElementById('wine-file').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('cropper-image').src = event.target.result;
+                    document.getElementById('cropper-overlay').style.display = 'flex';
+                    if (cropperInstance) cropperInstance.destroy();
+                    const image = document.getElementById('cropper-image');
+                    cropperInstance = new Cropper(image, {
+                        aspectRatio: 4 / 3,
+                        viewMode: 2,
+                        background: false,
+                        autoCropArea: 1,
+                        responsive: true
+                    });
+                    // On signale que le crop concerne un vin
+                    document.getElementById('cropper-overlay').dataset.target = 'wine';
+                    if (!history.state || history.state.modal !== 'cropper') {
+                        history.pushState({ modal: 'cropper' }, "");
+                    }
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+
+        // =============================================
+        // FIN GESTION CARTE DES VINS
+        // =============================================
 
         async function fetchMenu() {
             try {
@@ -1560,6 +1917,8 @@
             const editOverlay = document.getElementById('edit-overlay');
             const deleteOverlay = document.getElementById('delete-overlay');
             const cropperOverlay = document.getElementById('cropper-overlay');
+            const wineEditOverlay = document.getElementById('wine-edit-overlay');
+            const wineDeleteOverlay = document.getElementById('wine-delete-overlay');
 
             // On ferme tout ce qui est actif
             if (!event.state || !event.state.modal) {
@@ -1577,6 +1936,12 @@
                 }
                 if (cropperOverlay && cropperOverlay.style.display === 'flex') {
                     closeCropperModal(true);
+                }
+                if (wineEditOverlay && wineEditOverlay.style.display === 'flex') {
+                    closeWineModal(true);
+                }
+                if (wineDeleteOverlay && wineDeleteOverlay.style.display === 'flex') {
+                    closeWineDeleteModal(true);
                 }
             }
         });
@@ -2191,6 +2556,8 @@
                         responsive: true
                     });
                     
+                    // Indique que le crop concerne un plat (pas un vin)
+                    document.getElementById('cropper-overlay').dataset.target = 'dish';
                     // Trappe l'historique pour le cropper
                     if (!history.state || history.state.modal !== 'cropper') {
                         history.pushState({ modal: 'cropper' }, "");
@@ -2231,9 +2598,17 @@
             });
 
             canvas.toBlob((blob) => {
-                currentCroppedBlob = blob;
                 const url = URL.createObjectURL(blob);
-                document.getElementById('edit-current-img').src = url; // Mettre à jour la prévisualisation
+                const cropTarget = document.getElementById('cropper-overlay').dataset.target;
+                if (cropTarget === 'wine') {
+                    currentWineCroppedBlob = blob;
+                    document.getElementById('wine-current-img').src = url;
+                } else {
+                    currentCroppedBlob = blob;
+                    document.getElementById('edit-current-img').src = url;
+                }
+                // Nettoyer la cible
+                delete document.getElementById('cropper-overlay').dataset.target;
 
                 btnSaveCrop.innerText = "Valider le recadrage";
                 btnSaveCrop.disabled = false;

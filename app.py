@@ -349,6 +349,69 @@ def admin_create_item():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/wines', methods=['GET'])
+@admin_required
+def admin_get_wines():
+    try:
+        if not engine: return jsonify({"error": "Engine non chargé"}), 500
+        raw = engine.get_wine_list()
+        return jsonify([{"id": r["id"], "fields": r["fields"]} for r in raw])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/wines/<record_id>', methods=['GET'])
+@admin_required
+def admin_get_wine(record_id):
+    try:
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
+        res = http_requests.get(url, headers=engine.headers)
+        if res.status_code == 200:
+            return jsonify(res.json())
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/wines/<record_id>', methods=['PATCH'])
+@admin_required
+def admin_update_wine(record_id):
+    try:
+        fields = request.json.get('fields', {})
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
+        res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
+        if res.status_code == 200:
+            engine._cache.pop("wines", None)
+            return jsonify({"status": "success", "data": res.json()})
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/wines/<record_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_wine(record_id):
+    try:
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
+        res = http_requests.delete(url, headers=engine.headers)
+        if res.status_code == 200:
+            engine._cache.pop("wines", None)
+            return jsonify({"status": "success", "data": res.json()})
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/wines', methods=['POST'])
+@admin_required
+def admin_create_wine():
+    try:
+        fields = request.json.get('fields', {})
+        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins"
+        res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
+        if res.status_code == 200:
+            engine._cache.pop("wines", None)
+            return jsonify({"status": "success", "data": res.json()})
+        return jsonify({"error": res.text}), res.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/admin/upload', methods=['POST'])
 @admin_required
 def admin_upload_image():

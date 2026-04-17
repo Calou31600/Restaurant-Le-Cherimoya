@@ -24,7 +24,8 @@ class MainEngine:
         self._cache_ttl = {
             "menu": 120,    # 2 minutes pour tester
             "weather": 600, # 10 minutes
-            "reviews": 120  # 2 minutes (pour voir ses propres avis rapidement)
+            "reviews": 120, # 2 minutes (pour voir ses propres avis rapidement)
+            "wines": 120    # 2 minutes
         }
 
     def _get_cached(self, key):
@@ -55,6 +56,24 @@ class MainEngine:
             return []
         except Exception as e:
             print(f"Erreur Airtable Menu: {e}")
+            return []
+
+    def get_wine_list(self):
+        """Récupère tous les vins depuis Airtable avec mise en cache et tri alphabétique."""
+        cached = self._get_cached("wines")
+        if cached:
+            return cached
+        url = f"https://api.airtable.com/v0/{self.base_id}/Carte_Vins"
+        try:
+            response = requests.get(url, headers=self.headers, timeout=5)
+            if response.status_code == 200:
+                records = response.json().get('records', [])
+                records.sort(key=lambda x: x.get('fields', {}).get('Nom', '').strip().lower())
+                self._set_cache("wines", records)
+                return records
+            return []
+        except Exception as e:
+            print(f"Erreur Airtable Vins: {e}")
             return []
 
     def get_google_reviews(self):

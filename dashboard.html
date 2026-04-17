@@ -458,6 +458,221 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        /* ---- Toggle vue calendrier / liste ---- */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .view-toggle-btn {
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(207,168,110,0.3);
+            background: transparent;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .view-toggle-btn.active {
+            background: rgba(207,168,110,0.12);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ---- Calendrier ---- */
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .cal-month-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: capitalize;
+            letter-spacing: 0.05em;
+        }
+        .cal-nav-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-main);
+            border-radius: 8px;
+            width: 34px; height: 34px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .cal-nav-btn:hover { background: rgba(207,168,110,0.12); }
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .cal-weekday {
+            text-align: center;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            padding: 4px 0;
+        }
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .cal-cell {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 6px 4px 4px;
+            cursor: default;
+            transition: background 0.15s, border-color 0.15s;
+            position: relative;
+            min-height: 56px;
+        }
+        .cal-cell.has-resas {
+            cursor: pointer;
+            border-color: rgba(207,168,110,0.2);
+        }
+        .cal-cell.has-resas:hover, .cal-cell.selected {
+            background: rgba(207,168,110,0.08);
+            border-color: var(--accent);
+        }
+        .cal-cell.other-month { opacity: 0.25; cursor: default; }
+        .cal-cell.today .cal-day-num {
+            background: var(--accent);
+            color: #0d0d0d;
+            border-radius: 50%;
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cal-day-num {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .cal-dots {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cal-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+        .cal-dot.confirmed { background: #28a745; }
+        .cal-dot.pending   { background: #cfa86e; }
+        .cal-dot.cancelled { background: #555; }
+
+        /* ---- Panel jour sélectionné ---- */
+        .cal-day-panel {
+            margin-top: 1.2rem;
+            border: 1px solid rgba(207,168,110,0.25);
+            border-radius: 14px;
+            overflow: hidden;
+            animation: fadeSlideIn 0.2s ease;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .cal-day-panel-title {
+            padding: 1rem 1.4rem;
+            background: rgba(207,168,110,0.07);
+            border-bottom: 1px solid rgba(207,168,110,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .cal-service-block {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .cal-service-block:last-child { border-bottom: none; }
+        .cal-service-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.4rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            user-select: none;
+        }
+        .cal-service-header:hover { background: rgba(255,255,255,0.03); }
+        .cal-service-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+        .cal-service-count {
+            background: rgba(207,168,110,0.15);
+            color: var(--accent);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .cal-service-count.has-pending {
+            background: rgba(207,168,110,0.25);
+        }
+        .cal-service-resas {
+            display: none;
+            padding: 0.5rem 1rem 1rem;
+            gap: 0.7rem;
+            flex-direction: column;
+        }
+        .cal-service-resas.open { display: flex; }
+        .cal-resa-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .cal-resa-card.pending-resa { border-color: rgba(207,168,110,0.4); }
+        .cal-resa-card.cancelled-resa { opacity: 0.45; }
+        .cal-resa-name {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            min-width: 130px;
+        }
+        .cal-resa-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 140px;
+        }
+        .cal-resa-meta span { font-size: 0.78rem; color: var(--text-dim); }
+        .cal-resa-couverts {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 44px;
+        }
+        .cal-resa-couverts strong { font-size: 1.3rem; color: var(--accent); line-height: 1; }
+        .cal-resa-couverts span { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); }
+        .cal-resa-actions { display: flex; gap: 0.4rem; margin-left: auto; }
+
         /* ---- Section Demandes en attente ---- */
         .pending-section {
             margin-bottom: 2.5rem;
@@ -809,22 +1024,50 @@
                 <div class="pending-empty" id="pending-empty">Aucune demande en attente.</div>
             </div>
 
-            <!-- Tableau toutes reservations -->
-            <div class="admin-grid" style="display: block;">
-                <table class="client-table">
-                    <thead>
-                        <tr>
-                            <th>Date &amp; Service</th>
-                            <th>Convive</th>
-                            <th>Places</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reservations-tbody">
-                        <!-- Rempli en JS -->
-                    </tbody>
-                </table>
+            <!-- Toggle vue -->
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" id="btn-view-cal" onclick="switchResaView('calendar')">📅 Calendrier</button>
+                <button class="view-toggle-btn" id="btn-view-list" onclick="switchResaView('list')">☰ Liste</button>
+            </div>
+
+            <!-- Vue Calendrier -->
+            <div id="resa-calendar-view">
+                <div class="cal-header">
+                    <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+                    <div class="cal-month-label" id="cal-month-label"></div>
+                    <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+                </div>
+                <div class="cal-weekdays">
+                    <div class="cal-weekday">Lun</div>
+                    <div class="cal-weekday">Mar</div>
+                    <div class="cal-weekday">Mer</div>
+                    <div class="cal-weekday">Jeu</div>
+                    <div class="cal-weekday">Ven</div>
+                    <div class="cal-weekday">Sam</div>
+                    <div class="cal-weekday">Dim</div>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div id="cal-day-panel" style="display:none;"></div>
+            </div>
+
+            <!-- Vue Liste (ancienne vue tableau) -->
+            <div id="resa-list-view" style="display:none;">
+                <div class="admin-grid" style="display: block;">
+                    <table class="client-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Service</th>
+                                <th>Convive</th>
+                                <th>Places</th>
+                                <th>Statut</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservations-tbody">
+                            <!-- Rempli en JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -1466,6 +1709,213 @@
             }
         }
 
+        // =============================================
+        // VUE CALENDRIER DES RÉSERVATIONS
+        // =============================================
+
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth(); // 0-based
+        let calSelectedDate = null;
+        let resaView = 'calendar'; // 'calendar' | 'list'
+
+        function switchResaView(view) {
+            resaView = view;
+            document.getElementById('resa-calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
+            document.getElementById('resa-list-view').style.display    = view === 'list'     ? 'block' : 'none';
+            document.getElementById('btn-view-cal').classList.toggle('active', view === 'calendar');
+            document.getElementById('btn-view-list').classList.toggle('active', view === 'list');
+            if (view === 'calendar') renderCalendar();
+        }
+
+        function calNav(delta) {
+            calMonth += delta;
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            calSelectedDate = null;
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('cal-grid');
+            const label = document.getElementById('cal-month-label');
+            if (!grid || !label) return;
+
+            label.innerText = new Date(calYear, calMonth, 1)
+                .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+            // Grouper les réservations par date
+            const byDate = {};
+            (window._currentResas || []).forEach(r => {
+                const d = r.fields.Date;
+                if (!d) return;
+                if (!byDate[d]) byDate[d] = [];
+                byDate[d].push(r);
+            });
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+            // Premier jour du mois (lundi = 0)
+            const firstDay = new Date(calYear, calMonth, 1);
+            let startDow = firstDay.getDay(); // 0=dim
+            startDow = (startDow === 0) ? 6 : startDow - 1; // convertir en lundi=0
+
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+
+            let cells = '';
+            const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
+
+            for (let i = 0; i < totalCells; i++) {
+                let day, monthOffset = 0;
+                if (i < startDow) {
+                    day = daysInPrev - startDow + i + 1;
+                    monthOffset = -1;
+                } else if (i >= startDow + daysInMonth) {
+                    day = i - startDow - daysInMonth + 1;
+                    monthOffset = 1;
+                } else {
+                    day = i - startDow + 1;
+                }
+
+                const cellMonth = calMonth + monthOffset;
+                const cellYear  = cellMonth < 0 ? calYear - 1 : cellMonth > 11 ? calYear + 1 : calYear;
+                const realMonth = ((cellMonth % 12) + 12) % 12;
+                const dateStr   = `${cellYear}-${String(realMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+                const resas    = byDate[dateStr] || [];
+                const isOther  = monthOffset !== 0;
+                const isToday  = dateStr === todayStr;
+                const isSel    = dateStr === calSelectedDate;
+                const hasResas = resas.length > 0;
+
+                const confirmed = resas.filter(r => r.fields.Statut === 'Confirmée').length;
+                const pending   = resas.filter(r => r.fields.Statut === 'À confirmer').length;
+                const cancelled = resas.filter(r => r.fields.Statut === 'Annulée').length;
+
+                let dots = '';
+                if (confirmed > 0) dots += `<div class="cal-dot confirmed"></div>`.repeat(Math.min(confirmed, 3));
+                if (pending  > 0) dots += `<div class="cal-dot pending"></div>`.repeat(Math.min(pending, 2));
+                if (cancelled > 0 && confirmed === 0 && pending === 0) dots += `<div class="cal-dot cancelled"></div>`;
+
+                const classes = [
+                    'cal-cell',
+                    isOther   ? 'other-month' : '',
+                    isToday   ? 'today'       : '',
+                    hasResas && !isOther ? 'has-resas' : '',
+                    isSel     ? 'selected'    : ''
+                ].filter(Boolean).join(' ');
+
+                const clickHandler = (hasResas && !isOther) ? `onclick="selectCalDay('${dateStr}')"` : '';
+
+                cells += `<div class="${classes}" ${clickHandler}>
+                    <div class="cal-day-num">${day}</div>
+                    <div class="cal-dots">${dots}</div>
+                </div>`;
+            }
+
+            grid.innerHTML = cells;
+
+            // Restituer le panel si une date est sélectionnée
+            if (calSelectedDate && byDate[calSelectedDate]) {
+                renderDayPanel(calSelectedDate, byDate[calSelectedDate]);
+            } else {
+                document.getElementById('cal-day-panel').style.display = 'none';
+            }
+        }
+
+        function selectCalDay(dateStr) {
+            calSelectedDate = (calSelectedDate === dateStr) ? null : dateStr;
+            renderCalendar();
+            if (calSelectedDate) {
+                document.getElementById('cal-day-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function renderDayPanel(dateStr, resas) {
+            const panel = document.getElementById('cal-day-panel');
+            const dateObj = new Date(dateStr + 'T12:00:00');
+            const dateLabel = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            const midi = resas.filter(r => r.fields.Service === 'Midi');
+            const soir = resas.filter(r => r.fields.Service === 'Soir');
+
+            function serviceBlock(label, emoji, serviceResas) {
+                if (serviceResas.length === 0) return '';
+                const hasPending = serviceResas.some(r => r.fields.Statut === 'À confirmer');
+                const totalCouverts = serviceResas.reduce((s, r) => s + (parseInt(r.fields.Couverts) || 0), 0);
+                const key = `${dateStr}-${label}`;
+
+                const cards = serviceResas.map(resa => {
+                    const f = resa.fields;
+                    const statusColor = f.Statut === 'Confirmée' ? '#28a745' : (f.Statut === 'Annulée' ? '#ff4d4d' : '#cfa86e');
+                    const statusBg = f.Statut === 'Confirmée' ? 'rgba(40,167,69,0.1)' : (f.Statut === 'Annulée' ? 'rgba(255,77,77,0.1)' : 'rgba(207,168,110,0.1)');
+                    const cardClass = f.Statut === 'À confirmer' ? 'cal-resa-card pending-resa' : (f.Statut === 'Annulée' ? 'cal-resa-card cancelled-resa' : 'cal-resa-card');
+                    const actions = f.Statut === 'À confirmer' ? `
+                        <button class="btn-save btn-small" onclick="handleResa('${resa.id}','confirm');event.stopPropagation();" style="background:#28a745;color:#fff;padding:4px 10px;font-size:0.75rem;">✓</button>
+                        <button class="filter-btn btn-small" onclick="handleResa('${resa.id}','cancel');event.stopPropagation();" style="border-color:#ff4d4d;color:#ff4d4d;padding:4px 10px;font-size:0.75rem;">✕</button>
+                    ` : (f.Statut === 'Confirmée' ? `
+                        <button class="filter-btn btn-small" onclick="handleResa('${resa.id}','cancel');event.stopPropagation();" style="border-color:#ff4d4d;color:#ff4d4d;padding:4px 10px;font-size:0.75rem;border-radius:6px;">Annuler</button>
+                    ` : `<span style="font-size:0.75rem;color:var(--text-dim);font-style:italic;">Archivé</span>`);
+
+                    return `<div class="${cardClass}">
+                        <div class="cal-resa-couverts"><strong>${f.Couverts || '–'}</strong><span>pers.</span></div>
+                        <div>
+                            <div class="cal-resa-name">${f.Nom || '–'}</div>
+                            <span class="status-badge" style="color:${statusColor};background:${statusBg};border:1px solid ${statusColor}44;font-size:0.68rem;padding:1px 8px;">${f.Statut}</span>
+                        </div>
+                        <div class="cal-resa-meta">
+                            <span>🕑 ${f.Heure || '–'}</span>
+                            <span>📞 ${f.Telephone || 'N/A'}</span>
+                            <span style="opacity:0.7;">📧 ${f.Email || 'N/A'}</span>
+                            ${f.Notes ? `<span style="color:var(--accent);opacity:0.8;">📝 ${f.Notes}</span>` : ''}
+                        </div>
+                        <div class="cal-resa-actions">${actions}</div>
+                    </div>`;
+                }).join('');
+
+                return `<div class="cal-service-block">
+                    <div class="cal-service-header" onclick="toggleCalService('${key}')">
+                        <span class="cal-service-label" style="color:${label === 'Midi' ? '#f0c040' : '#a0c4ff'};">${emoji} ${label}</span>
+                        <div style="display:flex;align-items:center;gap:0.8rem;">
+                            <span style="font-size:0.75rem;color:var(--text-dim);">${totalCouverts} couvert${totalCouverts > 1 ? 's' : ''}</span>
+                            <span class="cal-service-count ${hasPending ? 'has-pending' : ''}">${serviceResas.length} table${serviceResas.length > 1 ? 's' : ''}</span>
+                            <span id="chevron-${key}" style="color:var(--text-dim);transition:transform 0.2s;">▾</span>
+                        </div>
+                    </div>
+                    <div class="cal-service-resas" id="resas-${key}">${cards}</div>
+                </div>`;
+            }
+
+            const totalResas = resas.length;
+            const totalCouverts = resas.reduce((s, r) => s + (parseInt(r.fields.Couverts) || 0), 0);
+
+            panel.innerHTML = `<div class="cal-day-panel">
+                <div class="cal-day-panel-title">
+                    <div>
+                        <div style="font-weight:700;color:var(--text-main);font-size:1rem;text-transform:capitalize;">${dateLabel}</div>
+                        <div style="font-size:0.78rem;color:var(--text-dim);margin-top:2px;">${totalResas} réservation${totalResas > 1 ? 's' : ''} · ${totalCouverts} couvert${totalCouverts > 1 ? 's' : ''}</div>
+                    </div>
+                    <button class="filter-btn" style="padding:4px 12px;font-size:0.75rem;border:none;" onclick="calSelectedDate=null;renderCalendar();">✕ Fermer</button>
+                </div>
+                ${serviceBlock('Midi', '☀️', midi)}
+                ${serviceBlock('Soir', '🌙', soir)}
+            </div>`;
+            panel.style.display = 'block';
+        }
+
+        function toggleCalService(key) {
+            const div = document.getElementById(`resas-${key}`);
+            const chev = document.getElementById(`chevron-${key}`);
+            if (!div) return;
+            const isOpen = div.classList.toggle('open');
+            if (chev) chev.style.transform = isOpen ? 'rotate(180deg)' : '';
+        }
+
+        // =============================================
+        // FIN VUE CALENDRIER
+        // =============================================
+
         function handleAddButton() {
             if (activeTab === 'wines') openAddWineModal();
             else openAddModal();
@@ -1744,7 +2194,9 @@
                 const res = await fetch('/api/admin/reservations');
                 if (!res.ok) { console.warn('[RESAS] HTTP', res.status); return; }
                 const data = await res.json();
+                window._currentResas = data;
                 renderReservations(data);
+                if (resaView === 'calendar') renderCalendar();
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
                 console.error('[RESAS] Erreur fetch:', err);

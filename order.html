@@ -206,22 +206,39 @@
       transition: border-color 0.12s;
     }
     .menu-item.in-cart { border-color: var(--accent); }
-    .menu-item-img {
+    .menu-item-img-wrap {
+      position: relative;
       width: 100%;
       aspect-ratio: 16/9;
-      object-fit: cover;
+      overflow: hidden;
       background: var(--surface);
+    }
+    .menu-item-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
     }
     .menu-item-placeholder {
       width: 100%;
-      aspect-ratio: 16/9;
-      background: var(--surface);
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
       color: var(--text-muted);
+    }
+    .menu-item-img-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 8px 7px;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
     }
     .menu-item-body { padding: 9px; flex: 1; display: flex; flex-direction: column; }
     .menu-item-name { font-size: 0.87rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 3px; }
@@ -609,9 +626,15 @@
       card.className = `menu-item${inCart > 0 ? ' in-cart' : ''}`;
 
       const imgHtml = item.photo
-        ? `<img class="menu-item-img" src="${item.photo}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-           <div class="menu-item-placeholder" style="display:none">🍽️</div>`
-        : `<div class="menu-item-placeholder">🍽️</div>`;
+        ? `<div class="menu-item-img-wrap">
+             <img class="menu-item-img" src="${item.photo}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+             <div class="menu-item-placeholder" style="display:none">🍽️</div>
+             <div class="menu-item-img-label">${item.nom}</div>
+           </div>`
+        : `<div class="menu-item-img-wrap">
+             <div class="menu-item-placeholder">🍽️</div>
+             <div class="menu-item-img-label">${item.nom}</div>
+           </div>`;
 
       const qtyHtml = inCart > 0
         ? `<div class="qty-controls">

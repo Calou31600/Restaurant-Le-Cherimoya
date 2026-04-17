@@ -460,7 +460,7 @@
   let currentTable = null;
   let menuData = [];
   let cart = {};        // { id: { nom, prix, qty } }
-  let activeCategory = 'Tous';
+  let activeCategory = '';
   let tableStatuses = {}; // { tableNum: status }
 
   // ── UTILITAIRES ──────────────────────────────────────────────────────────────
@@ -568,6 +568,9 @@
       const res = await fetch('/api/menu/public');
       menuData = await res.json();
       if (!Array.isArray(menuData)) menuData = [];
+      const cats = new Set();
+      menuData.forEach(item => (item.categories || []).forEach(c => cats.add(c)));
+      activeCategory = cats.size > 0 ? Array.from(cats)[0] : '';
       renderCategories();
       renderMenu();
     } catch (e) {
@@ -578,7 +581,7 @@
   function getCategories() {
     const cats = new Set();
     menuData.forEach(item => (item.categories || []).forEach(c => cats.add(c)));
-    return ['Tous', ...Array.from(cats)];
+    return Array.from(cats);
   }
 
   function renderCategories() {
@@ -600,9 +603,9 @@
 
   function renderMenu() {
     const grid = document.getElementById('menu-grid');
-    const filtered = activeCategory === 'Tous'
-      ? menuData
-      : menuData.filter(item => (item.categories || []).includes(activeCategory));
+    const filtered = activeCategory
+      ? menuData.filter(item => (item.categories || []).includes(activeCategory))
+      : menuData;
 
     if (filtered.length === 0) {
       grid.innerHTML = '<div class="empty-state"><span>🍽️</span>Aucun plat dans cette catégorie</div>';

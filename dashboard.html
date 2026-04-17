@@ -1103,15 +1103,16 @@
 
         <!-- Modal Événement -->
         <div id="event-overlay" class="upload-overlay" style="display:none;">
-            <div class="admin-modal" style="max-width:700px;">
+            <div class="admin-modal" style="max-width:640px;">
                 <h3 id="event-modal-title" style="margin-top:0;margin-bottom:2rem;font-size:1.8rem;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:1rem;color:var(--text-main);">Nouveau Menu Événement</h3>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
-                    <div class="form-group">
+                <!-- Ligne 1 : Nom + Thème -->
+                <div style="display:flex;gap:1.2rem;margin-bottom:1.2rem;">
+                    <div class="form-group" style="flex:2;margin-bottom:0;">
                         <label>Nom de l'événement *</label>
                         <input type="text" id="ev-name" class="form-control" placeholder="Ex: Menu de Noël">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
                         <label>Thème visuel</label>
                         <select id="ev-theme" class="form-control">
                             <option value="noel">🎄 Noël</option>
@@ -1123,46 +1124,64 @@
                             <option value="personnalise" selected>⭐ Personnalisé</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                </div>
+
+                <!-- Ligne 2 : Dates -->
+                <div style="display:flex;gap:1.2rem;margin-bottom:1.2rem;">
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
                         <label>Date de début *</label>
                         <input type="date" id="ev-start" class="form-control">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
                         <label>Date de fin *</label>
                         <input type="date" id="ev-end" class="form-control">
                     </div>
-                    <div class="form-group">
+                </div>
+
+                <!-- Ligne 3 : Prix + Sous-titre -->
+                <div style="display:flex;gap:1.2rem;margin-bottom:1.5rem;">
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
                         <label>Prix du menu</label>
                         <input type="text" id="ev-price" class="form-control" placeholder="Ex: 65 € par personne">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="flex:2;margin-bottom:0;">
                         <label>Sous-titre / accroche</label>
                         <input type="text" id="ev-subtitle" class="form-control" placeholder="Ex: Un repas d'exception en famille">
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
-                    <div class="form-group">
-                        <label>Entrées</label>
-                        <div id="ev-entrees-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('entrees')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                <!-- Séparateur -->
+                <div style="border-top:1px solid rgba(255,255,255,0.05);margin-bottom:1.5rem;"></div>
+
+                <!-- Plats par section -->
+                <div style="display:flex;gap:1.2rem;margin-bottom:1.5rem;">
+                    <div style="flex:1;">
+                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Entrées</div>
+                        <div id="ev-entrees-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('entrees')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
                     </div>
-                    <div class="form-group">
-                        <label>Plats</label>
-                        <div id="ev-plats-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('plats')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                    <div style="flex:1;">
+                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Plats</div>
+                        <div id="ev-plats-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('plats')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
                     </div>
-                    <div class="form-group">
-                        <label>Desserts</label>
-                        <div id="ev-desserts-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
-                        <button type="button" class="filter-btn" onclick="addEvCourse('desserts')" style="width:100%;font-size:0.8rem;">+ Ajouter</button>
+                    <div style="flex:1;">
+                        <div style="font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;margin-bottom:0.8rem;">Desserts</div>
+                        <div id="ev-desserts-list" style="display:flex;flex-direction:column;gap:0.4rem;min-height:36px;margin-bottom:0.5rem;"></div>
+                        <button type="button" class="filter-btn" onclick="addEvCourse('desserts')" style="width:100%;font-size:0.8rem;padding:6px;">+ Ajouter</button>
                     </div>
                 </div>
 
-                <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;margin-bottom:2rem;">
-                    <label style="font-size:0.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;">Actif</label>
-                    <input type="checkbox" id="ev-active" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;">
-                    <span style="font-size:0.85rem;color:var(--text-dim);">Afficher selon les dates</span>
+                <!-- Séparateur -->
+                <div style="border-top:1px solid rgba(255,255,255,0.05);margin-bottom:1.2rem;"></div>
+
+                <!-- Actif -->
+                <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:2rem;">
+                    <input type="checkbox" id="ev-active" checked style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;">
+                    <div>
+                        <span style="font-size:0.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;font-weight:700;">Menu actif</span>
+                        <span style="font-size:0.82rem;color:var(--text-dim);margin-left:0.5rem;">— s'affichera automatiquement selon les dates</span>
+                    </div>
                 </div>
 
                 <div style="display:flex;gap:1rem;justify-content:flex-end;">

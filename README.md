@@ -101,5 +101,11 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
+- **Automatisation des Visuels IA (v2.2.0 - 12/05/2026)** :
+  - **Audit de la Carte** : Identification systématique des plats sans photos via un script d'inventaire Airtable.
+  - **Génération d'Images Gastronomiques** : Création de 15+ visuels ultra-réalistes et premium (Tataki de Saumon, Joue de Bœuf, Merveilleux Chocolat, etc.) pour combler les manques.
+  - **Harmonisation Visuelle** : Intégration de visuels respectant une charte graphique haut de gamme pour une expérience utilisateur waooh.
+  - **Mise à jour du Stockage** : Organisation des nouveaux visuels dans `Photos Menu/Generated`.
+
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

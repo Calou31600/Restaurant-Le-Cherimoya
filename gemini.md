@@ -88,3 +88,4 @@
 ## Maintenance Log
 - 2026-02-26 : Initialisation du système par le System Pilot.
 - 2026-02-26 : Validation du Blueprint Opérationnel 2.0 et définition des schémas de données.
+- 2026-05-12 : Audit du menu et génération massive d'images IA (v2.2.0) pour les plats manquants.

@@ -196,6 +196,37 @@ def admin_settings_page():
 def status():
     return jsonify({"status": "online", "restaurant": "Le Chérimoya"})
 
+@app.route('/api/diag/reviews')
+def diag_reviews():
+    """Diagnostic temporaire : pourquoi reviews est null."""
+    google_api_key = os.environ.get('GOOGLE_API_KEY', '')
+    result = {
+        "engine_loaded": engine is not None,
+        "has_GOOGLE_API_KEY": bool(google_api_key),
+        "key_length": len(google_api_key) if google_api_key else 0,
+        "key_prefix": google_api_key[:6] + "..." if google_api_key else None,
+    }
+    if not google_api_key:
+        result["diagnosis"] = "GOOGLE_API_KEY absente du runtime — la variable n'est pas exposée à la lambda."
+        return jsonify(result)
+    try:
+        url = f"https://places.googleapis.com/v1/places/ChIJw6L9_VP9qBIRmpyHeIKMEXo"
+        headers = {
+            "X-Goog-Api-Key": google_api_key,
+            "X-Goog-FieldMask": "rating,userRatingCount,reviews"
+        }
+        r = http_requests.get(url, headers=headers, timeout=10)
+        result["places_api_status_code"] = r.status_code
+        result["places_api_response_excerpt"] = r.text[:500]
+        if r.status_code == 200:
+            j = r.json()
+            result["rating"] = j.get("rating")
+            result["userRatingCount"] = j.get("userRatingCount")
+            result["reviews_count"] = len(j.get("reviews", []) or [])
+    except Exception as e:
+        result["exception"] = str(e)
+    return jsonify(result)
+
 @app.route('/api/data')
 def get_data():
     try:

@@ -2536,6 +2536,7 @@
                                 ` : `
                                     <span style="font-size:0.8rem;color:var(--text-dim);font-style:italic;">Archivé</span>
                                 `)}
+                                <button class="filter-btn btn-small" onclick="silentDeleteResa('${resa.id}')" title="Supprimer définitivement sans envoyer d'email" style="border-color:rgba(255,255,255,0.15);color:var(--text-dim);padding:4px 8px;font-size:0.85rem;line-height:1;" onmouseover="this.style.color='#ff4d4d';this.style.borderColor='#ff4d4d'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='rgba(255,255,255,0.15)'">🗑</button>
                             </div>
                         </td>
                     </tr>`;
@@ -2543,7 +2544,7 @@
         }
 
         async function silentDeleteResa(recordId) {
-            if (!await customConfirm("Supprimer définitivement cette demande ? Aucun email ne sera envoyé au client.")) return;
+            if (!await customConfirm("Supprimer définitivement cette réservation ? Aucun email ne sera envoyé au client.")) return;
 
             const card = document.getElementById(`pending-${recordId}`);
             if (card) card.classList.add('removing');

@@ -319,7 +319,7 @@
       const res = await fetch('/api/orders');
       const records = await res.json();
       if (Array.isArray(records)) {
-        allOrders = records.filter(r => r.fields?.Statut !== 'Annulé');
+        allOrders = records.filter(r => !['Annulé', 'Payé'].includes(r.fields?.Statut));
         renderBoard();
         updateCounts();
       }

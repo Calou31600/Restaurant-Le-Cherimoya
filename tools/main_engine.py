@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from weather_engine import WeatherEngine
 from seo_generator import SEOManager
 from booking_manager import BookingManager
+from google_business_engine import GoogleBusinessEngine
 
 load_dotenv()
 
@@ -15,16 +16,17 @@ class MainEngine:
         self.weather = WeatherEngine()
         self.seo = SEOManager()
         self.booking = BookingManager()
+        self.business = GoogleBusinessEngine()
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
-        
+
         # Système de Cache simple
         self._cache = {}
         self._cache_ttl = {
             "menu": 120,    # 2 minutes pour tester
             "weather": 600, # 10 minutes
-            "reviews": 120, # 2 minutes (pour voir ses propres avis rapidement)
+            "reviews": 1800, # 30 minutes (Business Profile a un quota strict)
             "wines": 120    # 2 minutes
         }
 
@@ -77,17 +79,29 @@ class MainEngine:
             return []
 
     def get_google_reviews(self):
-        """Récupère les avis Google via Places API (New) avec cache.
+        """Récupère les avis Google avec cache 30 min.
 
-        L'ancienne Places API Legacy renvoyait toujours les mêmes 5 avis "les
-        plus pertinents" choisis par Google, qui ne bougeaient pas pendant des
-        mois. La nouvelle API expose un tri par date et renvoie des données
-        plus fraîches.
+        Priorité 1 : Google Business Profile API (accès à TOUS les avis,
+                     pagination, dates exactes). Nécessite OAuth refresh token.
+        Priorité 2 : Places API (New) — fallback limité à 5 avis max.
         """
         cached_reviews = self._get_cached("reviews")
         if cached_reviews:
             return cached_reviews
 
+        # 1. Tentative Business Profile (toutes les reviews)
+        if self.business.is_configured():
+            try:
+                data = self.business.fetch_all_reviews()
+                if data and data.get("reviews"):
+                    print(f"[Reviews] Business Profile OK — {data['total']} avis, note {data['rating']}, {len(data['reviews'])} avis textuels.")
+                    self._set_cache("reviews", data)
+                    return data
+                print("[Reviews] Business Profile : aucun avis textuel récupéré, fallback Places API.")
+            except Exception as e:
+                print(f"[Reviews] Business Profile exception, fallback Places API : {e}")
+
+        # 2. Fallback Places API (New) — 5 avis max
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
             print("[Reviews] GOOGLE_API_KEY absente — aucun avis chargé.")
@@ -107,7 +121,6 @@ class MainEngine:
 
             data = response.json()
             raw_reviews = data.get("reviews", []) or []
-            # Tri par date de publication décroissante (plus récent en premier)
             raw_reviews.sort(key=lambda r: r.get("publishTime", ""), reverse=True)
 
             normalized = []
@@ -130,7 +143,7 @@ class MainEngine:
                 "total": data.get("userRatingCount", 66),
                 "reviews": normalized
             }
-            print(f"[Reviews] OK — {reviews_data['total']} avis, note {reviews_data['rating']}, {len(normalized)} avis textuels.")
+            print(f"[Reviews] Places API fallback — {reviews_data['total']} avis, note {reviews_data['rating']}, {len(normalized)} avis textuels.")
             self._set_cache("reviews", reviews_data)
             return reviews_data
         except Exception as e:

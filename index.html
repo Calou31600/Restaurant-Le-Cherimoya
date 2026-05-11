@@ -914,16 +914,14 @@
             }
             document.getElementById('dynamic-stars').innerHTML = starsHTML;
 
-            // Citation : avis le plus récent avec note ≥ 4 et texte assez long.
-            // Fallback : meilleur avis si aucun récent ne convient.
+            // Citation : tirage aléatoire parmi les avis 4★+ avec texte assez long.
+            // Google ne renvoie que 5 avis max par appel, donc la rotation donne
+            // l'illusion d'un site vivant même quand les avis frais manquent.
             if (reviewsData.reviews && reviewsData.reviews.length > 0) {
-                const sortedByDate = [...reviewsData.reviews].sort((a, b) =>
-                    (b.publishTime || '').localeCompare(a.publishTime || '')
-                );
-                const recentPositive = sortedByDate.find(r => r.text && r.text.length > 30 && (r.rating || 0) >= 4);
-                const fallback = [...reviewsData.reviews].sort((a, b) => (b.rating || 0) - (a.rating || 0)).find(r => r.text && r.text.length > 30);
-                const chosen = recentPositive || fallback;
-                if (chosen) {
+                const candidates = reviewsData.reviews.filter(r => r.text && r.text.length > 30 && (r.rating || 0) >= 4);
+                const pool = candidates.length > 0 ? candidates : reviewsData.reviews.filter(r => r.text && r.text.length > 30);
+                if (pool.length > 0) {
+                    const chosen = pool[Math.floor(Math.random() * pool.length)];
                     const dateLabel = chosen.relative_time ? ` · ${chosen.relative_time}` : '';
                     document.getElementById('dynamic-review-quote').innerHTML = `"${chosen.text}"<br><span style="font-size: 0.9rem; color: var(--accent); margin-top: 8px; display: inline-block;">— ${chosen.author_name}${dateLabel}</span>`;
                 }

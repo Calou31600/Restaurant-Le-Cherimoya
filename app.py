@@ -461,6 +461,17 @@ def admin_reservation_action(record_id, action):
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
+@app.route('/api/admin/reservations/<record_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_reservation(record_id):
+    """Supprime une réservation sans envoyer d'email au client."""
+    try:
+        bm = booking_manager if booking_manager else BookingManager()
+        success, message = bm.delete_reservation(record_id)
+        return jsonify({"status": "success" if success else "error", "message": message})
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
 @app.route('/api/admin/stats/today', methods=['GET'])
 @admin_required
 def admin_get_today_stats():

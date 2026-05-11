@@ -288,6 +288,19 @@ class BookingManager:
 
         return True, f"Réservation {status.lower()} avec succès."
 
+    def delete_reservation(self, record_id):
+        """Supprime définitivement une réservation d'Airtable, sans email au client."""
+        base_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
+        try:
+            res = requests.delete(base_url, headers=self.headers, timeout=10)
+            if res.status_code == 200:
+                return True, "Réservation supprimée."
+            print(f"[BOOKING] DELETE échec: {res.status_code} {res.text}")
+            return False, f"Erreur Airtable ({res.status_code})."
+        except Exception as e:
+            print(f"[BOOKING] Exception DELETE: {e}")
+            return False, f"Erreur réseau: {e}"
+
     def _update_crm_from_booking(self, booking_data):
         """Met à jour ou crée un client dans le CRM à partir d'une réservation confirmée."""
         email = (booking_data.get('Email') or '').strip()

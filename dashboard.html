@@ -527,7 +527,28 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* ---- Toggle vue calendrier / liste ---- */
+        /* ---- Séparateur entre calendrier et liste ---- */
+        .resa-section-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2.5rem 0 1.5rem;
+        }
+        .resa-section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(207,168,110,0.25), transparent);
+        }
+        .resa-section-divider-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* ---- Toggle vue calendrier / liste (legacy, conservé pour compat) ---- */
         .view-toggle {
             display: flex;
             gap: 0.5rem;
@@ -1108,12 +1129,6 @@
                 <div class="pending-empty" id="pending-empty">Aucune demande en attente.</div>
             </div>
 
-            <!-- Toggle vue -->
-            <div class="view-toggle">
-                <button class="view-toggle-btn active" id="btn-view-cal" onclick="switchResaView('calendar')">📅 Calendrier</button>
-                <button class="view-toggle-btn" id="btn-view-list" onclick="switchResaView('list')">☰ Liste</button>
-            </div>
-
             <!-- Vue Calendrier -->
             <div id="resa-calendar-view">
                 <div class="cal-header">
@@ -1134,8 +1149,15 @@
                 <div id="cal-day-panel" style="display:none;"></div>
             </div>
 
-            <!-- Vue Liste (ancienne vue tableau) -->
-            <div id="resa-list-view" style="display:none;">
+            <!-- Séparateur Liste -->
+            <div class="resa-section-divider">
+                <span class="resa-section-divider-line"></span>
+                <span class="resa-section-divider-title">☰ Liste complète des réservations</span>
+                <span class="resa-section-divider-line"></span>
+            </div>
+
+            <!-- Vue Liste (sous le calendrier) -->
+            <div id="resa-list-view">
                 <div class="admin-grid" style="display: block;">
                     <table class="client-table">
                         <thead>
@@ -1898,12 +1920,14 @@
         let resaView = 'calendar'; // 'calendar' | 'list'
 
         function switchResaView(view) {
-            resaView = view;
-            document.getElementById('resa-calendar-view').style.display = view === 'calendar' ? 'block' : 'none';
-            document.getElementById('resa-list-view').style.display    = view === 'list'     ? 'block' : 'none';
-            document.getElementById('btn-view-cal').classList.toggle('active', view === 'calendar');
-            document.getElementById('btn-view-list').classList.toggle('active', view === 'list');
-            if (view === 'calendar') renderCalendar();
+            // Le toggle a été retiré : on affiche désormais le calendrier ET la liste
+            // empilés. Cette fonction reste pour ne rien casser si elle est appelée.
+            resaView = view || 'calendar';
+            const cal = document.getElementById('resa-calendar-view');
+            const list = document.getElementById('resa-list-view');
+            if (cal) cal.style.display = 'block';
+            if (list) list.style.display = 'block';
+            renderCalendar();
         }
 
         function calNav(delta) {
@@ -2420,7 +2444,12 @@
             const pendingCount = document.getElementById('pending-count');
             const pendingEmpty = document.getElementById('pending-empty');
 
-            const pending = resas.filter(r => r.fields.Statut === '\u00c0 confirmer');
+            // Date d'aujourd'hui au format YYYY-MM-DD (les dates Airtable sont triables comme cha\u00eenes)
+            const todayISO = new Date().toLocaleDateString('fr-CA');
+            const pending = resas.filter(r =>
+                r.fields.Statut === '\u00c0 confirmer' &&
+                (r.fields.Date || '') >= todayISO
+            );
             const others = resas.filter(r => r.fields.Statut !== '\u00c0 confirmer');
 
             countElement.innerText = `${resas.length} réservation${resas.length > 1 ? 's' : ''} au total`;
@@ -2459,6 +2488,7 @@
                         </div>
                         <button class="btn-save btn-small" onclick="handleResa('${resa.id}', 'confirm')" style="background:#28a745;color:#fff;white-space:nowrap;">✓ Confirmer</button>
                         <button class="filter-btn btn-small" onclick="handleResa('${resa.id}', 'cancel')" style="border-color:#ff4d4d;color:#ff4d4d;white-space:nowrap;">✕ Refuser</button>
+                        <button class="filter-btn btn-small" onclick="silentDeleteResa('${resa.id}')" title="Supprimer sans envoyer d'email" style="border-color:rgba(255,255,255,0.18);color:var(--text-dim);white-space:nowrap;padding:6px 10px;" onmouseover="this.style.color='#ff4d4d';this.style.borderColor='#ff4d4d'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='rgba(255,255,255,0.18)'">🗑</button>
                     </div>`;
                 }).join('');
             }
@@ -2510,6 +2540,38 @@
                         </td>
                     </tr>`;
             }).join('');
+        }
+
+        async function silentDeleteResa(recordId) {
+            if (!await customConfirm("Supprimer définitivement cette demande ? Aucun email ne sera envoyé au client.")) return;
+
+            const card = document.getElementById(`pending-${recordId}`);
+            if (card) card.classList.add('removing');
+
+            try {
+                const res = await fetch(`/api/admin/reservations/${recordId}`, { method: 'DELETE' });
+
+                if (res.status === 401) {
+                    alert("Session expirée. Veuillez vous reconnecter.");
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.status === 'success') {
+                    setTimeout(() => {
+                        fetchReservations();
+                        fetchStats();
+                    }, 400);
+                } else {
+                    if (card) card.classList.remove('removing');
+                    alert("Erreur : " + (data.message || data.error || `HTTP ${res.status}`));
+                }
+            } catch (err) {
+                if (card) card.classList.remove('removing');
+                console.error("Erreur réseau silentDeleteResa:", err);
+                alert("Erreur réseau. Vérifiez votre connexion.");
+            }
         }
 
         async function handleResa(recordId, action) {

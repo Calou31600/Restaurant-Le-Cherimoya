@@ -356,6 +356,157 @@ header {
     transform: translateY(-2px);
 }
 
+/* === Barre d'intolérances === */
+.intolerance-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: -1.5rem 0 3rem;
+    padding: 0 2rem;
+}
+
+.intolerance-label {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-right: 4px;
+}
+
+.intolerance-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(207, 168, 110, 0.2);
+    color: var(--text-dim);
+    padding: 8px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: var(--transition-smooth);
+    position: relative;
+}
+
+.intolerance-chip .intol-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+    transition: filter 0.25s ease;
+}
+
+.intolerance-chip .intol-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: transparent;
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+    margin-left: 2px;
+}
+
+.intolerance-chip:hover {
+    border-color: rgba(207, 168, 110, 0.55);
+    color: var(--text-main);
+    transform: translateY(-1px);
+}
+
+.intolerance-chip.active {
+    background: linear-gradient(135deg, rgba(200, 50, 50, 0.18), rgba(200, 50, 50, 0.08));
+    border-color: rgba(220, 80, 80, 0.7);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(200, 50, 50, 0.18);
+}
+
+.intolerance-chip.active .intol-icon {
+    filter: grayscale(70%) sepia(80%) hue-rotate(-50deg) saturate(450%) brightness(0.85);
+}
+
+.intolerance-chip.active .intol-text {
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: rgba(255, 255, 255, 0.45);
+}
+
+.intolerance-chip.active .intol-check {
+    background: rgba(220, 80, 80, 0.85);
+    color: #fff;
+}
+
+.intolerance-reset {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 50px;
+    transition: var(--transition-smooth);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(207, 168, 110, 0.3);
+}
+
+.intolerance-reset:hover {
+    background: rgba(207, 168, 110, 0.08);
+    text-decoration-color: var(--accent);
+}
+
+.menu-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+}
+
+.menu-empty .menu-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+
+.menu-empty .menu-empty-title {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+}
+
+.menu-empty .menu-empty-sub {
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+    .intolerance-bar {
+        gap: 8px;
+        margin: -0.5rem 0 2.5rem;
+        padding: 0 1rem;
+    }
+    .intolerance-label {
+        width: 100%;
+        text-align: center;
+        margin: 0 0 4px;
+    }
+    .intolerance-chip {
+        padding: 7px 13px;
+        font-size: 0.8rem;
+    }
+}
+
 /* Premium Buttons */
 .btn-premium {
     display: inline-block;

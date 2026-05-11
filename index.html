@@ -164,6 +164,29 @@
                 <button class="filter-btn" onclick="filterMenu('Boisson')" data-i18n="filter_drinks">Boissons</button>
                 <button class="filter-btn" onclick="filterMenu('Asie')" data-i18n="filter_asia">Asie</button>
             </div>
+
+            <div class="intolerance-bar fade-in" role="group" aria-label="Filtrer par intolérance">
+                <span class="intolerance-label" data-i18n="intol_label">Sans :</span>
+                <button type="button" class="intolerance-chip" data-intol="Lactose" aria-pressed="false" onclick="toggleIntolerance('Lactose', this)">
+                    <span class="intol-icon" aria-hidden="true">🥛</span>
+                    <span class="intol-text" data-i18n="intol_lactose">Lactose</span>
+                    <span class="intol-check" aria-hidden="true">✕</span>
+                </button>
+                <button type="button" class="intolerance-chip" data-intol="Gluten" aria-pressed="false" onclick="toggleIntolerance('Gluten', this)">
+                    <span class="intol-icon" aria-hidden="true">🌾</span>
+                    <span class="intol-text" data-i18n="intol_gluten">Gluten</span>
+                    <span class="intol-check" aria-hidden="true">✕</span>
+                </button>
+                <button type="button" class="intolerance-chip" data-intol="Cacahuète" aria-pressed="false" onclick="toggleIntolerance('Cacahuète', this)">
+                    <span class="intol-icon" aria-hidden="true">🥜</span>
+                    <span class="intol-text" data-i18n="intol_peanut">Cacahuète</span>
+                    <span class="intol-check" aria-hidden="true">✕</span>
+                </button>
+                <button type="button" class="intolerance-reset" onclick="resetIntolerances()" hidden>
+                    <span data-i18n="intol_reset">Tout afficher</span>
+                </button>
+            </div>
+
             <div class="menu-grid" id="menu-container">
                 <!-- Plats injectés ici -->
             </div>
@@ -295,6 +318,11 @@
                 filter_desserts: "Douceurs",
                 filter_drinks: "Boissons",
                 filter_asia: "Asie",
+                intol_label: "Sans :",
+                intol_lactose: "Lactose",
+                intol_gluten: "Gluten",
+                intol_peanut: "Cacahuète",
+                intol_reset: "Tout afficher",
                 reviews_title: "L'Expérience Chérimoya",
                 reviews_budget: "20–30 €",
                 reviews_type: "Restaurant Français Fusion",
@@ -322,6 +350,11 @@
                 filter_desserts: "Desserts",
                 filter_drinks: "Drinks",
                 filter_asia: "Asia",
+                intol_label: "Without:",
+                intol_lactose: "Lactose",
+                intol_gluten: "Gluten",
+                intol_peanut: "Peanut",
+                intol_reset: "Show all",
                 reviews_title: "The Chérimoya Experience",
                 reviews_budget: "€20–€30",
                 reviews_type: "French Fusion Restaurant",
@@ -766,17 +799,9 @@
                 }
             });
 
-            // Re-render menu if data is loaded
+            // Re-render menu if data is loaded — applique les filtres actifs (catégorie + intolérances)
             if (fullMenuData.length > 0) {
-                // If a filter is currently active, we need to respect it. 
-                // For simplicity here, we re-render the full menu or we could find the active filter class.
-                const activeFilterBtn = document.querySelector('.filter-btn.active');
-                if (activeFilterBtn) {
-                    // small hack: we trigger click on active button to re-run filterMenu logic
-                    activeFilterBtn.click();
-                } else {
-                    renderMenu(fullMenuData);
-                }
+                applyFilters();
             }
 
             // Mettre à jour les textes des avis manuellement puisqu'on a enlevé le data-i18n
@@ -858,7 +883,8 @@
             // Génération du menu
             if (data.menu && data.menu.length > 0) {
                 fullMenuData = data.menu;
-                renderMenu(fullMenuData);
+                hydrateIntoleranceChips();
+                applyFilters();
             } else {
                 menuContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--text-dim);'>Notre cheffe élabore actuellement la nouvelle carte, inspirée par les éléments...</p>";
             }
@@ -899,6 +925,22 @@
 
         function renderMenu(menuItems) {
             const menuContainer = document.getElementById('menu-container');
+
+            // État vide : aucun plat ne correspond aux filtres actifs
+            if (!menuItems || menuItems.length === 0) {
+                const isFR = (typeof currentLang === 'undefined' || currentLang === 'fr');
+                const title = isFR ? 'Aucun plat ne correspond à vos critères' : 'No dish matches your criteria';
+                const sub = excludedIntolerances.size > 0
+                    ? (isFR ? 'Essayez de retirer une intolérance ou de changer de catégorie.' : 'Try removing an intolerance or changing the category.')
+                    : (isFR ? 'Essayez une autre catégorie.' : 'Try another category.');
+                menuContainer.innerHTML = `
+                    <div class="menu-empty">
+                        <div class="menu-empty-icon" aria-hidden="true">🍽️</div>
+                        <div class="menu-empty-title">${title}</div>
+                        <div class="menu-empty-sub">${sub}</div>
+                    </div>`;
+                return;
+            }
 
             // Tri hybride: Si tag météo est présent, il a la priorité absolue, puis tri alphabétique.
             const sortedItems = [...menuItems].sort((a, b) => {
@@ -991,35 +1033,104 @@
             `}).join('');
         }
 
-        function filterMenu(category) {
-            // Update active button
-            if (event && event.target) {
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
+        // === État global des filtres (catégorie + intolérances à exclure) ===
+        const INTOL_STORAGE_KEY = 'cherimoya_excluded_intolerances';
+        let activeCategory = 'all';
+        let excludedIntolerances = new Set();
+        try {
+            const saved = JSON.parse(localStorage.getItem(INTOL_STORAGE_KEY) || '[]');
+            if (Array.isArray(saved)) excludedIntolerances = new Set(saved);
+        } catch (e) { /* localStorage indisponible — on ignore */ }
+
+        function persistIntolerances() {
+            try {
+                localStorage.setItem(INTOL_STORAGE_KEY, JSON.stringify([...excludedIntolerances]));
+            } catch (e) { /* quota dépassé ou mode privé — on ignore */ }
+        }
+
+        function matchesCategory(item, category) {
+            if (category === 'all') return true;
+            if (!item.Menu || !Array.isArray(item.Menu)) return false;
+            if (category === 'Aperitif') return item.Menu.includes('À Partager');
+            if (category === 'Entree')   return item.Menu.includes('Entrées');
+            if (category === 'Terre')    return item.Menu.includes('Côté Terre');
+            if (category === 'Mer')      return item.Menu.includes('Côté Mer');
+            if (category === 'Formule')  return item.Menu.includes('Formules');
+            if (category === 'Dessert')  return item.Menu.includes('Douceurs');
+            if (category === 'Boisson')  return item.Menu.includes('Boissons');
+            if (category === 'Asie')     return item.Menu.includes('Asie');
+            return false;
+        }
+
+        function matchesIntolerances(item) {
+            if (excludedIntolerances.size === 0) return true;
+            const list = Array.isArray(item.intolerances) ? item.intolerances : [];
+            for (const ex of excludedIntolerances) {
+                if (list.includes(ex)) return false;
             }
+            return true;
+        }
 
-            if (category === 'all') {
-                renderMenu(fullMenuData);
-                return;
-            }
-
-            const filtered = fullMenuData.filter(item => {
-                // S'il n'y a pas de catégories définies dans Airtable, on l'affiche par défaut si on demande "all" (déjà géré ci-dessus),
-                // sinon on l'écarte pour les filtres spécifiques
-                if (!item.Menu || !Array.isArray(item.Menu)) return false;
-
-                if (category === 'Aperitif') return item.Menu.includes('À Partager');
-                if (category === 'Entree') return item.Menu.includes('Entrées');
-                if (category === 'Terre') return item.Menu.includes('Côté Terre');
-                if (category === 'Mer') return item.Menu.includes('Côté Mer');
-                if (category === 'Formule') return item.Menu.includes('Formules');
-                if (category === 'Dessert') return item.Menu.includes('Douceurs');
-                if (category === 'Boisson') return item.Menu.includes('Boissons');
-                if (category === 'Asie') return item.Menu.includes('Asie');
-
-                return false;
-            });
+        function applyFilters() {
+            const filtered = (fullMenuData || []).filter(item =>
+                matchesCategory(item, activeCategory) && matchesIntolerances(item)
+            );
             renderMenu(filtered);
+        }
+
+        function filterMenu(category) {
+            activeCategory = category;
+            // Update active button
+            if (typeof event !== 'undefined' && event && event.target) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                const btn = event.target.closest('.filter-btn');
+                if (btn) btn.classList.add('active');
+            }
+            applyFilters();
+        }
+
+        function toggleIntolerance(name, btn) {
+            if (excludedIntolerances.has(name)) {
+                excludedIntolerances.delete(name);
+                btn.classList.remove('active');
+                btn.setAttribute('aria-pressed', 'false');
+            } else {
+                excludedIntolerances.add(name);
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+            }
+            persistIntolerances();
+            updateIntoleranceResetVisibility();
+            applyFilters();
+        }
+
+        function resetIntolerances() {
+            excludedIntolerances.clear();
+            document.querySelectorAll('.intolerance-chip').forEach(c => {
+                c.classList.remove('active');
+                c.setAttribute('aria-pressed', 'false');
+            });
+            persistIntolerances();
+            updateIntoleranceResetVisibility();
+            applyFilters();
+        }
+
+        function updateIntoleranceResetVisibility() {
+            const resetBtn = document.querySelector('.intolerance-reset');
+            if (!resetBtn) return;
+            resetBtn.hidden = excludedIntolerances.size === 0;
+        }
+
+        // Restaurer l'état visuel des puces depuis localStorage au chargement
+        function hydrateIntoleranceChips() {
+            document.querySelectorAll('.intolerance-chip').forEach(chip => {
+                const name = chip.dataset.intol;
+                if (excludedIntolerances.has(name)) {
+                    chip.classList.add('active');
+                    chip.setAttribute('aria-pressed', 'true');
+                }
+            });
+            updateIntoleranceResetVisibility();
         }
 
         window.onload = async function() {

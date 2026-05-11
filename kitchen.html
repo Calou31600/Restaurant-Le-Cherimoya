@@ -15,6 +15,7 @@
       --border: #28284a;
       --waiting: #c87941;
       --cooking: #b8a020;
+      --ready:   #3a86ff;
       --served: #2a8a2a;
       --radius: 14px;
     }
@@ -123,6 +124,7 @@
     }
     .order-card.waiting { border-color: var(--waiting); }
     .order-card.cooking { border-color: var(--cooking); }
+    .order-card.ready   { border-color: var(--ready); box-shadow: 0 0 0 2px rgba(58,134,255,0.25); }
     .order-card.served  { border-color: var(--served); opacity: 0.7; }
 
     .card-header {
@@ -165,6 +167,7 @@
     }
     .badge-waiting { background: rgba(200,121,65,.2); color: var(--waiting); }
     .badge-cooking { background: rgba(184,160,32,.2); color: var(--cooking); }
+    .badge-ready   { background: rgba(58,134,255,.2); color: var(--ready); }
     .badge-served  { background: rgba(42,138,42,.2); color: #4caf50; }
 
     .card-items {
@@ -224,6 +227,7 @@
     }
     .action-btn:active { opacity: 0.7; }
     .btn-cooking { background: var(--cooking); color: #1a1a2e; }
+    .btn-ready   { background: var(--ready); color: #fff; }
     .btn-served  { background: var(--served); color: #fff; }
     .btn-cancel  { background: var(--card); border: 1px solid var(--border); color: var(--text-muted); flex: 0; padding: 12px 14px; }
 
@@ -275,6 +279,9 @@
   </button>
   <button class="filter-btn" data-filter="En cuisine">
     En cuisine <span class="filter-count" id="count-cooking">0</span>
+  </button>
+  <button class="filter-btn" data-filter="Prêt">
+    Prêt <span class="filter-count" id="count-ready">0</span>
   </button>
   <button class="filter-btn" data-filter="Servi">
     Servi <span class="filter-count" id="count-served">0</span>
@@ -341,6 +348,8 @@
       allOrders.filter(r => r.fields?.Statut === 'En attente').length;
     document.getElementById('count-cooking').textContent =
       allOrders.filter(r => r.fields?.Statut === 'En cuisine').length;
+    document.getElementById('count-ready').textContent =
+      allOrders.filter(r => r.fields?.Statut === 'Prêt').length;
     document.getElementById('count-served').textContent =
       allOrders.filter(r => r.fields?.Statut === 'Servi').length;
   }
@@ -362,8 +371,8 @@
       return;
     }
 
-    // Sort: En attente first, then En cuisine, then Servi; within each by time asc
-    const order = { 'En attente': 0, 'En cuisine': 1, 'Servi': 2 };
+    // Sort: En attente → En cuisine → Prêt → Servi; within each by time asc
+    const order = { 'En attente': 0, 'En cuisine': 1, 'Prêt': 2, 'Servi': 3 };
     filtered.sort((a, b) => {
       const sa = order[a.fields?.Statut] ?? 3;
       const sb = order[b.fields?.Statut] ?? 3;
@@ -392,8 +401,10 @@
       ? heure.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
       : '';
 
-    const statusCls = statut === 'En attente' ? 'waiting' : statut === 'En cuisine' ? 'cooking' : 'served';
-    const badgeCls  = statut === 'En attente' ? 'badge-waiting' : statut === 'En cuisine' ? 'badge-cooking' : 'badge-served';
+    const statusMap = { 'En attente': 'waiting', 'En cuisine': 'cooking', 'Prêt': 'ready', 'Servi': 'served' };
+    const badgeMap  = { 'En attente': 'badge-waiting', 'En cuisine': 'badge-cooking', 'Prêt': 'badge-ready', 'Servi': 'badge-served' };
+    const statusCls = statusMap[statut] || 'served';
+    const badgeCls  = badgeMap[statut]  || 'badge-served';
 
     const card = document.createElement('div');
     card.className = `order-card ${statusCls}`;
@@ -412,6 +423,10 @@
         <button class="action-btn btn-cooking" data-id="${record.id}" data-statut="En cuisine">🍳 En cuisine</button>
         <button class="action-btn btn-cancel"  data-id="${record.id}" data-statut="Annulé">✕</button>`;
     } else if (statut === 'En cuisine') {
+      actionsHtml = `
+        <button class="action-btn btn-ready"  data-id="${record.id}" data-statut="Prêt">🔔 Prêt</button>
+        <button class="action-btn btn-cancel" data-id="${record.id}" data-statut="Annulé">✕</button>`;
+    } else if (statut === 'Prêt') {
       actionsHtml = `
         <button class="action-btn btn-served" data-id="${record.id}" data-statut="Servi">✅ Servi</button>
         <button class="action-btn btn-cancel" data-id="${record.id}" data-statut="Annulé">✕</button>`;

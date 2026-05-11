@@ -521,19 +521,51 @@
             return (rate * 100).toFixed(0) + '%';
         }
 
-        // Peupler le select des tables
-        (function initTableSelect() {
+        // Peupler le select uniquement avec les tables qui ont des commandes servies (prêtes à facturer)
+        async function refreshTableSelect() {
             const sel = document.getElementById('table-select');
-            for (let i = 1; i <= 15; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = `Table ${i}`;
-                sel.appendChild(opt);
-            }
-            sel.addEventListener('change', () => {
+            const previous = sel.value;
+            try {
+                const res = await fetch('/api/billing/tables-ready');
+                const data = await res.json();
+                const tables = data.tables || [];
+                sel.innerHTML = '';
+                if (tables.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '— Aucune table à facturer —';
+                    sel.appendChild(opt);
+                    sel.disabled = true;
+                    document.getElementById('btn-load').disabled = true;
+                    document.getElementById('empty-state').innerHTML = `
+                        <div class="icon">⏳</div>
+                        <p>Aucune table n'a de commande servie en attente de règlement.<br>
+                        Une fois qu'un plat est marqué <strong>Servi</strong> en cuisine, la table apparaîtra ici.</p>`;
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+                sel.disabled = false;
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = '— Choisir une table —';
+                sel.appendChild(placeholder);
+                tables.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n;
+                    opt.textContent = `Table ${n}`;
+                    sel.appendChild(opt);
+                });
+                if (tables.includes(Number(previous))) sel.value = previous;
                 document.getElementById('btn-load').disabled = !sel.value;
-            });
-        })();
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur chargement des tables', 'error');
+            }
+        }
+        document.getElementById('table-select').addEventListener('change', () => {
+            document.getElementById('btn-load').disabled = !document.getElementById('table-select').value;
+        });
+        refreshTableSelect();
 
         function selectPayment(btn) {
             document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
@@ -562,7 +594,7 @@
                     document.getElementById('invoice-section').style.display = 'none';
                     document.getElementById('empty-state').innerHTML = `
                         <div class="icon">✅</div>
-                        <p>Aucune commande active pour la Table ${tableNum}.</p>`;
+                        <p>Aucune commande servie en attente de règlement pour la Table ${tableNum}.</p>`;
                     document.getElementById('empty-state').style.display = 'block';
                     return;
                 }

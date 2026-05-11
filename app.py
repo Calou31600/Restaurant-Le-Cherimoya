@@ -579,7 +579,7 @@ def get_table_orders(table_num):
         at_headers = {"Authorization": f"Bearer {airtable_key}"}
         url = f"https://api.airtable.com/v0/{base_id}/Commandes"
         params = {
-            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Annulé')))"
+            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Payé',{{Statut}}='Annulé')))"
         }
         res = http_requests.get(url, headers=at_headers, params=params)
         if res.status_code == 200:
@@ -641,6 +641,27 @@ def update_order_status(record_id):
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
+@app.route('/api/billing/tables-ready', methods=['GET'])
+def get_tables_ready_for_billing():
+    """Retourne la liste des tables ayant au moins une commande Statut='Servi'."""
+    try:
+        airtable_key = os.environ.get('AIRTABLE_API_KEY')
+        base_id = os.environ.get('AIRTABLE_BASE_ID')
+        at_headers = {"Authorization": f"Bearer {airtable_key}"}
+        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
+        params = {"filterByFormula": "{Statut}='Servi'", "fields[]": "Table_N"}
+        res = http_requests.get(url, headers=at_headers, params=params)
+        if res.status_code != 200:
+            return jsonify({"error": res.text}), res.status_code
+        tables = sorted({
+            int(r['fields']['Table_N'])
+            for r in res.json().get('records', [])
+            if r.get('fields', {}).get('Table_N') is not None
+        })
+        return jsonify({"tables": tables})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/billing/table/<int:table_num>', methods=['GET'])
 def get_billing_table(table_num):
     try:
@@ -649,7 +670,7 @@ def get_billing_table(table_num):
         at_headers = {"Authorization": f"Bearer {airtable_key}"}
         url = f"https://api.airtable.com/v0/{base_id}/Commandes"
         params = {
-            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Annulé')))"
+            "filterByFormula": f"AND({{Table_N}}={table_num},{{Statut}}='Servi')"
         }
         res = http_requests.get(url, headers=at_headers, params=params)
         if res.status_code != 200:
@@ -701,7 +722,7 @@ def close_billing():
         errors = []
         for record_id in commande_ids:
             url = f"https://api.airtable.com/v0/{base_id}/Commandes/{record_id}"
-            res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": "Servi"}})
+            res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": "Payé"}})
             if res.status_code != 200:
                 errors.append(record_id)
 

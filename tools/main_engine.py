@@ -77,34 +77,64 @@ class MainEngine:
             return []
 
     def get_google_reviews(self):
-        """Récupère les avis Google My Business avec cache."""
+        """Récupère les avis Google via Places API (New) avec cache.
+
+        L'ancienne Places API Legacy renvoyait toujours les mêmes 5 avis "les
+        plus pertinents" choisis par Google, qui ne bougeaient pas pendant des
+        mois. La nouvelle API expose un tri par date et renvoie des données
+        plus fraîches.
+        """
         cached_reviews = self._get_cached("reviews")
         if cached_reviews:
             return cached_reviews
-        
+
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
+            print("[Reviews] GOOGLE_API_KEY absente — aucun avis chargé.")
             return None
-            
+
         place_id = "ChIJw6L9_VP9qBIRmpyHeIKMEXo"
-        # On ajoute reviews_sort=newest pour avoir les plus récents (et non les plus "pertinents" par défaut qui stagnent)
-        url = f"https://maps.googleapis.com/maps/api/place/details/json?place_id={place_id}&fields=rating,user_ratings_total,reviews&language=fr&reviews_sort=newest&key={google_api_key}"
+        url = f"https://places.googleapis.com/v1/places/{place_id}"
+        headers = {
+            "X-Goog-Api-Key": google_api_key,
+            "X-Goog-FieldMask": "rating,userRatingCount,reviews"
+        }
         try:
-            response = requests.get(url, timeout=5)
-            if response.status_code == 200:
-                data = response.json().get('result', {})
-                if data:
-                    # On garde les infos essentielles
-                    reviews_data = {
-                        "rating": data.get("rating", 4.3),
-                        "total": data.get("user_ratings_total", 66),
-                        "reviews": [{"author_name": r.get("author_name"), "rating": r.get("rating"), "text": r.get("text")} for r in data.get("reviews", []) if r.get("text")]
-                    }
-                    self._set_cache("reviews", reviews_data)
-                    return reviews_data
-            return None
+            response = requests.get(url, headers=headers, timeout=5)
+            if response.status_code != 200:
+                print(f"[Reviews] Places API (New) HTTP {response.status_code} : {response.text[:200]}")
+                return None
+
+            data = response.json()
+            raw_reviews = data.get("reviews", []) or []
+            # Tri par date de publication décroissante (plus récent en premier)
+            raw_reviews.sort(key=lambda r: r.get("publishTime", ""), reverse=True)
+
+            normalized = []
+            for r in raw_reviews:
+                text_block = r.get("text") or {}
+                text = text_block.get("text") if isinstance(text_block, dict) else None
+                if not text:
+                    continue
+                author = (r.get("authorAttribution") or {}).get("displayName", "Client Google")
+                normalized.append({
+                    "author_name": author,
+                    "rating": r.get("rating"),
+                    "text": text,
+                    "publishTime": r.get("publishTime", ""),
+                    "relative_time": r.get("relativePublishTimeDescription", "")
+                })
+
+            reviews_data = {
+                "rating": data.get("rating", 4.3),
+                "total": data.get("userRatingCount", 66),
+                "reviews": normalized
+            }
+            print(f"[Reviews] OK — {reviews_data['total']} avis, note {reviews_data['rating']}, {len(normalized)} avis textuels.")
+            self._set_cache("reviews", reviews_data)
+            return reviews_data
         except Exception as e:
-            print(f"Erreur Google Reviews: {e}")
+            print(f"[Reviews] Exception Places API (New) : {e}")
             return None
 
     def build_page_data(self):

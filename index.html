@@ -99,9 +99,9 @@
     </div>
 
     <div class="lang-switcher fade-in" style="position: absolute; top: 1rem; right: 2rem; z-index: 1000;">
-        <button id="lang-fr" onclick="setLanguage('fr')" class="active"
+        <button id="lang-fr" onclick="switchLanguage('fr')" class="active"
             style="background: none; border: 1px solid var(--accent); color: var(--text); padding: 5px 10px; cursor: pointer; border-radius: 4px; font-family: var(--font-body);">FR</button>
-        <button id="lang-en" onclick="setLanguage('en')"
+        <button id="lang-en" onclick="switchLanguage('en')"
             style="background: none; border: 1px solid var(--text-dim); color: var(--text-dim); padding: 5px 10px; cursor: pointer; border-radius: 4px; font-family: var(--font-body); margin-left: 5px;">EN</button>
     </div>
 
@@ -811,10 +811,30 @@
             }
         }
 
+        function switchLanguage(lang) {
+            const changed = lang !== currentLang;
+            setLanguage(lang);
+            if (changed) {
+                reloadReviewsForLanguage();
+            }
+        }
+
+        async function reloadReviewsForLanguage() {
+            try {
+                const response = await fetch(`/api/data?lang=${currentLang}`);
+                const data = await response.json();
+                if (data && data.reviews) {
+                    updateReviewsDisplay(data.reviews);
+                }
+            } catch (err) {
+                console.warn('Reviews reload failed:', err);
+            }
+        }
+
         async function loadAppData() {
             const weatherInfo = document.getElementById('weather-info');
             try {
-                const response = await fetch('/api/data');
+                const response = await fetch(`/api/data?lang=${currentLang}`);
                 const data = await response.json();
 
                 if (data.error) throw new Error(data.error);

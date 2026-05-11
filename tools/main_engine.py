@@ -78,14 +78,17 @@ class MainEngine:
             print(f"Erreur Airtable Vins: {e}")
             return []
 
-    def get_google_reviews(self):
+    def get_google_reviews(self, lang="fr"):
         """Récupère les avis Google avec cache 30 min.
 
         Priorité 1 : Google Business Profile API (accès à TOUS les avis,
                      pagination, dates exactes). Nécessite OAuth refresh token.
-        Priorité 2 : Places API (New) — fallback limité à 5 avis max.
+        Priorité 2 : Places API (New) — fallback limité à 5 avis max,
+                     mais traduit automatiquement via languageCode.
         """
-        cached_reviews = self._get_cached("reviews")
+        lang = "fr" if lang not in ("fr", "en") else lang
+        cache_key = f"reviews:{lang}"
+        cached_reviews = self._get_cached(cache_key)
         if cached_reviews:
             return cached_reviews
 
@@ -95,13 +98,13 @@ class MainEngine:
                 data = self.business.fetch_all_reviews()
                 if data and data.get("reviews"):
                     print(f"[Reviews] Business Profile OK — {data['total']} avis, note {data['rating']}, {len(data['reviews'])} avis textuels.")
-                    self._set_cache("reviews", data)
+                    self._set_cache(cache_key, data)
                     return data
                 print("[Reviews] Business Profile : aucun avis textuel récupéré, fallback Places API.")
             except Exception as e:
                 print(f"[Reviews] Business Profile exception, fallback Places API : {e}")
 
-        # 2. Fallback Places API (New) — 5 avis max
+        # 2. Fallback Places API (New) — 5 avis max, traduits via languageCode
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
             print("[Reviews] GOOGLE_API_KEY absente — aucun avis chargé.")
@@ -111,10 +114,12 @@ class MainEngine:
         url = f"https://places.googleapis.com/v1/places/{place_id}"
         headers = {
             "X-Goog-Api-Key": google_api_key,
-            "X-Goog-FieldMask": "rating,userRatingCount,reviews"
+            "X-Goog-FieldMask": "rating,userRatingCount,reviews",
+            "Accept-Language": lang
         }
+        params = {"languageCode": lang}
         try:
-            response = requests.get(url, headers=headers, timeout=5)
+            response = requests.get(url, headers=headers, params=params, timeout=5)
             if response.status_code != 200:
                 print(f"[Reviews] Places API (New) HTTP {response.status_code} : {response.text[:200]}")
                 return None
@@ -143,14 +148,14 @@ class MainEngine:
                 "total": data.get("userRatingCount", 66),
                 "reviews": normalized
             }
-            print(f"[Reviews] Places API fallback — {reviews_data['total']} avis, note {reviews_data['rating']}, {len(normalized)} avis textuels.")
-            self._set_cache("reviews", reviews_data)
+            print(f"[Reviews] Places API fallback ({lang}) — {reviews_data['total']} avis, note {reviews_data['rating']}, {len(normalized)} avis textuels.")
+            self._set_cache(cache_key, reviews_data)
             return reviews_data
         except Exception as e:
             print(f"[Reviews] Exception Places API (New) : {e}")
             return None
 
-    def build_page_data(self):
+    def build_page_data(self, lang="fr"):
         """Assemble toutes les données nécessaires pour le frontend avec optimisation des performances."""
         # 1. Obtenir la météo (mise en cache gérée dans weather_engine ou ici)
         # Pour simplifier, on gère le cache météo ici aussi
@@ -169,8 +174,8 @@ class MainEngine:
         # 3. Générer le SEO JSON-LD
         json_ld = self.seo.generate_json_ld(menu_items)
         
-        # 4. Avis Google
-        reviews = self.get_google_reviews()
+        # 4. Avis Google (langue passée par le frontend)
+        reviews = self.get_google_reviews(lang=lang)
         
         return {
             "météo_tag": tag,

@@ -201,7 +201,8 @@ def get_data():
     try:
         if engine is None:
             return jsonify({"error": "Moteur non initialisé."}), 500
-        data = engine.build_page_data()
+        lang = request.args.get('lang', 'fr').lower()
+        data = engine.build_page_data(lang=lang)
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

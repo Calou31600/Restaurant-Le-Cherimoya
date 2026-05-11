@@ -539,6 +539,11 @@ def get_public_menu():
             categories = f.get('Menu', [])
             if isinstance(categories, str):
                 categories = [categories]
+            intol_raw = f.get('intolerances', '') or ''
+            if isinstance(intol_raw, list):
+                intolerances = [str(x).strip() for x in intol_raw if str(x).strip()]
+            else:
+                intolerances = [line.strip() for line in str(intol_raw).splitlines() if line.strip()]
             menu.append({
                 'id': r['id'],
                 'nom': f.get('Plat', ''),
@@ -547,7 +552,7 @@ def get_public_menu():
                 'prix_label': prix_raw,
                 'photo': f.get('Photo', ''),
                 'categories': categories,
-                'intolerances': f.get('intolerances', '')
+                'intolerances': intolerances
             })
         return jsonify(menu)
     except Exception as e:

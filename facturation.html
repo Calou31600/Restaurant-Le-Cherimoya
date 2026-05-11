@@ -9,11 +9,42 @@
     <style>
         * { box-sizing: border-box; }
 
-        body {
-            background: #0f0f1a;
+        html, body {
+            background: #0f0f1a !important;
             color: #e8d5b0;
             font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
+        }
+
+        /* Masquer impérativement tout fond d'image hérité d'index.css */
+        .hero-bg,
+        .dynamic-overlay,
+        body::before,
+        body::after {
+            display: none !important;
+            background: none !important;
+            content: none !important;
+        }
+
+        /* Panneau sombre uni sous la facture pour une lecture confortable */
+        .table-selector,
+        .invoice-card,
+        .actions-bar,
+        .empty-state {
+            background: #181826 !important;
+            backdrop-filter: none !important;
+        }
+
+        .invoice-card-header {
+            background: #1f1c2e !important;
+        }
+
+        .items-table thead tr {
+            background: #14141f !important;
+        }
+
+        .tva-detail {
+            background: #14141f !important;
         }
 
         .billing-header {
@@ -416,8 +447,6 @@
 </head>
 
 <body>
-    <div class="hero-bg"></div>
-
     <div class="billing-header">
         <h1>Facturation</h1>
         <a href="/admin">← Retour admin</a>

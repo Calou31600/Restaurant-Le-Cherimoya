@@ -733,24 +733,82 @@ def close_billing():
         return jsonify({"status": "error", "error": str(e)}), 500
 
 # --- ROUTES MENUS ÉVÉNEMENTS ---
+# Stockés dans Airtable (table Special_Menus_Cherimoya). Le FS Vercel est read-only,
+# donc tout doit passer par Airtable comme le reste de l'app.
 
-SPECIAL_MENUS_FILE = os.path.join(BASE_PATH, 'special_menus.json')
+SPECIAL_MENUS_TABLE = 'Special_Menus_Cherimoya'
+
+def _sm_airtable_url(record_id=None):
+    base_id = os.environ.get('AIRTABLE_BASE_ID')
+    base_url = f"https://api.airtable.com/v0/{base_id}/{SPECIAL_MENUS_TABLE}"
+    return f"{base_url}/{record_id}" if record_id else base_url
+
+def _sm_airtable_headers():
+    return {
+        "Authorization": f"Bearer {os.environ.get('AIRTABLE_API_KEY')}",
+        "Content-Type": "application/json",
+    }
+
+def _sm_record_to_menu(record):
+    f = record.get('fields', {})
+    def _split(v):
+        if not v:
+            return []
+        return [line.strip() for line in str(v).splitlines() if line.strip()]
+    return {
+        'id':         record['id'],
+        'name':       f.get('Name', ''),
+        'theme':      f.get('Theme', 'personnalise'),
+        'start_date': f.get('Start_Date', ''),
+        'end_date':   f.get('End_Date', ''),
+        'active':     bool(f.get('Active', False)),
+        'price':      f.get('Price', ''),
+        'subtitle':   f.get('Subtitle', ''),
+        'entrees':    _split(f.get('Entrees', '')),
+        'plats':      _split(f.get('Plats', '')),
+        'desserts':   _split(f.get('Desserts', '')),
+    }
+
+def _sm_payload_to_fields(data):
+    def _join(items):
+        if not items:
+            return ''
+        return '\n'.join(str(i).strip() for i in items if str(i).strip())
+    mapping = {
+        'name':       ('Name',       lambda v: v or ''),
+        'theme':      ('Theme',      lambda v: v or 'personnalise'),
+        'start_date': ('Start_Date', lambda v: v or ''),
+        'end_date':   ('End_Date',   lambda v: v or ''),
+        'active':     ('Active',     bool),
+        'price':      ('Price',      lambda v: v or ''),
+        'subtitle':   ('Subtitle',   lambda v: v or ''),
+        'entrees':    ('Entrees',    _join),
+        'plats':      ('Plats',      _join),
+        'desserts':   ('Desserts',   _join),
+    }
+    fields = {}
+    for key, (col, cast) in mapping.items():
+        if key in data:
+            fields[col] = cast(data.get(key))
+    return fields
 
 def load_special_menus():
-    if os.path.exists(SPECIAL_MENUS_FILE):
-        with open(SPECIAL_MENUS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return []
-
-def save_special_menus(menus):
-    with open(SPECIAL_MENUS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(menus, f, ensure_ascii=False, indent=2)
+    try:
+        res = http_requests.get(_sm_airtable_url(), headers=_sm_airtable_headers())
+        if res.status_code != 200:
+            return []
+        return [_sm_record_to_menu(r) for r in res.json().get('records', [])]
+    except Exception:
+        return []
 
 @app.route('/api/special-menus/active', methods=['GET'])
 def get_active_special_menu():
     today = datetime.now().strftime('%Y-%m-%d')
     for m in load_special_menus():
-        if m.get('active', True) and m.get('start_date', '') <= today <= m.get('end_date', ''):
+        if not m.get('active', True):
+            continue
+        start, end = m.get('start_date', ''), m.get('end_date', '')
+        if start and end and start <= today <= end:
             return jsonify(m)
     return jsonify(None)
 
@@ -762,43 +820,38 @@ def admin_get_special_menus():
 @app.route('/api/admin/special-menus', methods=['POST'])
 @admin_required
 def admin_create_special_menu():
-    import uuid
-    data = request.json
-    menu = {
-        'id': str(uuid.uuid4()),
-        'name': data.get('name', ''),
-        'theme': data.get('theme', 'personnalise'),
-        'start_date': data.get('start_date', ''),
-        'end_date': data.get('end_date', ''),
-        'active': data.get('active', True),
-        'price': data.get('price', ''),
-        'subtitle': data.get('subtitle', ''),
-        'entrees': data.get('entrees', []),
-        'plats': data.get('plats', []),
-        'desserts': data.get('desserts', [])
-    }
-    menus = load_special_menus()
-    menus.append(menu)
-    save_special_menus(menus)
-    return jsonify({'status': 'success', 'menu': menu})
+    data = request.json or {}
+    fields = _sm_payload_to_fields(data)
+    res = http_requests.post(
+        _sm_airtable_url(),
+        headers=_sm_airtable_headers(),
+        json={"records": [{"fields": fields}], "typecast": True},
+    )
+    if res.status_code != 200:
+        return jsonify({'status': 'error', 'error': res.text}), res.status_code
+    record = res.json()['records'][0]
+    return jsonify({'status': 'success', 'menu': _sm_record_to_menu(record)})
 
 @app.route('/api/admin/special-menus/<menu_id>', methods=['PATCH'])
 @admin_required
 def admin_update_special_menu(menu_id):
-    data = request.json
-    menus = load_special_menus()
-    for m in menus:
-        if m['id'] == menu_id:
-            m.update(data)
-            break
-    save_special_menus(menus)
+    data = request.json or {}
+    fields = _sm_payload_to_fields(data)
+    res = http_requests.patch(
+        _sm_airtable_url(menu_id),
+        headers=_sm_airtable_headers(),
+        json={"fields": fields, "typecast": True},
+    )
+    if res.status_code != 200:
+        return jsonify({'status': 'error', 'error': res.text}), res.status_code
     return jsonify({'status': 'success'})
 
 @app.route('/api/admin/special-menus/<menu_id>', methods=['DELETE'])
 @admin_required
 def admin_delete_special_menu(menu_id):
-    menus = [m for m in load_special_menus() if m['id'] != menu_id]
-    save_special_menus(menus)
+    res = http_requests.delete(_sm_airtable_url(menu_id), headers=_sm_airtable_headers())
+    if res.status_code != 200:
+        return jsonify({'status': 'error', 'error': res.text}), res.status_code
     return jsonify({'status': 'success'})
 
 @app.route('/<path:path>')

@@ -1,0 +1,63 @@
+[Boissons      ] 7up                                            -> —
+[Boissons      ] Americano                                      -> —
+[Boissons      ] Bière Saigon                                   -> Gluten
+[Boissons      ] Bière pression                                 -> Gluten
+[Boissons      ] Café Glacé Vietnamien                          -> Lactose
+[Boissons      ] Café au lait                                   -> Lactose
+[Boissons      ] Citron Rafraîchissant                          -> —
+[Boissons      ] Crème Lait Brun Vietnamienne                   -> Lactose
+[Boissons      ] Eau de coco                                    -> —
+[Boissons      ] Eau minérale                                   -> —
+[Boissons      ] Fanta                                          -> —
+[Boissons      ] Infusion camomille                             -> —
+[Boissons      ] Jus d'ananas                                   -> —
+[Boissons      ] Jus d'orange                                   -> —
+[Boissons      ] Jus de litchi                                  -> —
+[Boissons      ] Jus de mangue                                  -> —
+[Boissons      ] Lipton pêche                                   -> —
+[Boissons      ] Mojito                                         -> —
+[Boissons      ] Nuage Sucré d'Orient                           -> Lactose
+[Boissons      ] Paradis Asiatique                              -> —
+[Boissons      ] Perrier                                        -> —
+[Boissons      ] Piña Colada                                    -> —
+[Boissons      ] San Pellegrino                                 -> —
+[Boissons      ] Schweppes                                      -> —
+[Boissons      ] Sunset Boulevard                               -> —
+[Boissons      ] Thé noir en sachet                             -> —
+[Boissons      ] Thé à la menthe                                -> —
+[Boissons      ] Yaourt Battu Glacé Vietnamien                  -> Lactose
+[Côté Mer      ] Délice de Limande                              -> Lactose, Gluten
+[Côté Mer      ] Flamme de Gambas sur Brochette                 -> Lactose, Gluten
+[Côté Mer      ] Gambas Sautées au Beurre et Ail                -> Lactose, Gluten
+[Côté Mer      ] Pavé de Saumon Maison                          -> Lactose, Gluten
+[Côté Mer      ] Tataki de Saumon                               -> Gluten
+[Côté Terre    ] Agneau Sublime, Sauce Maison                   -> Lactose
+[Côté Terre    ] Bœuf Sauté en Dés, Saveurs d'Asie              -> Gluten
+[Côté Terre    ] Bœuf Vermicelles Frais à l'Asiatique           -> Gluten
+[Côté Terre    ] Entrecôte de Bœuf 250gr                        -> Lactose, Gluten
+[Côté Terre    ] Joue de Bœuf Confite aux Herbes, Jus Corsé     -> Gluten
+[Côté Terre    ] Porc Rôti, Éclats de Noix                      -> Lactose
+[Côté Terre    ] Poulet Rôti à la Crème d'Herbes                -> Lactose
+[Côté Terre    ] Tataki de Bœuf                                 -> Lactose, Gluten
+[Côté Terre    ] Tranches de Magret Caramélisé                  -> Gluten
+[Côté Terre    ] Éclats de Poulet, Saveurs d'Asie               -> Gluten
+[Douceurs      ] Bavarois Individuel – Sélection                -> Lactose
+[Douceurs      ] Crème Brûlée traditionnelle                    -> Lactose
+[Douceurs      ] Glaces au Choix                                -> Lactose
+[Douceurs      ] Merveilleux Chocolat Noir                      -> Lactose
+[Douceurs      ] Mystérieux Parfum Café                         -> Lactose
+[Douceurs      ] Tartelette aux Pommes Caramélisées             -> Lactose, Gluten
+[Douceurs      ] Tiramisu au café                               -> Lactose, Gluten
+[Entrées       ] Brise Tahitia                                  -> —
+[Entrées       ] Brise d'Asie au soleil                         -> —
+[Entrées       ] Coleslaw maison                                -> Lactose
+[Entrées       ] Salade Burrata                                 -> Lactose
+[Entrées       ] Salade Croquante au Nem                        -> Gluten
+[Formules      ] Escalope de poulet panée – Enfant              -> Lactose, Gluten
+[Formules      ] Hamburger Enfant                               -> Lactose, Gluten
+[Formules      ] Nouilles sautées au bœuf – Style Asiatique     -> Lactose, Gluten
+[Formules      ] Nouilles sautées au poulet – Style Asiatique   -> Lactose, Gluten
+[À Partager    ] Assiette de fromages et charcuteries           -> Lactose
+[À Partager    ] Gyoza croustillants                            -> Gluten
+[À Partager    ] Mini Cabécou Fondant                           -> Lactose
+[À Partager    ] Nems croustillants                             -> Gluten

@@ -1,0 +1,63 @@
+[Boissons      ] 7up                                            -> Chaud
+[Boissons      ] Americano                                      -> Chaud
+[Boissons      ] Bière Saigon                                   -> Chaud
+[Boissons      ] Bière pression                                 -> Chaud
+[Boissons      ] Café Glacé Vietnamien                          -> Chaud
+[Boissons      ] Café au lait                                   -> Froid,Pluie
+[Boissons      ] Citron Rafraîchissant                          -> Chaud
+[Boissons      ] Crème Lait Brun Vietnamienne                   -> Chaud
+[Boissons      ] Eau de coco                                    -> Chaud
+[Boissons      ] Eau minérale                                   -> (sans tag)
+[Boissons      ] Fanta                                          -> Chaud
+[Boissons      ] Infusion camomille                             -> Froid,Pluie
+[Boissons      ] Jus d'ananas                                   -> Chaud
+[Boissons      ] Jus d'orange                                   -> Chaud
+[Boissons      ] Jus de litchi                                  -> Chaud
+[Boissons      ] Jus de mangue                                  -> Chaud
+[Boissons      ] Lipton pêche                                   -> Chaud
+[Boissons      ] Mojito                                         -> Chaud
+[Boissons      ] Nuage Sucré d'Orient                           -> Chaud
+[Boissons      ] Paradis Asiatique                              -> Chaud
+[Boissons      ] Perrier                                        -> Chaud
+[Boissons      ] Piña Colada                                    -> Chaud
+[Boissons      ] San Pellegrino                                 -> Chaud
+[Boissons      ] Schweppes                                      -> Chaud
+[Boissons      ] Sunset Boulevard                               -> Chaud
+[Boissons      ] Thé noir en sachet                             -> Froid,Pluie
+[Boissons      ] Thé à la menthe                                -> Froid,Pluie
+[Boissons      ] Yaourt Battu Glacé Vietnamien                  -> Chaud
+[Côté Mer      ] Délice de Limande                              -> Chaud
+[Côté Mer      ] Flamme de Gambas sur Brochette                 -> Chaud
+[Côté Mer      ] Gambas Sautées au Beurre et Ail                -> Froid,Pluie
+[Côté Mer      ] Pavé de Saumon Maison                          -> Froid,Pluie
+[Côté Mer      ] Tataki de Saumon                               -> Chaud
+[Côté Terre    ] Agneau Sublime, Sauce Maison                   -> Froid,Pluie
+[Côté Terre    ] Bœuf Sauté en Dés, Saveurs d'Asie              -> Froid,Pluie
+[Côté Terre    ] Bœuf Vermicelles Frais à l'Asiatique           -> Chaud
+[Côté Terre    ] Entrecôte de Bœuf 250gr                        -> Froid,Pluie
+[Côté Terre    ] Joue de Bœuf Confite aux Herbes, Jus Corsé     -> Froid,Pluie
+[Côté Terre    ] Porc Rôti, Éclats de Noix                      -> Froid,Pluie
+[Côté Terre    ] Poulet Rôti à la Crème d'Herbes                -> Froid,Pluie
+[Côté Terre    ] Tataki de Bœuf                                 -> Chaud
+[Côté Terre    ] Tranches de Magret Caramélisé                  -> Froid,Pluie
+[Côté Terre    ] Éclats de Poulet, Saveurs d'Asie               -> Froid,Pluie
+[Douceurs      ] Bavarois Individuel – Sélection                -> Froid,Pluie
+[Douceurs      ] Crème Brûlée traditionnelle                    -> Froid,Pluie
+[Douceurs      ] Glaces au Choix                                -> Chaud
+[Douceurs      ] Merveilleux Chocolat Noir                      -> Froid,Pluie
+[Douceurs      ] Mystérieux Parfum Café                         -> Froid,Pluie
+[Douceurs      ] Tartelette aux Pommes Caramélisées             -> Froid,Pluie
+[Douceurs      ] Tiramisu au café                               -> Froid,Pluie
+[Entrées       ] Brise Tahitia                                  -> Chaud
+[Entrées       ] Brise d'Asie au soleil                         -> Chaud
+[Entrées       ] Coleslaw maison                                -> Chaud
+[Entrées       ] Salade Burrata                                 -> Chaud
+[Entrées       ] Salade Croquante au Nem                        -> Chaud
+[Formules      ] Escalope de poulet panée – Enfant              -> Froid,Pluie
+[Formules      ] Hamburger Enfant                               -> Froid,Pluie
+[Formules      ] Nouilles sautées au bœuf – Style Asiatique     -> Froid,Pluie
+[Formules      ] Nouilles sautées au poulet – Style Asiatique   -> Froid,Pluie
+[À Partager    ] Assiette de fromages et charcuteries           -> Froid,Pluie
+[À Partager    ] Gyoza croustillants                            -> Froid,Pluie
+[À Partager    ] Mini Cabécou Fondant                           -> Froid,Pluie
+[À Partager    ] Nems croustillants                             -> Froid,Pluie

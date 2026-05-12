@@ -1,0 +1,572 @@
+{
+  "count": 63,
+  "items": [
+    {
+      "id": "rec07BJbMhlM9fewy",
+      "plat": "Sunset Boulevard",
+      "desc": "Vodka, liqueur de pêche et de mûre, jus d'orange et de cranberry, doux, fruité et élégant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec18vMS5ZoVtrYE1",
+      "plat": "Schweppes",
+      "desc": "Schweppes tonic.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec2RILi19QS3v9ap",
+      "plat": "Merveilleux Chocolat Noir",
+      "desc": "Meringue légère garnie de crème fouettée, enrobée de chocolat, servie avec une boule de glace et une touche de crème Chantilly.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec3zhPZQhndsPBj8",
+      "plat": "Entrecôte de Bœuf 250gr",
+      "desc": "Entrecôte de bœuf grillée à la perfection, nappée d'une sauce maison, servie avec légumes blanchis et frites croustillantes.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec4wdsL9ChH2nCiL",
+      "plat": "Lipton pêche",
+      "desc": "Thé glacé Lipton parfum pêche.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec5e8ikOf7b4BafH",
+      "plat": "Tataki de Bœuf",
+      "desc": "Tataki de bœuf, saisi puis légèrement saignant, tranché finement et délicatement enrobé d'une sauce tataki maison, servi avec des légumes blanchis et purée de pommes de terre.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec6Z3YmgkX7ONHgx",
+      "plat": "Jus de litchi",
+      "desc": "Jus de litchi.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec8KO9C9HIkXhABV",
+      "plat": "Crème Lait Brun Vietnamienne",
+      "desc": "Lait frais, lait concentré, cacao, lait de coco et crème, frais et velouté.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rec9uECFgA4c8QXZw",
+      "plat": "Brise Tahitia",
+      "desc": "Cocktail aux crevettes, sauce légère aux agrumes. Crevettes délicatement parfumées, nappées d'une sauce cocktail aux agrumes. Fraîcheur marine et équilibre subtil entre douceur et acidité.",
+      "menu": [
+        "Entrées"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recAHzzXYYPJwraim",
+      "plat": "Glaces au Choix",
+      "desc": "Deux boules de glace aux saveurs variées selon vos envies (vanille, fraise, framboise, beurre caramel, chocolat, mangue et fruit de la passion), servies avec une touche de crème Chantilly.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recBK9Gai9eQqTfE3",
+      "plat": "Tataki de Saumon",
+      "desc": "Tataki de saumon délicatement saisi à l'extérieur, conservant sa texture tendre et rosée à l'intérieur, nappé de sauce tataki maison. Servi avec salades verts de saison et fines pâtes.",
+      "menu": [
+        "Côté Mer"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recCLdBE6yriPTS4O",
+      "plat": "Café au lait",
+      "desc": "Café au lait.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recFMbYba1ofJt4OH",
+      "plat": "Gyoza croustillants",
+      "desc": "Gyoza frits dorés et croustillants, farcis au poulet, accompagnés d'une salade de chou légèrement acidulée pour une touche de fraîcheur.",
+      "menu": [
+        "À Partager"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recIRk29pjg9lLyvm",
+      "plat": "Perrier",
+      "desc": "Eau gazeuse Perrier.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recJpsVbDPSvg2beh",
+      "plat": "Crème Brûlée traditionnelle",
+      "desc": "Crème brûlée traditionnelle à la vanille, onctueuse et délicatement parfumée, recouverte d'une fine couche caramélisée.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recJu6z09WW6nRB6R",
+      "plat": "Escalope de poulet panée – Enfant",
+      "desc": "Escalope de poulet croustillante, servie avec des frites et une boule de glace en dessert, pour les petits gourmands.",
+      "menu": [
+        "Formules"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recKkGtPFSi73CrS3",
+      "plat": "Mystérieux Parfum Café",
+      "desc": "Mousse café légère sur base moelleuse, enrobée de fines éclats d'amandes, servie avec une boule de glace et une touche de crème Chantilly, à savourer en fine bouchée.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recLZtoE3k1H2MfH0",
+      "plat": "Salade Burrata",
+      "desc": "Burrata crémeuse servie avec des tomates, des jeunes pousses variées et des carottes croquantes.",
+      "menu": [
+        "Entrées"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recLjlqgvdL9ftN2m",
+      "plat": "Gambas Sautées au Beurre et Ail",
+      "desc": "Gambas délicatement sautées au beurre et à l'ail, parfumées et dorées, servies avec salades verts de saison et fines pâtes.",
+      "menu": [
+        "Côté Mer"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recNjmSJhb3sMuPtX",
+      "plat": "Pavé de Saumon Maison",
+      "desc": "Saumon rôti à cœur, nappé d'une sauce onctueuse au vin blanc, beurre et œufs, accompagné de salades verts de saison et de fines pâtes.",
+      "menu": [
+        "Côté Mer"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recO9bLnt0nB0kue7",
+      "plat": "Hamburger Enfant",
+      "desc": "Hamburger accompagné de frites, servi avec une boule de glace en dessert, idéal pour les enfants.",
+      "menu": [
+        "Formules"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recOGJsa4ILvKz9e6",
+      "plat": "Flamme de Gambas sur Brochette",
+      "desc": "Gambas délicatement grillées sur brochette, sublimées par une touche de beurre, ail et vin, servies avec salades verts de saison et fines pâtes.",
+      "menu": [
+        "Côté Mer"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recOKe041y5q6ZcJr",
+      "plat": "Yaourt Battu Glacé Vietnamien",
+      "desc": "Yaourt battu glacé à la vietnamienne, doux et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recOU07zOMIfKRqlx",
+      "plat": "Mojito",
+      "desc": "Rhum cubain, menthe fraîche, citron vert, sucre et Perrier — frais, léger et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recPItxvyBCXxdhZh",
+      "plat": "Éclats de Poulet, Saveurs d'Asie",
+      "desc": "Morceaux de poulet sautés au caramel à l'inspiration asiatique, délicatement enrobés d'une sauce parfumée, servis avec fines pâtes et légumes blanchis.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recQDiDHbFBtZbQuu",
+      "plat": "Jus de mangue",
+      "desc": "Jus de mangue.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recSj9IbylI0UsjJW",
+      "plat": "Poulet Rôti à la Crème d'Herbes",
+      "desc": "Suprême de poulet rôti, nappé d'une crème onctueuse aux herbes fraîches, accompagné de légumes délicatement blanchis et d'une purée de pommes de terre maison.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recTHb0Z3jKXT7oQf",
+      "plat": "Jus d'orange",
+      "desc": "Jus d'orange.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recWVnjFBttbsr92a",
+      "plat": "Eau minérale",
+      "desc": "Bouteille d'eau minérale plate.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recX4GmfHd2Isfpus",
+      "plat": "San Pellegrino",
+      "desc": "Eau gazeuse San Pellegrino.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recZK3aO10qaTtf0Z",
+      "plat": "Fanta",
+      "desc": "Soda Fanta orange.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recbasRfc8fP22fOZ",
+      "plat": "Café Glacé Vietnamien",
+      "desc": "Café, lait concentré, glace, doux et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recbov7sQMxiVc9aG",
+      "plat": "7up",
+      "desc": "Soda 7up.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recciI0Dj9zlVZRI4",
+      "plat": "Thé à la menthe",
+      "desc": "Thé infusé à la menthe fraîche.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recczq7vid7NwRgNI",
+      "plat": "Bœuf Sauté en Dés, Saveurs d'Asie",
+      "desc": "Dés de bœuf sautés à feu vif, cuits juste à point, enrobés d'une sauce maison aux saveurs d'Asie, servis avec légumes blanchis et fines nouilles.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recdbmlFebaLhNHyA",
+      "plat": "Paradis Asiatique",
+      "desc": "Rhum blanc, liqueur de litchi et jus de fruits exotiques — doux, fruité et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recduqPxYxviliQn4",
+      "plat": "Tiramisu au café",
+      "desc": "Tiramisu au café, sans alcool, délicatement crémeux, alternant biscuits imbibés de café et mascarpone onctueux, saupoudré de cacao.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "receOpi8vgvBtWA5J",
+      "plat": "Porc Rôti, Éclats de Noix",
+      "desc": "Filet de porc farci aux herbes fraîches, épinards et noix torréfiées, rôti délicatement puis tranché, nappé d'une légère réduction au vin rouge et aux framboises, servi avec purée de pommes de terre e",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "receellDX9YakJu4B",
+      "plat": "Piña Colada",
+      "desc": "Rhum blanc, ananas frais et crème de coco onctueux, exotique, aux notes intenses d'ananas et douceur tropicale.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recgZZme6VG4ml7D2",
+      "plat": "Nuage Sucré d'Orient",
+      "desc": "Lait traditionnel, glace, sucre et crème douce, doux et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recgj3qPuPoFwpe5a",
+      "plat": "Salade Croquante au Nem",
+      "desc": "Jeunes pousses et légumes frais accompagnés de nems croustillants, relevés d'une vinaigrette légère inspirée d'Asie et d'Europe.",
+      "menu": [
+        "Entrées"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reciN7dA775SvNTgM",
+      "plat": "Tartelette aux Pommes Caramélisées",
+      "desc": "Fine tartelette aux pommes délicatement caramélisées, fondantes et parfumées, servie avec une boule de glace et délicatement décorée de crème Chantilly.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recjsCgaw7OZdlLq7",
+      "plat": "Joue de Bœuf Confite aux Herbes, Jus Corsé",
+      "desc": "Joue de bœuf longuement braisée aux herbes aromatiques, mijotée pendant des heures jusqu'à devenir fondante, nappée d'un jus riche et savoureux, servie avec fines nouilles et légumes de saison blanchi",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reckf1JkSTtcpCkm8",
+      "plat": "Mini Cabécou Fondant",
+      "desc": "Petit Cabécou rôti au miel, fondant, relevé de quelques ingrédients qui éveillent les saveurs.",
+      "menu": [
+        "À Partager"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reckoT1H11OfENaXZ",
+      "plat": "Agneau Sublime, Sauce Maison",
+      "desc": "Pavé de selle d'agneau rôti, nappé d'une sauce maison, servi avec légumes blanchis et purée de pommes de terre maison.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recmneKnOSxxoqQlR",
+      "plat": "Thé noir en sachet",
+      "desc": "Thé noir en sachet.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recnvM4HValLCmLuO",
+      "plat": "Infusion camomille",
+      "desc": "Infusion camomille en sachet.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reco4ogHhWCD5aixv",
+      "plat": "Americano",
+      "desc": "Campari, vermouth rouge et eau gazeuse. Léger, amer et rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recoNiwfr36ktJ9B1",
+      "plat": "Jus d'ananas",
+      "desc": "Jus d'ananas.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recp82KirGD3IpBpL",
+      "plat": "Coleslaw maison",
+      "desc": "Salade fraîche de chou blanc finement émincé et carottes râpées, préparée avec une sauce crémeuse légèrement acidulée. Une salade croquante et fraîche, aux saveurs légères et rafraîchissantes.",
+      "menu": [
+        "Entrées"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recppYpMnXzbM5ymG",
+      "plat": "Délice de Limande",
+      "desc": "Filet de limande tendre, nappé d'une sauce au beurre et vin blanc aux arômes délicats. Servi avec salade de saison croquante et de fines pâtes.",
+      "menu": [
+        "Côté Mer"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recsN6xsXhLy6AMbw",
+      "plat": "Bière Saigon",
+      "desc": "Bière vietnamienne Saigon.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recslAOnunO3Tu3kC",
+      "plat": "Bière pression",
+      "desc": "Bière pression servie fraîche.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rectQDZwE2m4wyDyb",
+      "plat": "Assiette de fromages et charcuteries",
+      "desc": "Assiette de fromages et charcuteries, à partager pour un moment convivial.",
+      "menu": [
+        "À Partager"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "rectUYXudqhxrSZ0s",
+      "plat": "Eau de coco",
+      "desc": "Eau de noix de coco.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recvRJWzDye0Zp3m2",
+      "plat": "Bavarois Individuel – Sélection",
+      "desc": "Bavarois onctueux parfumé à la vanille, surmonté d'une fine couche de caramel, servi avec une boule de glace et une touche de crème Chantilly.",
+      "menu": [
+        "Douceurs"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recvn88fpSiJJflKy",
+      "plat": "Nouilles sautées au poulet – Style Asiatique",
+      "desc": "Fines tranches de poulet sautées au beurre, mélangées avec de petites nouilles, délicatement parfumées, servies avec une boule de glace pour conclure le repas.",
+      "menu": [
+        "Formules"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recwsP7GLzVt7LTrF",
+      "plat": "Bœuf Vermicelles Frais à l'Asiatique",
+      "desc": "Bœuf tendre sauté à feu vif et nems croustillants, servis sur lit de nouilles fraîches à l'asiatique, accompagnés de légumes croquants et arômes asiatiques, subtilement assaisonnés d'une sauce maison ",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recxkfpwtckrfeFkN",
+      "plat": "Nems croustillants",
+      "desc": "Nems frits dorés et croustillants, accompagnés d'une salade de chou légèrement acidulée pour une touche de fraîcheur.",
+      "menu": [
+        "À Partager"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recxuly1QhlP94C03",
+      "plat": "Citron Rafraîchissant",
+      "desc": "Citron frais secoué avec sucre et feuilles de menthe, glace, rafraîchissant.",
+      "menu": [
+        "Boissons"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "recy6I3fRUm1ClATC",
+      "plat": "Tranches de Magret Caramélisé",
+      "desc": "Magret de canard rôti, tranché finement, nappé d'une légère réduction au vin rouge et aux framboises, accompagné de légumes blanchis et fines pâtes.",
+      "menu": [
+        "Côté Terre"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reczF0Qne31PQOBsQ",
+      "plat": "Nouilles sautées au bœuf – Style Asiatique",
+      "desc": "Fines tranches de bœuf sautées au beurre, mélangées avec de petites nouilles, délicatement parfumées, servies avec une boule de glace pour conclure le repas.",
+      "menu": [
+        "Formules"
+      ],
+      "tags_meteo": []
+    },
+    {
+      "id": "reczvvD9T8nax2dI7",
+      "plat": "Brise d'Asie au soleil",
+      "desc": "Velouté glacé de carottes au lait de coco, gingembre et orange. Velouté glacé de carottes au lait de coco, relevé d'une pointe de gingembre et illuminé par la fraîcheur de l'orange. Une harmonie subti",
+      "menu": [
+        "Entrées"
+      ],
+      "tags_meteo": []
+    }
+  ]
+}

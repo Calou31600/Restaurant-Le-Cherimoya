@@ -101,11 +101,10 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
-- **Automatisation des Visuels IA (v2.2.0 - 12/05/2026)** :
-  - **Audit de la Carte** : Identification systématique des plats sans photos via un script d'inventaire Airtable.
-  - **Génération d'Images Gastronomiques** : Création de 17 nouveaux visuels ultra-réalistes et premium (Schweppes, Lipton pêche, Jus de litchi, Crème Lait Brun Vietnamienne, Café au lait, Perrier, Escalope de poulet enfant, Mystérieux Parfum Café, Yaourt Battu Glacé Vietnamien, Jus de mangue, Jus d'orange, Eau minérale, San Pellegrino, Fanta, 7up, Thé à la menthe, Nuage Sucré d'Orient).
-  - **Harmonisation Visuelle** : Intégration de visuels respectant une charte graphique haut de gamme pour une expérience utilisateur premium.
-  - **Mise à jour du Stockage** : Organisation des nouveaux visuels dans `Photos Menu/Generated` et synchronisation automatique avec Cloudinary et Airtable.
+- **Maintenance du Menu & IA (v2.2.1 - 13/05/2026)** :
+  - **Génération Massive de Visuels** : Création de 12 nouveaux visuels gastronomiques premium pour compléter la carte (Thé noir, Infusion camomille, Jus d'ananas, Coleslaw maison, Bières Saigon & Pression, Eau de coco, Bavarois Individuel, Nouilles sautées Poulet/Bœuf, Citron Rafraîchissant, Brise d'Asie au soleil).
+  - **Infrastructure d'Images** : Upload systématique vers Cloudinary et préparation de la synchronisation Airtable (en attente de reset de quota).
+  - **Optimisation du Matching** : Amélioration des scripts de synchronisation IA pour une meilleure reconnaissance des plats.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

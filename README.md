@@ -108,6 +108,7 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
   - **Performance** : Temps de réponse divisé par 3 par rapport à l'API Airtable.
 
 - **Version v2.3.5 (14/05/2026)** : Sécurisation des données contre les valeurs nulles et migration complète de l'administration.
+- **Version v2.3.8 (14/05/2026)** : Finalisation visuelle de la carte des boissons et des vins. Génération par IA de visuels premium pour les articles manquants (Bières, Jus, Infusions, Vins) et synchronisation automatisée avec Cloudinary et Supabase.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

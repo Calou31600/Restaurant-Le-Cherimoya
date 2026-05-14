@@ -1202,24 +1202,34 @@
                     <button onclick="closeEventModal()" style="background:none;border:none;color:var(--text-dim);font-size:1.5rem;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-dim)'">×</button>
                 </div>
 
-                <!-- Section 1 : Identité -->
-                <div style="margin-bottom:1.2rem;">
-                    <label class="ev-label">Nom de l'événement *</label>
-                    <input type="text" id="ev-name" class="form-control ev-input" placeholder="Ex : Menu de Noël">
+                <!-- Section 0 : Visuel -->
+                <div style="margin-bottom:1.8rem; display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <img id="ev-current-img" src="assets/dish1.png" 
+                             onerror="this.src='assets/dish1.png'"
+                             style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">
+                        <input type="file" id="ev-file" class="form-control ev-input" accept="image/*" style="font-size: 0.8rem; padding: 6px;">
+                    </div>
+                    <div style="flex: 1.5;">
+                        <label class="ev-label">Nom de l'événement *</label>
+                        <input type="text" id="ev-name" class="form-control ev-input" placeholder="Ex : Menu de Noël">
+                        
+                        <div style="margin-top: 1.2rem;">
+                            <label class="ev-label">Thème visuel</label>
+                            <select id="ev-theme" class="form-control ev-input">
+                                <option value="noel">🎄  Noël</option>
+                                <option value="nouvel-an">🥂  Nouvel An</option>
+                                <option value="fete-des-meres">🌸  Fête des Mères</option>
+                                <option value="saint-valentin">❤️  Saint-Valentin</option>
+                                <option value="paques">🐣  Pâques</option>
+                                <option value="ete">☀️  Été</option>
+                                <option value="personnalise" selected>⭐  Personnalisé</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="margin-bottom:1.2rem;">
-                    <label class="ev-label">Thème visuel</label>
-                    <select id="ev-theme" class="form-control ev-input">
-                        <option value="noel">🎄  Noël</option>
-                        <option value="nouvel-an">🥂  Nouvel An</option>
-                        <option value="fete-des-meres">🌸  Fête des Mères</option>
-                        <option value="saint-valentin">❤️  Saint-Valentin</option>
-                        <option value="paques">🐣  Pâques</option>
-                        <option value="ete">☀️  Été</option>
-                        <option value="personnalise" selected>⭐  Personnalisé</option>
-                    </select>
-                </div>
+                <!-- Section 1 : Identité -->
 
                 <div style="margin-bottom:1.2rem;">
                     <label class="ev-label">Sous-titre / accroche</label>
@@ -1667,6 +1677,9 @@
         let currentWineEditId = null;
         let currentWineCroppedBlob = null;
         let wineCropperInstance = null;
+        let currentEventId = null;
+        let currentEventCroppedBlob = null;
+        let eventCropperInstance = null;
         let activeTab = 'menu';
         let cropperInstance = null;
         let currentCroppedBlob = null;
@@ -3406,7 +3419,9 @@
                     m.desserts?.length? `<span style="opacity:.7">Desserts:</span> ${m.desserts.join(', ')}` : ''
                 ].filter(Boolean).join(' &nbsp;·&nbsp; ');
                 return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${th.border};border-radius:16px;padding:1.4rem 1.8rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;cursor:pointer;transition:0.3s;" onclick="editEvent(${JSON.stringify(m).replace(/"/g,'&quot;')})">
-                    <div style="font-size:2.5rem;filter:drop-shadow(0 0 8px ${th.color}44);">${th.icon}</div>
+                    <div style="width:60px; height:60px; border-radius:12px; overflow:hidden; border:1px solid ${th.border}55;">
+                        <img src="${m.photo || 'assets/dish1.png'}" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
                     <div>
                         <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.3rem;">
                             <span style="font-family:var(--font-heading);font-size:1.2rem;color:var(--text-main);">${m.name}</span>
@@ -3430,6 +3445,9 @@
             document.getElementById('ev-price').value = '';
             document.getElementById('ev-subtitle').value = '';
             document.getElementById('ev-active').checked = true;
+            document.getElementById('ev-current-img').src = 'assets/dish1.png';
+            document.getElementById('ev-file').value = '';
+            currentEventCroppedBlob = null;
             document.getElementById('ev-entrees-list').innerHTML = '';
             document.getElementById('ev-plats-list').innerHTML = '';
             document.getElementById('ev-desserts-list').innerHTML = '';
@@ -3448,6 +3466,10 @@
             document.getElementById('ev-end').value = m.end_date || '';
             document.getElementById('ev-price').value = m.price || '';
             document.getElementById('ev-subtitle').value = m.subtitle || '';
+            document.getElementById('ev-active').checked = !!m.active;
+            document.getElementById('ev-current-img').src = m.photo || 'assets/dish1.png';
+            document.getElementById('ev-file').value = '';
+            currentEventCroppedBlob = null;
             document.getElementById('ev-active').checked = m.active !== false;
             renderEvCourseList('entrees', m.entrees || []);
             renderEvCourseList('plats', m.plats || []);
@@ -3515,8 +3537,21 @@
                 active:     document.getElementById('ev-active').checked,
                 entrees:    getEvCourses('entrees'),
                 plats:      getEvCourses('plats'),
-                desserts:   getEvCourses('desserts')
+                desserts:   getEvCourses('desserts'),
+                photo:      document.getElementById('ev-current-img').src
             };
+
+            const fileInput = document.getElementById('ev-file');
+            if (fileInput.files.length > 0) {
+                btn.textContent = 'Upload photo...';
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                try {
+                    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) payload.photo = uploadData.url;
+                } catch (e) { console.error("Upload error", e); }
+            }
             if (!payload.name || !payload.start_date || !payload.end_date) {
                 alert('Nom, date de début et date de fin sont obligatoires.');
                 btn.disabled = false; btn.textContent = 'Enregistrer';

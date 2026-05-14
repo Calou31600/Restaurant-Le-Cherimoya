@@ -32,7 +32,12 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9F
 # Supabase Client
 sb_url = os.getenv("SUPABASE_URL")
 sb_key = os.getenv("SUPABASE_KEY")
-supabase_client: Client = create_client(sb_url, sb_key) if sb_url and sb_key else None
+supabase_client: Client = None
+if sb_url and sb_key:
+    try:
+        supabase_client = create_client(sb_url, sb_key)
+    except Exception as e:
+        print(f"⚠️ Erreur initialisation Supabase: {e}")
 
 @app.route('/api/ping')
 def ping():

@@ -8,4 +8,6 @@ Flask-Session
 cryptography
 tzdata
 python-dateutil
-supabase
+supabase<2.15
+# (pin: supabase>=2.15 tire `pyiceberg` (storage3) qui n'a pas de wheel
+#  pre-compile pour Python 3.13/3.14 sur l'environnement de build Vercel.)

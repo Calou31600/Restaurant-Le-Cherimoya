@@ -507,11 +507,38 @@ main > header {
     border-radius: 16px;
     padding: 1.4rem;
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
+    grid-template-columns: 80px 1fr auto;
+    gap: 1.2rem;
     align-items: start;
     transition: var(--transition-smooth);
     backdrop-filter: blur(10px);
+}
+
+.wine-card .wine-img-wrap {
+    width: 80px;
+    height: 200px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.15));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.wine-card .wine-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+.wine-card .wine-img-placeholder {
+    font-size: 2.5rem;
+    opacity: 0.35;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 .wine-card:hover {
@@ -586,9 +613,16 @@ main > header {
         grid-template-columns: 1fr;
     }
     .wine-card {
-        grid-template-columns: 1fr;
+        grid-template-columns: 70px 1fr;
+        grid-template-rows: auto auto;
+    }
+    .wine-card .wine-img-wrap {
+        width: 70px;
+        height: 160px;
+        grid-row: 1 / 3;
     }
     .wine-card .wine-prices {
+        grid-column: 2;
         flex-direction: row;
         justify-content: flex-end;
         gap: 1.5rem;

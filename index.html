@@ -1209,8 +1209,18 @@
                 const labelVerre = isFR ? 'verre' : 'glass';
                 const labelBout = isFR ? 'bout.' : 'btl.';
 
+                // Photo : optimisation Cloudinary si dispo, sinon placeholder bouteille
+                let photoSrc = resolveWinePhoto(w);
+                if (photoSrc && photoSrc.includes('cloudinary.com')) {
+                    photoSrc = photoSrc.replace('/upload/', '/upload/f_auto,q_auto,h_400/');
+                }
+                const imgHtml = photoSrc
+                    ? `<img src="${photoSrc}" class="wine-img" alt="${nom}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;wine-img-placeholder&quot;>🍾</span>'">`
+                    : `<span class="wine-img-placeholder">🍾</span>`;
+
                 return `
                     <article class="wine-card">
+                        <div class="wine-img-wrap">${imgHtml}</div>
                         <div>
                             <div class="wine-type" style="color:${color};">${emoji} ${meta || w.Type || ''}</div>
                             <h3>${nom}</h3>

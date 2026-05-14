@@ -493,6 +493,113 @@ main > header {
     opacity: 0.75;
 }
 
+/* ─────────────────────── Carte des vins ─────────────────────── */
+.wine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem 0 4rem;
+}
+
+.wine-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.4rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    transition: var(--transition-smooth);
+    backdrop-filter: blur(10px);
+}
+
+.wine-card:hover {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.wine-card .wine-type {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+}
+
+.wine-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--text-main);
+    margin: 0 0 0.3rem 0;
+    line-height: 1.2;
+}
+
+.wine-card .wine-meta {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    font-style: italic;
+}
+
+.wine-card .wine-desc {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.wine-card .wine-prices {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding-left: 1rem;
+}
+
+.wine-card .wine-price-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.wine-card .wine-price-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+}
+
+.wine-card .wine-price-value {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .wine-grid {
+        grid-template-columns: 1fr;
+    }
+    .wine-card {
+        grid-template-columns: 1fr;
+    }
+    .wine-card .wine-prices {
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 1.5rem;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-left: 0;
+        padding-top: 0.8rem;
+        margin-top: 0.5rem;
+    }
+}
+
 @media (max-width: 640px) {
     .intolerance-bar {
         gap: 8px;

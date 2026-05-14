@@ -191,6 +191,27 @@
                 <!-- Plats injectés ici -->
             </div>
         </section>
+
+        <!-- SECTION CARTE DES VINS -->
+        <section aria-labelledby="wines-title" id="wines" style="padding-top: 4rem; padding-bottom: 4rem;">
+            <div class="menu-header fade-in">
+                <h2 id="wines-title" data-i18n="wines_title">La Carte des Vins</h2>
+                <p class="menu-subtitle" data-i18n="wines_subtitle">
+                    Une sélection de vignerons passionnés.</p>
+            </div>
+
+            <div class="menu-filters fade-in" id="wine-filters">
+                <button class="filter-btn active" onclick="filterWines('all')" data-i18n="wines_all">Tous</button>
+                <button class="filter-btn" onclick="filterWines('Rouge')" data-i18n="wines_red">🔴 Rouge</button>
+                <button class="filter-btn" onclick="filterWines('Blanc')" data-i18n="wines_white">🟡 Blanc</button>
+                <button class="filter-btn" onclick="filterWines('Rosé')" data-i18n="wines_rose">🌸 Rosé</button>
+                <button class="filter-btn" onclick="filterWines('Pétillant')" data-i18n="wines_sparkling">🫧 Pétillant</button>
+            </div>
+
+            <div class="wine-grid" id="wine-container">
+                <!-- Vins injectés ici -->
+            </div>
+        </section>
     </main>
 
     <!-- SECTION INFOS & AVIS GOOGLE -->
@@ -318,6 +339,13 @@
                 filter_desserts: "Douceurs",
                 filter_drinks: "Boissons",
                 filter_asia: "Asie",
+                wines_title: "La Carte des Vins",
+                wines_subtitle: "Une sélection de vignerons passionnés.",
+                wines_all: "Tous",
+                wines_red: "🔴 Rouge",
+                wines_white: "🟡 Blanc",
+                wines_rose: "🌸 Rosé",
+                wines_sparkling: "🫧 Pétillant",
                 intol_label: "Sans :",
                 intol_lactose: "Lactose",
                 intol_gluten: "Gluten",
@@ -350,6 +378,13 @@
                 filter_desserts: "Desserts",
                 filter_drinks: "Drinks",
                 filter_asia: "Asia",
+                wines_title: "Wine List",
+                wines_subtitle: "A selection from passionate winemakers.",
+                wines_all: "All",
+                wines_red: "🔴 Red",
+                wines_white: "🟡 White",
+                wines_rose: "🌸 Rosé",
+                wines_sparkling: "🫧 Sparkling",
                 intol_label: "Without:",
                 intol_lactose: "Lactose",
                 intol_gluten: "Gluten",
@@ -804,6 +839,11 @@
                 applyFilters();
             }
 
+            // Re-render la carte des vins (re-évalue Nom/Description selon la langue)
+            if (typeof fullWinesData !== 'undefined' && fullWinesData.length > 0) {
+                applyWineFilters();
+            }
+
             // Mettre à jour les textes des avis manuellement puisqu'on a enlevé le data-i18n
             if (currentReviewsData) {
                 const total = currentReviewsData.total;
@@ -907,6 +947,17 @@
                 applyFilters();
             } else {
                 menuContainer.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: var(--text-dim);'>Notre cheffe élabore actuellement la nouvelle carte, inspirée par les éléments...</p>";
+            }
+
+            // Génération de la carte des vins
+            if (data.wines && data.wines.length > 0) {
+                fullWinesData = data.wines;
+                applyWineFilters();
+                document.getElementById('wines').style.display = '';
+            } else {
+                // Pas de vins en base → on masque la section
+                const winesSection = document.getElementById('wines');
+                if (winesSection) winesSection.style.display = 'none';
             }
 
             // Mise à jour adaptative des avis Google
@@ -1105,13 +1156,92 @@
 
         function filterMenu(category) {
             activeCategory = category;
-            // Update active button
+            // Update active button — scope sur la barre de filtres du menu seulement
             if (typeof event !== 'undefined' && event && event.target) {
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('#menu .menu-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
                 const btn = event.target.closest('.filter-btn');
                 if (btn) btn.classList.add('active');
             }
             applyFilters();
+        }
+
+        // ─────────────────── Carte des vins ───────────────────
+        let fullWinesData = [];
+        let activeWineType = 'all';
+
+        function resolveWinePhoto(w) {
+            const p = w.Photo;
+            if (Array.isArray(p) && p.length > 0 && p[0].url) return p[0].url;
+            if (typeof p === 'string' && p.startsWith('http')) return p;
+            return null;
+        }
+
+        function renderWinesPublic(items) {
+            const container = document.getElementById('wine-container');
+            const isFR = (typeof currentLang === 'undefined' || currentLang === 'fr');
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="menu-empty" style="grid-column:1/-1;">
+                        <div class="menu-empty-icon" aria-hidden="true">🍷</div>
+                        <div class="menu-empty-title">${isFR ? 'Aucun vin ne correspond à ce type' : 'No wine matches this type'}</div>
+                        <div class="menu-empty-sub">${isFR ? 'Essayez une autre catégorie.' : 'Try another category.'}</div>
+                    </div>`;
+                return;
+            }
+
+            const order = { 'Rouge': 1, 'Blanc': 2, 'Blanc sec': 2, 'Blanc moelleux': 2, 'Rosé': 3, 'Pétillant': 4 };
+            const sorted = [...items].sort((a, b) => {
+                const da = order[a.Type] || 9, db = order[b.Type] || 9;
+                if (da !== db) return da - db;
+                return (a.Nom || '').localeCompare(b.Nom || '', 'fr', { sensitivity: 'base' });
+            });
+
+            const typeColors = { 'Rouge': '#c0392b', 'Blanc': '#d4a84a', 'Blanc sec': '#d4a84a', 'Blanc moelleux': '#d4a84a', 'Rosé': '#e91e8c', 'Pétillant': '#4fc3f7' };
+            const typeEmoji = { 'Rouge': '🔴', 'Blanc': '🟡', 'Blanc sec': '🟡', 'Blanc moelleux': '🟡', 'Rosé': '🌸', 'Pétillant': '🫧' };
+
+            container.innerHTML = sorted.map(w => {
+                const nom = (isFR ? w.Nom : (w.Nom_EN || w.Nom)) || 'Sans nom';
+                const desc = (isFR ? w.Description : (w.Description_EN || w.Description)) || '';
+                const color = typeColors[w.Type] || 'var(--accent)';
+                const emoji = typeEmoji[w.Type] || '🍷';
+                const meta = [w.Type, w.Millesime, w.Appellation].filter(Boolean).join(' · ');
+                const labelVerre = isFR ? 'verre' : 'glass';
+                const labelBout = isFR ? 'bout.' : 'btl.';
+
+                return `
+                    <article class="wine-card">
+                        <div>
+                            <div class="wine-type" style="color:${color};">${emoji} ${meta || w.Type || ''}</div>
+                            <h3>${nom}</h3>
+                            ${desc ? `<p class="wine-desc">${desc}</p>` : ''}
+                        </div>
+                        <div class="wine-prices">
+                            ${w.Prix_Verre ? `<div class="wine-price-row"><span class="wine-price-label">${labelVerre}</span><span class="wine-price-value">${w.Prix_Verre} €</span></div>` : ''}
+                            ${w.Prix_Bouteille ? `<div class="wine-price-row"><span class="wine-price-label">${labelBout}</span><span class="wine-price-value">${w.Prix_Bouteille} €</span></div>` : ''}
+                        </div>
+                    </article>`;
+            }).join('');
+        }
+
+        function applyWineFilters() {
+            const filtered = (fullWinesData || []).filter(w => {
+                if (activeWineType === 'all') return true;
+                // 'Blanc' englobe 'Blanc sec' et 'Blanc moelleux'
+                if (activeWineType === 'Blanc') return (w.Type || '').startsWith('Blanc');
+                return w.Type === activeWineType;
+            });
+            renderWinesPublic(filtered);
+        }
+
+        function filterWines(type) {
+            activeWineType = type;
+            if (typeof event !== 'undefined' && event && event.target) {
+                document.querySelectorAll('#wine-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+                const btn = event.target.closest('.filter-btn');
+                if (btn) btn.classList.add('active');
+            }
+            applyWineFilters();
         }
 
         function toggleIntolerance(name, btn) {

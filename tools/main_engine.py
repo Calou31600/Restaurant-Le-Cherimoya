@@ -238,18 +238,23 @@ class MainEngine:
         # 2. Obtenir le menu (mis en cache)
         raw_menu = self.get_featured_menu()
         menu_items = [r['fields'] for r in raw_menu]
-        
-        # 3. Générer le SEO JSON-LD
+
+        # 3. Obtenir la carte des vins
+        raw_wines = self.get_wine_list()
+        wine_items = [r['fields'] for r in raw_wines]
+
+        # 4. Générer le SEO JSON-LD
         json_ld = self.seo.generate_json_ld(menu_items)
-        
-        # 4. Avis Google (langue passée par le frontend)
+
+        # 5. Avis Google (langue passée par le frontend)
         reviews = self.get_google_reviews(lang=lang)
-        
+
         return {
             "météo_tag": tag,
             "ui_style": style,
             "welcome_message": msg,
             "menu": menu_items,
+            "wines": wine_items,
             "json_ld": json_ld,
             "reviews": reviews
         }

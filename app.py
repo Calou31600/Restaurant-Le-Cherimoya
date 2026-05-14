@@ -30,8 +30,10 @@ app = Flask(__name__, static_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
 
 # Supabase Client
+# Côté serveur, on préfère la clé service_role si disponible (contourne RLS).
+# La clé publishable reste un fallback acceptable tant que RLS n'est pas activée.
 sb_url = os.getenv("SUPABASE_URL")
-sb_key = os.getenv("SUPABASE_KEY")
+sb_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
 supabase_client: Client = None
 if sb_url and sb_key:
     try:
@@ -292,26 +294,62 @@ def handle_reservation_action(record_id, action):
     </html>
     """
 
+def _menu_row_to_fields(r):
+    """Format Supabase row → payload attendu par dashboard.html (clés Airtable-like)."""
+    return {
+        "id": r["id"],
+        "fields": {
+            "Plat":                r.get("plat"),
+            "Plat_EN":             r.get("plat_en"),
+            "description_geo":     r.get("description_geo"),
+            "description_geo_EN":  r.get("description_geo_en"),
+            "prix":                f"€{r['prix']:.2f}" if r.get("prix") else "",
+            "tags_meteo":          r.get("tags_meteo") or [],
+            "Menu":                r.get("menu") or [],
+            "intolerances":        r.get("intolerances") or [],
+            "producteur_local":    r.get("producteur_local"),
+            "is_featured":         r.get("is_featured"),
+            "Photo":               [{"url": r["photo"]}] if r.get("photo") else [],
+        },
+    }
+
+
+def _menu_payload_from_fields(fields):
+    """Payload admin (clés Airtable-like) → colonnes Supabase. Ne mappe que les
+    clés présentes pour permettre des PATCH partiels."""
+    out = {}
+    if "Plat" in fields:               out["plat"]                = fields["Plat"]
+    if "Plat_EN" in fields:            out["plat_en"]             = fields["Plat_EN"]
+    if "description_geo" in fields:    out["description_geo"]     = fields["description_geo"]
+    if "description_geo_EN" in fields: out["description_geo_en"]  = fields["description_geo_EN"]
+    if "prix" in fields:
+        try:
+            out["prix"] = float(str(fields["prix"]).replace("€", "").replace(",", ".").strip())
+        except (TypeError, ValueError):
+            pass
+    if "tags_meteo" in fields:         out["tags_meteo"]          = fields["tags_meteo"] or []
+    if "Menu" in fields:               out["menu"]                = fields["Menu"] or []
+    if "intolerances" in fields:       out["intolerances"]        = fields["intolerances"] or []
+    if "producteur_local" in fields:   out["producteur_local"]    = fields["producteur_local"]
+    if "is_featured" in fields:        out["is_featured"]         = bool(fields["is_featured"])
+    if "Photo" in fields:
+        photo = fields["Photo"]
+        if isinstance(photo, list) and photo:
+            out["photo"] = photo[0].get("url")
+        elif isinstance(photo, str):
+            out["photo"] = photo
+        else:
+            out["photo"] = None
+    return out
+
+
 @app.route('/api/admin/menu', methods=['GET'])
 @admin_required
 def admin_get_menu():
     try:
         if not supabase_client: return jsonify({"error": "Supabase non connecté"}), 500
         res = supabase_client.table("menu").select("*").execute()
-        menu_with_ids = []
-        for r in res.data:
-            menu_with_ids.append({
-                "id": r["id"],
-                "fields": {
-                    "Plat": r["plat"],
-                    "description_geo": r["description_geo"],
-                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
-                    "tags_meteo": r["tags_meteo"] or [],
-                    "is_featured": r["is_featured"],
-                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
-                }
-            })
-        return jsonify(menu_with_ids)
+        return jsonify([_menu_row_to_fields(r) for r in res.data])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -321,18 +359,7 @@ def admin_get_item(record_id):
     try:
         res = supabase_client.table("menu").select("*").eq("id", record_id).execute()
         if res.data:
-            r = res.data[0]
-            return jsonify({
-                "id": r["id"],
-                "fields": {
-                    "Plat": r["plat"],
-                    "description_geo": r["description_geo"],
-                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
-                    "tags_meteo": r["tags_meteo"] or [],
-                    "is_featured": r["is_featured"],
-                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
-                }
-            })
+            return jsonify(_menu_row_to_fields(res.data[0]))
         return jsonify({"error": "Not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -341,22 +368,7 @@ def admin_get_item(record_id):
 @admin_required
 def admin_update_item(record_id):
     try:
-        fields = request.json.get('fields', {})
-        update_data = {}
-        if 'Plat' in fields: update_data['plat'] = fields['Plat']
-        if 'description_geo' in fields: update_data['description_geo'] = fields['description_geo']
-        if 'prix' in fields:
-            try:
-                update_data['prix'] = float(str(fields['prix']).replace('€', '').replace(',', '.').strip())
-            except: pass
-        if 'tags_meteo' in fields: update_data['tags_meteo'] = fields['tags_meteo']
-        if 'is_featured' in fields: update_data['is_featured'] = bool(fields['is_featured'])
-        if 'Photo' in fields:
-            if isinstance(fields['Photo'], list) and len(fields['Photo']) > 0:
-                update_data['photo'] = fields['Photo'][0].get('url')
-            else:
-                update_data['photo'] = None
-
+        update_data = _menu_payload_from_fields(request.json.get('fields', {}))
         supabase_client.table("menu").update(update_data).eq("id", record_id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
@@ -375,24 +387,61 @@ def admin_delete_item(record_id):
 @admin_required
 def admin_create_item():
     try:
-        fields = request.json.get('fields', {})
-        prix = 0.0
-        try:
-            prix = float(str(fields.get('prix', '0')).replace('€', '').replace(',', '.').strip())
-        except: pass
-        
-        insert_data = {
-            "plat": fields.get('Plat'),
-            "description_geo": fields.get('description_geo'),
-            "prix": prix,
-            "tags_meteo": fields.get('tags_meteo', []),
-            "is_featured": bool(fields.get('is_featured')),
-            "photo": fields.get('Photo', [{}])[0].get('url') if fields.get('Photo') else None
-        }
+        insert_data = _menu_payload_from_fields(request.json.get('fields', {}))
+        insert_data.setdefault("prix", 0.0)
+        insert_data.setdefault("is_featured", False)
+        insert_data.setdefault("tags_meteo", [])
+        insert_data.setdefault("menu", [])
+        insert_data.setdefault("intolerances", [])
         res = supabase_client.table("menu").insert(insert_data).execute()
         return jsonify({"status": "success", "data": res.data[0]})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+def _wine_row_to_fields(r):
+    return {
+        "id": r["id"],
+        "fields": {
+            "Nom":             r.get("nom"),
+            "Nom_EN":          r.get("nom_en"),
+            "Appellation":     r.get("appellation"),
+            "Millesime":       r.get("millesime"),
+            "Prix_Verre":      r.get("prix_verre"),
+            "Prix_Bouteille":  r.get("prix_bouteille"),
+            "Type":            r.get("type"),
+            "Description":     r.get("description"),
+            "Description_EN":  r.get("description_en"),
+            "Photo":           [{"url": r["photo"]}] if r.get("photo") else [],
+        },
+    }
+
+
+def _wine_payload_from_fields(fields):
+    out = {}
+    mapping = {
+        "Nom":            "nom",
+        "Nom_EN":         "nom_en",
+        "Appellation":    "appellation",
+        "Millesime":      "millesime",
+        "Prix_Verre":     "prix_verre",
+        "Prix_Bouteille": "prix_bouteille",
+        "Type":           "type",
+        "Description":    "description",
+        "Description_EN": "description_en",
+    }
+    for k, col in mapping.items():
+        if k in fields:
+            out[col] = fields[k]
+    if "Photo" in fields:
+        photo = fields["Photo"]
+        if isinstance(photo, list) and photo:
+            out["photo"] = photo[0].get("url")
+        elif isinstance(photo, str):
+            out["photo"] = photo
+        else:
+            out["photo"] = None
+    return out
+
 
 @app.route('/api/admin/wines', methods=['GET'])
 @admin_required
@@ -400,21 +449,7 @@ def admin_get_wines():
     try:
         if not supabase_client: return jsonify({"error": "Supabase non connecté"}), 500
         res = supabase_client.table("wines").select("*").execute()
-        wines_with_ids = []
-        for r in res.data:
-            wines_with_ids.append({
-                "id": r["id"],
-                "fields": {
-                    "Nom": r["nom"],
-                    "Appellation": r["appellation"],
-                    "Région": r["region"],
-                    "Type": r["type"],
-                    "Prix": f"€{r['prix']:.2f}" if r['prix'] else "",
-                    "Description": r["description"],
-                    "Disponible": r["disponible"]
-                }
-            })
-        return jsonify(wines_with_ids)
+        return jsonify([_wine_row_to_fields(r) for r in res.data])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -422,11 +457,10 @@ def admin_get_wines():
 @admin_required
 def admin_get_wine(record_id):
     try:
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
-        res = http_requests.get(url, headers=engine.headers)
-        if res.status_code == 200:
-            return jsonify(res.json())
-        return jsonify({"error": res.text}), res.status_code
+        res = supabase_client.table("wines").select("*").eq("id", record_id).execute()
+        if res.data:
+            return jsonify(_wine_row_to_fields(res.data[0]))
+        return jsonify({"error": "Not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -434,20 +468,7 @@ def admin_get_wine(record_id):
 @admin_required
 def admin_update_wine(record_id):
     try:
-        fields = request.json.get('fields', {})
-        update_data = {}
-        mapping = {
-            "Nom": "nom", "Appellation": "appellation", "Région": "region", 
-            "Type": "type", "Description": "description", "Disponible": "disponible"
-        }
-        for k, v in mapping.items():
-            if k in fields: update_data[v] = fields[k]
-        
-        if "Prix" in fields:
-            try:
-                update_data["prix"] = float(str(fields["Prix"]).replace('€', '').replace(',', '.').strip())
-            except: pass
-
+        update_data = _wine_payload_from_fields(request.json.get('fields', {}))
         supabase_client.table("wines").update(update_data).eq("id", record_id).execute()
         return jsonify({"status": "success"})
     except Exception as e:
@@ -466,21 +487,7 @@ def admin_delete_wine(record_id):
 @admin_required
 def admin_create_wine():
     try:
-        fields = request.json.get('fields', {})
-        prix = 0.0
-        try:
-            prix = float(str(fields.get('Prix', '0')).replace('€', '').replace(',', '.').strip())
-        except: pass
-        
-        insert_data = {
-            "nom": fields.get('Nom'),
-            "appellation": fields.get('Appellation'),
-            "region": fields.get('Région'),
-            "type": fields.get('Type'),
-            "prix": prix,
-            "description": fields.get('Description'),
-            "disponible": fields.get('Disponible', True)
-        }
+        insert_data = _wine_payload_from_fields(request.json.get('fields', {}))
         res = supabase_client.table("wines").insert(insert_data).execute()
         return jsonify({"status": "success", "data": res.data[0]})
     except Exception as e:
@@ -631,38 +638,54 @@ def get_public_menu():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def _commande_row_to_fields(r):
+    """Format Supabase row → payload attendu par order.html / kitchen.html (clés Airtable-like).
+    Le frontend fait `JSON.parse(f.Items)` donc on re-sérialise items en string."""
+    items = r.get("items") or []
+    if not isinstance(items, str):
+        items = json.dumps(items, ensure_ascii=False)
+    return {
+        "id": r["id"],
+        "fields": {
+            "Ref":     r.get("ref"),
+            "Table_N": r.get("table_n"),
+            "Items":   items,
+            "Total":   r.get("total"),
+            "Statut":  r.get("statut"),
+            "Heure":   r.get("heure"),
+            "Service": r.get("service"),
+            "Notes":   r.get("notes"),
+        },
+    }
+
+
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
     try:
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}"}
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
-        params = {"sort[0][field]": "Heure", "sort[0][direction]": "asc"}
+        if not supabase_client:
+            return jsonify({"error": "Supabase non connecté"}), 500
+        q = supabase_client.table("commandes").select("*").order("heure", desc=False)
         statut = request.args.get('statut')
         if statut:
-            params["filterByFormula"] = f"{{Statut}}='{statut}'"
-        res = http_requests.get(url, headers=at_headers, params=params)
-        if res.status_code == 200:
-            return jsonify(res.json().get('records', []))
-        return jsonify({"error": res.text}), res.status_code
+            q = q.eq("statut", statut)
+        res = q.execute()
+        return jsonify([_commande_row_to_fields(r) for r in res.data])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/orders/table/<int:table_num>', methods=['GET'])
 def get_table_orders(table_num):
     try:
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}"}
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
-        params = {
-            "filterByFormula": f"AND({{Table_N}}={table_num},NOT(OR({{Statut}}='Servi',{{Statut}}='Payé',{{Statut}}='Annulé')))"
-        }
-        res = http_requests.get(url, headers=at_headers, params=params)
-        if res.status_code == 200:
-            return jsonify(res.json().get('records', []))
-        return jsonify({"error": res.text}), res.status_code
+        if not supabase_client:
+            return jsonify({"error": "Supabase non connecté"}), 500
+        # Toutes les commandes de la table sauf celles déjà servies/payées/annulées
+        # PostgREST: `statut=not.in.(...)`
+        res = (supabase_client.table("commandes")
+               .select("*")
+               .eq("table_n", table_num)
+               .filter("statut", "not.in", "(Servi,Payé,Annulé)")
+               .execute())
+        return jsonify([_commande_row_to_fields(r) for r in res.data])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -678,44 +701,29 @@ def create_order():
             return jsonify({"status": "error", "message": "Table et articles requis"}), 400
         now = datetime.now()
         service = "Midi" if now.hour < 17 else "Soir"
-        heure_iso = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        ref = f"Table {table_num} - {now.strftime('%H:%M')}"
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
-        fields = {
-            "Ref": ref,
-            "Table_N": int(table_num),
-            "Items": json.dumps(items, ensure_ascii=False),
-            "Total": float(total),
-            "Statut": "En attente",
-            "Heure": heure_iso,
-            "Service": service,
-            "Notes": notes
+        payload = {
+            "ref":     f"Table {table_num} - {now.strftime('%H:%M')}",
+            "table_n": int(table_num),
+            "items":   items,
+            "total":   float(total),
+            "statut":  "En attente",
+            "heure":   now.isoformat(),
+            "service": service,
+            "notes":   notes,
         }
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
-        res = http_requests.post(url, headers=at_headers, json={"records": [{"fields": fields}]})
-        if res.status_code == 200:
-            return jsonify({"status": "success", "record": res.json()})
-        return jsonify({"status": "error", "error": res.text}), res.status_code
+        res = supabase_client.table("commandes").insert(payload).execute()
+        return jsonify({"status": "success", "record": _commande_row_to_fields(res.data[0])})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
 @app.route('/api/orders/<record_id>', methods=['PATCH'])
 def update_order_status(record_id):
     try:
-        data = request.json
-        statut = data.get('statut')
+        statut = (request.json or {}).get('statut')
         if not statut:
             return jsonify({"status": "error", "message": "Statut requis"}), 400
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes/{record_id}"
-        res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": statut}})
-        if res.status_code == 200:
-            return jsonify({"status": "success"})
-        return jsonify({"status": "error", "error": res.text}), res.status_code
+        supabase_client.table("commandes").update({"statut": statut}).eq("id", record_id).execute()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
@@ -723,19 +731,11 @@ def update_order_status(record_id):
 def get_tables_ready_for_billing():
     """Retourne la liste des tables ayant au moins une commande Statut='Servi'."""
     try:
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}"}
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
-        params = {"filterByFormula": "{Statut}='Servi'", "fields[]": "Table_N"}
-        res = http_requests.get(url, headers=at_headers, params=params)
-        if res.status_code != 200:
-            return jsonify({"error": res.text}), res.status_code
-        tables = sorted({
-            int(r['fields']['Table_N'])
-            for r in res.json().get('records', [])
-            if r.get('fields', {}).get('Table_N') is not None
-        })
+        res = (supabase_client.table("commandes")
+               .select("table_n")
+               .eq("statut", "Servi")
+               .execute())
+        tables = sorted({int(r["table_n"]) for r in res.data if r.get("table_n") is not None})
         return jsonify({"tables": tables})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -743,44 +743,38 @@ def get_tables_ready_for_billing():
 @app.route('/api/billing/table/<int:table_num>', methods=['GET'])
 def get_billing_table(table_num):
     try:
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}"}
-        url = f"https://api.airtable.com/v0/{base_id}/Commandes"
-        params = {
-            "filterByFormula": f"AND({{Table_N}}={table_num},{{Statut}}='Servi')"
-        }
-        res = http_requests.get(url, headers=at_headers, params=params)
-        if res.status_code != 200:
-            return jsonify({"error": res.text}), res.status_code
-
-        records = res.json().get('records', [])
-        commande_ids = [r['id'] for r in records]
+        res = (supabase_client.table("commandes")
+               .select("*")
+               .eq("table_n", table_num)
+               .eq("statut", "Servi")
+               .execute())
+        records = res.data
+        commande_ids = [r["id"] for r in records]
 
         aggregated = {}
-        for record in records:
-            fields = record.get('fields', {})
-            items_raw = fields.get('Items', '[]')
-            try:
-                items = json.loads(items_raw)
-            except Exception:
-                items = []
+        for r in records:
+            items = r.get("items") or []
+            if isinstance(items, str):
+                try: items = json.loads(items)
+                except Exception: items = []
             for item in items:
                 item_id = item.get('id', item.get('nom', ''))
                 if item_id in aggregated:
                     aggregated[item_id]['qty'] += item.get('qty', 1)
                 else:
+                    cats = item.get('categories')
+                    categorie = item.get('categorie') or (cats[0] if isinstance(cats, list) and cats else '')
                     aggregated[item_id] = {
-                        'nom': item.get('nom', ''),
-                        'prix': float(item.get('prix', 0)),
-                        'qty': item.get('qty', 1),
-                        'categorie': item.get('categorie', item.get('categories', [''])[0] if isinstance(item.get('categories'), list) else '')
+                        'nom':       item.get('nom', ''),
+                        'prix':      float(item.get('prix', 0)),
+                        'qty':       item.get('qty', 1),
+                        'categorie': categorie,
                     }
 
         return jsonify({
             "table": table_num,
             "commande_ids": commande_ids,
-            "items": list(aggregated.values())
+            "items": list(aggregated.values()),
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -788,89 +782,20 @@ def get_billing_table(table_num):
 @app.route('/api/billing/close', methods=['POST'])
 def close_billing():
     try:
-        data = request.json
-        commande_ids = data.get('commande_ids', [])
+        commande_ids = (request.json or {}).get('commande_ids', [])
         if not commande_ids:
             return jsonify({"status": "error", "message": "Aucune commande à clôturer"}), 400
-
-        airtable_key = os.environ.get('AIRTABLE_API_KEY')
-        base_id = os.environ.get('AIRTABLE_BASE_ID')
-        at_headers = {"Authorization": f"Bearer {airtable_key}", "Content-Type": "application/json"}
-
-        errors = []
-        for record_id in commande_ids:
-            url = f"https://api.airtable.com/v0/{base_id}/Commandes/{record_id}"
-            res = http_requests.patch(url, headers=at_headers, json={"fields": {"Statut": "Payé"}})
-            if res.status_code != 200:
-                errors.append(record_id)
-
-        if errors:
-            return jsonify({"status": "error", "message": f"Erreur sur {len(errors)} commande(s)"}), 500
+        # Update en lot via filter `id in (...)`
+        (supabase_client.table("commandes")
+         .update({"statut": "Payé"})
+         .in_("id", commande_ids)
+         .execute())
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
 # --- ROUTES MENUS ÉVÉNEMENTS ---
-# Stockés dans Airtable (table Special_Menus_Cherimoya). Le FS Vercel est read-only,
-# donc tout doit passer par Airtable comme le reste de l'app.
-
-SPECIAL_MENUS_TABLE = 'Special_Menus_Cherimoya'
-
-def _sm_airtable_url(record_id=None):
-    base_id = os.environ.get('AIRTABLE_BASE_ID')
-    base_url = f"https://api.airtable.com/v0/{base_id}/{SPECIAL_MENUS_TABLE}"
-    return f"{base_url}/{record_id}" if record_id else base_url
-
-def _sm_airtable_headers():
-    return {
-        "Authorization": f"Bearer {os.environ.get('AIRTABLE_API_KEY')}",
-        "Content-Type": "application/json",
-    }
-
-def _sm_record_to_menu(record):
-    f = record.get('fields', {})
-    def _split(v):
-        if not v:
-            return []
-        return [line.strip() for line in str(v).splitlines() if line.strip()]
-    return {
-        'id':         record['id'],
-        'name':       f.get('Name', ''),
-        'theme':      f.get('Theme', 'personnalise'),
-        'start_date': f.get('Start_Date', ''),
-        'end_date':   f.get('End_Date', ''),
-        'active':     bool(f.get('Active', False)),
-        'price':      f.get('Price', ''),
-        'subtitle':   f.get('Subtitle', ''),
-        'entrees':    _split(f.get('Entrees', '')),
-        'plats':      _split(f.get('Plats', '')),
-        'desserts':   _split(f.get('Desserts', '')),
-        'photo':      f.get('Photo', '')
-    }
-
-def _sm_payload_to_fields(data):
-    def _join(items):
-        if not items:
-            return ''
-        return '\n'.join(str(i).strip() for i in items if str(i).strip())
-    mapping = {
-        'name':       ('Name',       lambda v: v or ''),
-        'theme':      ('Theme',      lambda v: v or 'personnalise'),
-        'start_date': ('Start_Date', lambda v: v or ''),
-        'end_date':   ('End_Date',   lambda v: v or ''),
-        'active':     ('Active',     bool),
-        'price':      ('Price',      lambda v: v or ''),
-        'subtitle':   ('Subtitle',   lambda v: v or ''),
-        'entrees':    ('Entrees',    _join),
-        'plats':      ('Plats',      _join),
-        'desserts':   ('Desserts',   _join),
-        'photo':      ('Photo',      lambda v: v or ''),
-    }
-    fields = {}
-    for key, (col, cast) in mapping.items():
-        if key in data:
-            fields[col] = cast(data.get(key))
-    return fields
+# Stockés dans Supabase (table public.special_menus).
 
 def load_special_menus():
     """Récupère les menus spéciaux depuis Supabase."""

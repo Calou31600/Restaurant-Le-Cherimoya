@@ -5,3 +5,6 @@ __pycache__/
 !.tmp/airtable_cache.json
 .vercel
 node_modules/
+
+# Exports Airtable contenant des données client (emails, téléphones) — PII à ne JAMAIS pousser
+airtable_exports/*.csv

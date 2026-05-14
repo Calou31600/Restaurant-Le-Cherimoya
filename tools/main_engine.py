@@ -12,27 +12,22 @@ from google_business_engine import GoogleBusinessEngine
 load_dotenv()
 
 class MainEngine:
-    """Chef d'orchestre coordonnant les données Airtable et l'intelligence Météo/SEO avec mise en cache."""
+    """Chef d'orchestre coordonnant les données Supabase et l'intelligence Météo/SEO avec mise en cache."""
 
     def __init__(self):
         self.weather = WeatherEngine()
         self.seo = SEOManager()
         self.booking = BookingManager()
         self.business = GoogleBusinessEngine()
-        
+
         # Supabase
         self.sb_url = os.getenv("SUPABASE_URL")
-        self.sb_key = os.getenv("SUPABASE_KEY")
+        self.sb_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
         if self.sb_url and self.sb_key:
             self.supabase: Client = create_client(self.sb_url, self.sb_key)
         else:
             self.supabase = None
             print("⚠️ Supabase credentials missing in .env")
-
-        # Airtable (Legacy/Backup)
-        self.api_key = os.getenv('AIRTABLE_API_KEY')
-        self.base_id = os.getenv('AIRTABLE_BASE_ID')
-        self.headers = {"Authorization": f"Bearer {self.api_key}"}
 
         # Système de Cache
         self._cache = {}
@@ -94,41 +89,33 @@ class MainEngine:
         self._save_file_cache()
 
     def get_featured_menu(self):
-        """Récupère tous les plats depuis Supabase (avec fallback Cache/Airtable)."""
+        """Récupère tous les plats depuis Supabase (avec fallback cache disque)."""
         cached_menu = self._get_cached("menu")
         if cached_menu:
             return cached_menu
 
-        # Tentative via Supabase
         if self.supabase:
             try:
                 res = self.supabase.table("menu").select("*").order("plat").execute()
                 records = [{"id": r["id"], "fields": {
-                    "Plat": r["plat"],
-                    "description_geo": r["description_geo"] or "",
-                    "prix": f"€{r['prix']:.2f}" if r['prix'] is not None else "",
-                    "tags_meteo": r.get("tags_meteo") or [],
-                    "producteur_local": r.get("producteur_local") or "",
-                    "is_featured": r.get("is_featured") or False,
-                    "Photo": [{"url": r["photo"]}] if r.get("photo") else []
+                    "Plat":                r.get("plat"),
+                    "Plat_EN":             r.get("plat_en"),
+                    "description_geo":     r.get("description_geo") or "",
+                    "description_geo_EN":  r.get("description_geo_en") or "",
+                    "prix":                f"€{r['prix']:.2f}" if r.get('prix') is not None else "",
+                    "tags_meteo":          r.get("tags_meteo") or [],
+                    "Menu":                r.get("menu") or [],
+                    "intolerances":        r.get("intolerances") or [],
+                    "producteur_local":    r.get("producteur_local") or "",
+                    "is_featured":         r.get("is_featured") or False,
+                    "Photo":               [{"url": r["photo"]}] if r.get("photo") else [],
                 }} for r in res.data]
                 self._set_cache("menu", records)
                 return records
             except Exception as e:
                 print(f"[Supabase] Erreur Menu: {e}")
 
-        # Fallback Airtable (si Supabase échoue ou n'est pas encore prêt)
-        url = f"https://api.airtable.com/v0/{self.base_id}/Dynamic_Menu"
-        try:
-            response = requests.get(url, headers=self.headers, timeout=5)
-            if response.status_code == 200:
-                records = response.json().get('records', [])
-                records.sort(key=lambda x: x.get('fields', {}).get('Plat', '').strip().lower())
-                self._set_cache("menu", records)
-                return records
-        except Exception: pass
-        
-        # Ultime recours : Cache expiré
+        # Ultime recours : cache disque expiré (si présent)
         return self._cache.get("menu", {}).get("data", [])
 
     def get_wine_list(self):
@@ -141,33 +128,22 @@ class MainEngine:
             try:
                 res = self.supabase.table("wines").select("*").order("nom").execute()
                 records = [{"id": r["id"], "fields": {
-                    "Nom": r["nom"],
-                    "Nom_EN": r.get("nom_en") or r["nom"],
-                    "Appellation": r.get("appellation") or "",
-                    "Millesime": r.get("millesime") or "",
-                    "Prix_Verre": r.get("prix_verre"),
+                    "Nom":             r.get("nom"),
+                    "Nom_EN":          r.get("nom_en") or r.get("nom"),
+                    "Appellation":     r.get("appellation") or "",
+                    "Millesime":       r.get("millesime") or "",
+                    "Prix_Verre":      r.get("prix_verre"),
                     "Prix_Bouteille": r.get("prix_bouteille"),
-                    "Type": r.get("type") or "Rouge",
-                    "Description": r.get("description") or "",
-                    "Description_EN": r.get("description_en") or "",
-                    "Photo": [{"url": r["photo"]}] if r.get("photo") else []
+                    "Type":            r.get("type") or "Rouge",
+                    "Description":     r.get("description") or "",
+                    "Description_EN":  r.get("description_en") or "",
+                    "Photo":           [{"url": r["photo"]}] if r.get("photo") else [],
                 }} for r in res.data]
                 self._set_cache("wines", records)
                 return records
             except Exception as e:
                 print(f"[Supabase] Erreur Vins: {e}")
 
-        # Fallback Airtable
-        url = f"https://api.airtable.com/v0/{self.base_id}/Carte_Vins"
-        try:
-            response = requests.get(url, headers=self.headers, timeout=5)
-            if response.status_code == 200:
-                records = response.json().get('records', [])
-                records.sort(key=lambda x: x.get('fields', {}).get('Nom', '').strip().lower())
-                self._set_cache("wines", records)
-                return records
-        except Exception: pass
-        
         return self._cache.get("wines", {}).get("data", [])
 
     def get_google_reviews(self, lang="fr"):
@@ -279,84 +255,87 @@ class MainEngine:
         }
 
     def get_clients(self):
-        """Récupère tous les clients depuis la table Clients."""
-        url = f"https://api.airtable.com/v0/{self.base_id}/Clients"
-        try:
-            response = requests.get(url, headers=self.headers, timeout=5)
-            if response.status_code == 200:
-                return response.json().get('records', [])
+        """Récupère tous les clients depuis la table Supabase `clients`.
+
+        Format de sortie : liste de `{id, fields}` (clés Airtable-like) pour
+        rester compatible avec la fiche admin (dashboard.html `fetchClients`)."""
+        if not self.supabase:
             return []
+        try:
+            res = self.supabase.table("clients").select("*").order("derniere_visite", desc=True).execute()
+            return [{
+                "id": r["id"],
+                "fields": {
+                    "Nom":                  r.get("nom"),
+                    "Email":                r.get("email"),
+                    "Telephone":            r.get("telephone"),
+                    "Nb_Reservations":      r.get("nb_reservations") or 0,
+                    "Derniere_Visite":      r.get("derniere_visite"),
+                    "Dernier_Avis_Envoye":  r.get("dernier_avis_envoye"),
+                    "Notes":                r.get("notes"),
+                    "Note":                 r.get("note"),
+                    "Avis_Recu":            r.get("avis_recu") or False,
+                },
+            } for r in res.data]
         except Exception as e:
-            print(f"Erreur Airtable Clients: {e}")
+            print(f"Erreur Supabase Clients: {e}")
             return []
 
     def sync_clients_from_reservations(self):
-        """
-        Synchronise les clients à partir de la table Reservations.
-        Dédoublonnage basé sur l'email.
-        """
-        # 1. Récupérer toutes les réservations confirmées
-        res_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
-        params = {"filterByFormula": "{Statut}='Confirmée'"}
-        try:
-            res_response = requests.get(res_url, headers=self.headers, params=params)
-            reservations = res_response.json().get('records', [])
-            
-            # 2. Récupérer les clients actuels pour dédoublonnage
-            current_clients = self.get_clients()
-            client_emails = {c['fields'].get('Email'): c['id'] for c in current_clients if c['fields'].get('Email')}
-            
-            # 3. Traiter les réservations
-            for res_record in reservations:
-                fields = res_record['fields']
-                email = fields.get('Email')
-                if not email: continue
-                
-                nom = fields.get('Nom')
-                tel = fields.get('Telephone')
-                date_res = fields.get('Date')
-                
-                if email in client_emails:
-                    client_id = client_emails[email]
-                    client_record = next((c for c in current_clients if c['id'] == client_id), None)
-                    if client_record:
-                        existing_fields = client_record.get('fields', {})
-                        
-                        # On met à jour si la date est différente ou si des infos manquent
-                        update_needed = False
-                        new_fields = {}
-                        
-                        if date_res != existing_fields.get('Derniere_Visite'):
-                            new_fields["Derniere_Visite"] = date_res
-                            update_needed = True
-                            
-                        if not existing_fields.get('Nom') and nom:
-                            new_fields["Nom"] = nom
-                            update_needed = True
-                            
-                        if not existing_fields.get('Telephone') and tel:
-                            new_fields["Telephone"] = tel
-                            update_needed = True
+        """Synchronise la table `clients` depuis les réservations confirmées.
 
-                        if update_needed:
-                            requests.patch(f"https://api.airtable.com/v0/{self.base_id}/Clients/{client_id}", 
-                                           headers=self.headers, 
-                                           json={"fields": new_fields})
+        Dédoublonnage sur l'email. Création ou mise à jour de `derniere_visite`
+        et compteur `nb_reservations`."""
+        if not self.supabase:
+            return False, "Supabase non configuré."
+        try:
+            # 1. Réservations confirmées
+            res = (self.supabase.table("reservations")
+                   .select("*")
+                   .eq("statut", "Confirmée")
+                   .execute())
+            reservations = res.data or []
+
+            # 2. Clients existants indexés par email
+            cli = self.supabase.table("clients").select("id,email,derniere_visite,nb_reservations,nom,telephone").execute()
+            by_email = {c["email"]: c for c in (cli.data or []) if c.get("email")}
+
+            created, updated = 0, 0
+            for r in reservations:
+                email = (r.get("email") or "").strip().lower()
+                if not email:
+                    continue
+                nom = r.get("nom") or "Inconnu"
+                tel = r.get("telephone")
+                date_res = r.get("date")
+
+                existing = by_email.get(email)
+                if existing:
+                    patch = {}
+                    if date_res and date_res != existing.get("derniere_visite"):
+                        patch["derniere_visite"] = date_res
+                        patch["nb_reservations"] = (existing.get("nb_reservations") or 0) + 1
+                    if not existing.get("nom") and nom:
+                        patch["nom"] = nom
+                    if not existing.get("telephone") and tel:
+                        patch["telephone"] = tel
+                    if patch:
+                        self.supabase.table("clients").update(patch).eq("id", existing["id"]).execute()
+                        # Refléter en local pour ne pas double-incrémenter sur deux résas du même client
+                        existing.update(patch)
+                        updated += 1
                 else:
-                    # Nouveau client : Création
-                    new_client_fields = {
-                        "Nom": nom,
-                        "Email": email,
-                        "Telephone": tel,
-                        "Nb_Reservations": 1,
-                        "Derniere_Visite": date_res
+                    new_row = {
+                        "nom": nom,
+                        "email": email,
+                        "telephone": tel,
+                        "nb_reservations": 1,
+                        "derniere_visite": date_res,
                     }
-                    requests.post(f"https://api.airtable.com/v0/{self.base_id}/Clients", 
-                                  headers=self.headers, 
-                                  json={"records": [{"fields": new_client_fields}], "typecast": True})
-                    # On l'ajoute au cache local pour éviter les doublons dans la même boucle
-                    client_emails[email] = "new"
-            return True, "Synchronisation terminée."
+                    ins = self.supabase.table("clients").insert(new_row).execute()
+                    by_email[email] = (ins.data or [new_row])[0]
+                    created += 1
+            return True, f"Synchronisation OK : {created} créé(s), {updated} mis à jour."
         except Exception as e:
             return False, str(e)
 

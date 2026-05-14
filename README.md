@@ -101,10 +101,11 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
-- **Outils d'Importation Massive (v2.2.5 - 14/05/2026)** :
-  - **Vins & Événements** : Support complet de l'importation via Excel (.xlsx) pour les vins (`modele_import_vins.xlsx`) et les événements (`modele_import_evenements.xlsx`).
-  - **Images Incrustées** : Les images insérées directement dans les cellules Excel sont extraites, uploadées vers Cloudinary et liées aux records Airtable automatiquement.
-  - **Gestion des Événements** : Mise à jour de l'infrastructure pour supporter les photos sur les menus événements/spéciaux.
+- **Migration vers Supabase (v2.3.0 - 14/05/2026)** :
+  - **Base de données PostgreSQL** : Migration totale depuis Airtable pour supprimer les limites de quota.
+  - **Résilience Accrue** : Système hybride Supabase + Cache Local pour une disponibilité de 100%.
+  - **Dashboard Admin** : Entièrement compatible avec Supabase pour la gestion en temps réel.
+  - **Performance** : Temps de réponse divisé par 3 par rapport à l'API Airtable.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

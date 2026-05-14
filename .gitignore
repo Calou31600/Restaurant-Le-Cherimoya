@@ -1,6 +1,7 @@
 .env
 venv/
 __pycache__/
-.tmp/
+.tmp/*
+!.tmp/airtable_cache.json
 .vercel
 node_modules/

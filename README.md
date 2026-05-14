@@ -101,10 +101,11 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
-- **Maintenance du Menu & IA (v2.2.1 - 13/05/2026)** :
-  - **Génération Massive de Visuels** : Création de 12 nouveaux visuels gastronomiques premium pour compléter la carte (Thé noir, Infusion camomille, Jus d'ananas, Coleslaw maison, Bières Saigon & Pression, Eau de coco, Bavarois Individuel, Nouilles sautées Poulet/Bœuf, Citron Rafraîchissant, Brise d'Asie au soleil).
-  - **Infrastructure d'Images** : Upload systématique vers Cloudinary et préparation de la synchronisation Airtable (en attente de reset de quota).
-  - **Optimisation du Matching** : Amélioration des scripts de synchronisation IA pour une meilleure reconnaissance des plats.
+- **Optimisation API & Cache Persistant (v2.2.2 - 14/05/2026)** :
+  - **Réduction Drastique des Requêtes** : Augmentation du TTL du cache (de 2 min à 1 heure) pour économiser plus de 20 000 appels API par mois.
+  - **Système de Cache Persistant** : Implémentation d'un stockage local (`.tmp/airtable_cache.json`) pour conserver les données entre les redémarrages serveur.
+  - **Mode Résilient** : Le site reste fonctionnel et affiche le menu même en cas de dépassement de quota ou de panne d'Airtable grâce au fallback sur le cache persistant.
+  - **Invalidation Intelligente** : Le cache est automatiquement purgé et rafraîchi lors de chaque modification effectuée via le dashboard admin.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

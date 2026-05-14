@@ -316,7 +316,7 @@ def admin_update_item(record_id):
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
         res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
         if res.status_code == 200:
-            engine._cache.pop("menu", None)
+            engine.clear_cache("menu")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:
@@ -329,7 +329,7 @@ def admin_delete_item(record_id):
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
         res = http_requests.delete(url, headers=engine.headers)
         if res.status_code == 200:
-            engine._cache.pop("menu", None)
+            engine.clear_cache("menu")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:
@@ -345,7 +345,7 @@ def admin_create_item():
         url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu"
         res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
         if res.status_code == 200:
-            engine._cache.pop("menu", None)
+            engine.clear_cache("menu")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:
@@ -381,7 +381,7 @@ def admin_update_wine(record_id):
         url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
         res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
         if res.status_code == 200:
-            engine._cache.pop("wines", None)
+            engine.clear_cache("wines")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:
@@ -394,7 +394,7 @@ def admin_delete_wine(record_id):
         url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
         res = http_requests.delete(url, headers=engine.headers)
         if res.status_code == 200:
-            engine._cache.pop("wines", None)
+            engine.clear_cache("wines")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:
@@ -408,7 +408,7 @@ def admin_create_wine():
         url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins"
         res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
         if res.status_code == 200:
-            engine._cache.pop("wines", None)
+            engine.clear_cache("wines")
             return jsonify({"status": "success", "data": res.json()})
         return jsonify({"error": res.text}), res.status_code
     except Exception as e:

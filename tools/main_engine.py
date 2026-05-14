@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import json
 from dotenv import load_dotenv
 from weather_engine import WeatherEngine
 from seo_generator import SEOManager
@@ -21,24 +22,64 @@ class MainEngine:
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
 
-        # Système de Cache simple
+        # Système de Cache
         self._cache = {}
+        self.cache_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.tmp', 'airtable_cache.json')
         self._cache_ttl = {
-            "menu": 120,    # 2 minutes pour tester
+            "menu": 3600,    # 1 heure (au lieu de 2 min)
             "weather": 600, # 10 minutes
-            "reviews": 1800, # 30 minutes (Business Profile a un quota strict)
-            "wines": 120    # 2 minutes
+            "reviews": 1800, # 30 minutes
+            "wines": 3600    # 1 heure
         }
+        self._load_file_cache()
+
+    def _load_file_cache(self):
+        """Charge le cache depuis le fichier s'il existe."""
+        if os.path.exists(self.cache_file):
+            try:
+                with open(self.cache_file, 'r', encoding='utf-8') as f:
+                    self._cache = json.load(f)
+                    print(f"[CACHE] Chargé depuis {self.cache_file}")
+            except Exception as e:
+                print(f"[CACHE] Erreur chargement fichier: {e}")
+                self._cache = {}
+
+    def _save_file_cache(self):
+        """Sauvegarde le cache actuel dans le fichier."""
+        try:
+            os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
+            with open(self.cache_file, 'w', encoding='utf-8') as f:
+                json.dump(self._cache, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[CACHE] Erreur sauvegarde fichier: {e}")
 
     def _get_cached(self, key):
         if key in self._cache:
-            data, timestamp = self._cache[key]
+            item = self._cache[key]
+            # Support de l'ancien format (liste [data, timestamp]) et du nouveau format JSON (dict)
+            if isinstance(item, list) and len(item) == 2:
+                data, timestamp = item
+            elif isinstance(item, dict) and "data" in item and "timestamp" in item:
+                data = item["data"]
+                timestamp = item["timestamp"]
+            else:
+                return None
+
             if time.time() - timestamp < self._cache_ttl.get(key, 0):
                 return data
         return None
 
     def _set_cache(self, key, data):
-        self._cache[key] = (data, time.time())
+        self._cache[key] = {"data": data, "timestamp": time.time()}
+        self._save_file_cache()
+
+    def clear_cache(self, key=None):
+        """Vide le cache (mémoire et fichier)."""
+        if key:
+            self._cache.pop(key, None)
+        else:
+            self._cache = {}
+        self._save_file_cache()
 
     def get_featured_menu(self):
         """Récupère tous les plats depuis Airtable avec mise en cache et tri alphabétique."""
@@ -51,13 +92,19 @@ class MainEngine:
             response = requests.get(url, headers=self.headers, timeout=5)
             if response.status_code == 200:
                 records = response.json().get('records', [])
-                # Tri alphabétique direct dans le backend (sur le nom du plat en minuscules pour ignorer la casse)
                 records.sort(key=lambda x: x.get('fields', {}).get('Plat', '').strip().lower())
                 self._set_cache("menu", records)
                 return records
+            
+            # MODE RÉSILIENT : Si quota dépassé ou erreur, on utilise le cache même s'il est expiré
+            print(f"[AIRTABLE] Erreur {response.status_code} sur Menu. Utilisation du fallback cache.")
+            if "menu" in self._cache:
+                return self._cache["menu"].get("data", [])
             return []
         except Exception as e:
             print(f"Erreur Airtable Menu: {e}")
+            if "menu" in self._cache:
+                return self._cache["menu"].get("data", [])
             return []
 
     def get_wine_list(self):
@@ -73,9 +120,16 @@ class MainEngine:
                 records.sort(key=lambda x: x.get('fields', {}).get('Nom', '').strip().lower())
                 self._set_cache("wines", records)
                 return records
+            
+            # FALLBACK
+            print(f"[AIRTABLE] Erreur {response.status_code} sur Vins. Utilisation du fallback cache.")
+            if "wines" in self._cache:
+                return self._cache["wines"].get("data", [])
             return []
         except Exception as e:
             print(f"Erreur Airtable Vins: {e}")
+            if "wines" in self._cache:
+                return self._cache["wines"].get("data", [])
             return []
 
     def get_google_reviews(self, lang="fr"):

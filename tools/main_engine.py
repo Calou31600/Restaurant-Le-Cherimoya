@@ -3,6 +3,7 @@ import requests
 import time
 import json
 from dotenv import load_dotenv
+from supabase import create_client, Client
 from weather_engine import WeatherEngine
 from seo_generator import SEOManager
 from booking_manager import BookingManager
@@ -18,6 +19,17 @@ class MainEngine:
         self.seo = SEOManager()
         self.booking = BookingManager()
         self.business = GoogleBusinessEngine()
+        
+        # Supabase
+        self.sb_url = os.getenv("SUPABASE_URL")
+        self.sb_key = os.getenv("SUPABASE_KEY")
+        if self.sb_url and self.sb_key:
+            self.supabase: Client = create_client(self.sb_url, self.sb_key)
+        else:
+            self.supabase = None
+            print("⚠️ Supabase credentials missing in .env")
+
+        # Airtable (Legacy/Backup)
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
@@ -82,11 +94,30 @@ class MainEngine:
         self._save_file_cache()
 
     def get_featured_menu(self):
-        """Récupère tous les plats depuis Airtable avec mise en cache et tri alphabétique."""
+        """Récupère tous les plats depuis Supabase (avec fallback Cache/Airtable)."""
         cached_menu = self._get_cached("menu")
         if cached_menu:
             return cached_menu
 
+        # Tentative via Supabase
+        if self.supabase:
+            try:
+                res = self.supabase.table("menu").select("*").order("plat").execute()
+                records = [{"id": r["id"], "fields": {
+                    "Plat": r["plat"],
+                    "description_geo": r["description_geo"],
+                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
+                    "tags_meteo": r["tags_meteo"],
+                    "producteur_local": r["producteur_local"],
+                    "is_featured": r["is_featured"],
+                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                }} for r in res.data]
+                self._set_cache("menu", records)
+                return records
+            except Exception as e:
+                print(f"[Supabase] Erreur Menu: {e}")
+
+        # Fallback Airtable (si Supabase échoue ou n'est pas encore prêt)
         url = f"https://api.airtable.com/v0/{self.base_id}/Dynamic_Menu"
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
@@ -95,23 +126,38 @@ class MainEngine:
                 records.sort(key=lambda x: x.get('fields', {}).get('Plat', '').strip().lower())
                 self._set_cache("menu", records)
                 return records
-            
-            # MODE RÉSILIENT : Si quota dépassé ou erreur, on utilise le cache même s'il est expiré
-            print(f"[AIRTABLE] Erreur {response.status_code} sur Menu. Utilisation du fallback cache.")
-            if "menu" in self._cache:
-                return self._cache["menu"].get("data", [])
-            return []
-        except Exception as e:
-            print(f"Erreur Airtable Menu: {e}")
-            if "menu" in self._cache:
-                return self._cache["menu"].get("data", [])
-            return []
+        except Exception: pass
+        
+        # Ultime recours : Cache expiré
+        return self._cache.get("menu", {}).get("data", [])
 
     def get_wine_list(self):
-        """Récupère tous les vins depuis Airtable avec mise en cache et tri alphabétique."""
+        """Récupère tous les vins depuis Supabase."""
         cached = self._get_cached("wines")
         if cached:
             return cached
+
+        if self.supabase:
+            try:
+                res = self.supabase.table("wines").select("*").order("nom").execute()
+                records = [{"id": r["id"], "fields": {
+                    "Nom": r["nom"],
+                    "Nom_EN": r["nom_en"],
+                    "Appellation": r["appellation"],
+                    "Millesime": r["millesime"],
+                    "Prix_Verre": r["prix_verre"],
+                    "Prix_Bouteille": r["prix_bouteille"],
+                    "Type": r["type"],
+                    "Description": r["description"],
+                    "Description_EN": r["description_en"],
+                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                }} for r in res.data]
+                self._set_cache("wines", records)
+                return records
+            except Exception as e:
+                print(f"[Supabase] Erreur Vins: {e}")
+
+        # Fallback Airtable
         url = f"https://api.airtable.com/v0/{self.base_id}/Carte_Vins"
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
@@ -120,17 +166,9 @@ class MainEngine:
                 records.sort(key=lambda x: x.get('fields', {}).get('Nom', '').strip().lower())
                 self._set_cache("wines", records)
                 return records
-            
-            # FALLBACK
-            print(f"[AIRTABLE] Erreur {response.status_code} sur Vins. Utilisation du fallback cache.")
-            if "wines" in self._cache:
-                return self._cache["wines"].get("data", [])
-            return []
-        except Exception as e:
-            print(f"Erreur Airtable Vins: {e}")
-            if "wines" in self._cache:
-                return self._cache["wines"].get("data", [])
-            return []
+        except Exception: pass
+        
+        return self._cache.get("wines", {}).get("data", [])
 
     def get_google_reviews(self, lang="fr"):
         """Récupère les avis Google avec cache 30 min.

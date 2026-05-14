@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
+from supabase import create_client, Client
 
 load_dotenv()
 
@@ -10,31 +11,49 @@ class BookingManager:
     """Gère la logique de réservation sécurisée selon la SOP booking_rules.md."""
 
     def __init__(self):
+        # Supabase
+        self.sb_url = os.getenv("SUPABASE_URL")
+        self.sb_key = os.getenv("SUPABASE_KEY")
+        if self.sb_url and self.sb_key:
+            self.supabase: Client = create_client(self.sb_url, self.sb_key)
+        else:
+            self.supabase = None
+            print("⚠️ Supabase credentials missing in BookingManager")
+
+        # Airtable (Backup/Legacy)
         self.api_key = os.getenv('AIRTABLE_API_KEY')
         self.base_id = os.getenv('AIRTABLE_BASE_ID')
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
-        # URL de base pour les emails et redirections
         self.base_url = "https://restaurant-le-cherimoya.vercel.app"
 
     def get_reservations(self):
-        """Récupère toutes les réservations triées par date décroissante."""
+        """Récupère toutes les réservations triées par date décroissante via Supabase."""
+        if self.supabase:
+            try:
+                res = self.supabase.table("reservations").select("*").order("date", desc=True).execute()
+                return [{"id": r["id"], "fields": {
+                    "Nom": r["nom"],
+                    "Telephone": r["telephone"],
+                    "Email": r["email"],
+                    "Date": r["date"],
+                    "Heure": r["heure"],
+                    "Service": r["service"],
+                    "Couverts": r["couverts"],
+                    "Statut": r["statut"],
+                    "Notes": r["notes"]
+                }} for r in res.data]
+            except Exception as e:
+                print(f"[Supabase] Erreur get_reservations: {e}")
+
+        # Fallback Airtable
         url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
-        params = {
-            "sort[0][field]": "Date",
-            "sort[0][direction]": "desc"
-        }
         try:
-            response = requests.get(url, headers=self.headers, params=params)
-            if response.status_code == 200:
-                return response.json().get('records', [])
-            print(f"ERREUR GET Reservations [{response.status_code}]: {response.text}")
-            return []
-        except Exception as e:
-            print(f"Erreur get_reservations: {e}")
-            return []
+            response = requests.get(url, headers=self.headers, params={"sort[0][field]": "Date", "sort[0][direction]": "desc"})
+            return response.json().get('records', []) if response.status_code == 200 else []
+        except: return []
 
     def get_today_stats(self):
         """Récupère les statistiques de réservation pour aujourd'hui en comptant les couverts confirmés dans la table Reservations."""
@@ -133,79 +152,72 @@ class BookingManager:
         return True, "Service accessible."
 
     def check_inventory(self, service_type, target_date_str):
-        """Vérifie la disponibilité dans la table Disponibilités d'Airtable."""
+        """Vérifie la disponibilité dans Supabase (table availability)."""
+        if self.supabase:
+            try:
+                res = self.supabase.table("availability").select("*").eq("date", target_date_str).eq("service", service_type).execute()
+                if not res.data:
+                    return True, "Disponible (30 places)"
+                
+                record = res.data[0]
+                total = record.get('capacite_totale', 30)
+                occupied = record.get('reservations_confirmees', 0)
+                available = total - occupied
+                if available <= 0: return False, "Complet"
+                return True, f"Disponible ({available} places)"
+            except Exception as e:
+                print(f"[Supabase] Erreur inventory: {e}")
+
+        # Fallback Airtable
         url = f"https://api.airtable.com/v0/{self.base_id}/Disponibilites"
-        params = {
-            "filterByFormula": f"AND(Service='{service_type}', Date='{target_date_str}')"
-        }
-        
         try:
-            response = requests.get(url, headers=self.headers, params=params)
+            response = requests.get(url, headers=self.headers, params={"filterByFormula": f"AND(Service='{service_type}', Date='{target_date_str}')"})
             if response.status_code == 200:
                 records = response.json().get('records', [])
-                if not records:
-                    return True, f"Disponible (50 places)"
-                
-                record = records[0]['fields']
-                total = record.get('Capacite totale', 50)
-                occupied = record.get('Reservations confirmees', 0)
-                
-                available = total - occupied
-                if available <= 0:
-                    return False, "Complet"
-                return True, f"Disponible ({available} places)"
-            return False, f"Erreur Airtable: {response.status_code}"
-        except Exception as e:
-            return False, f"Exception: {e}"
+                if not records: return True, "Disponible (30 places)"
+                r = records[0]['fields']
+                available = r.get('Capacite totale', 30) - r.get('Reservations confirmees', 0)
+                return (True, f"Disponible ({available} places)") if available > 0 else (False, "Complet")
+        except: pass
+        return True, "Disponible"
 
     def submit_reservation(self, name, phone, email, date_str, time_str, service, covers):
-        """Valide et enregistre la réservation dans Airtable."""
+        """Enregistre la réservation dans Supabase."""
         num_covers = int(covers)
-        if num_covers > 50:
-            return False, "Pour les groupes de plus de 50 personnes, merci de nous contacter directement par téléphone."
-            
         ok_rules, msg_rules = self.is_service_accessible(service, date_str)
-        if not ok_rules:
-            return False, msg_rules
-            
-        # On vérifie si les places demandées sont disponibles
+        if not ok_rules: return False, msg_rules
+        
         ok_inv, msg_inv = self.check_inventory(service, date_str)
-        if not ok_inv:
-            return False, msg_inv
+        if not ok_inv: return False, msg_inv
             
-        # Extraction du nombre de places dispo depuis le message (ex: "Disponible (45 places)")
-        import re
-        try:
-            available_match = re.search(r'\((\d+) places\)', msg_inv)
-            if available_match:
-                available = int(available_match.group(1))
-                if num_covers > available:
-                    return False, f"Désolé, il ne reste que {available} places disponibles pour ce service."
-        except:
-            pass
-            
-        url = f"https://api.airtable.com/v0/{self.base_id}/Reservations"
-        fields = {
-            "Nom": name,
-            "Telephone": phone,
-            "Email": email,
-            "Date": date_str,
-            "Heure": time_str,
-            "Service": service,
-            "Couverts": int(covers),
-            "Statut": "\u00c0 confirmer"
+        data = {
+            "nom": name,
+            "telephone": phone,
+            "email": email,
+            "date": date_str,
+            "heure": time_str,
+            "service": service,
+            "couverts": num_covers,
+            "statut": "À confirmer"
         }
+
+        if self.supabase:
+            try:
+                res = self.supabase.table("reservations").insert(data).execute()
+                if res.data:
+                    self.send_email_notification(data, res.data[0]['id'])
+                    return True, "Votre demande de réservation a bien été envoyée."
+            except Exception as e:
+                print(f"[Supabase] Erreur submit: {e}")
+
+        # Fallback Airtable
         try:
-            res = requests.post(url, headers=self.headers, json={"records": [{"fields": fields}], "typecast": True})
+            res = requests.post(f"https://api.airtable.com/v0/{self.base_id}/Reservations", headers=self.headers, json={"records": [{"fields": data}], "typecast": True})
             if res.status_code == 200:
-                record_id = res.json()['records'][0]['id']
-                self.send_email_notification(fields, record_id)
-                return True, "Votre demande de réservation a bien été envoyée."
-            print(f"ERREUR AIRTABLE POST Réservation [{res.status_code}]: {res.text}")
-            return False, f"Erreur serveur lors de l'enregistrement. Veuillez réessayer."
-        except Exception as e:
-            print(f"EXCEPTION submit_reservation: {e}")
-            return False, "Erreur réseau lors de la réservation."
+                self.send_email_notification(data, res.json()['records'][0]['id'])
+                return True, "Votre demande de réservation a été envoyée (via Airtable)."
+        except: pass
+        return False, "Erreur serveur lors de la réservation."
 
     def create_manual_reservation(self, name, phone, email, date_str, time_str, service, covers):
         """Action Admin : Crée une réservation confirmée immédiatement, sans règle de temps."""
@@ -235,148 +247,70 @@ class BookingManager:
             return False, str(e)
 
     def update_reservation_status(self, record_id, action):
-        """Met à jour le statut dans Airtable et notifie le client."""
-        status_map = {
-            "confirm": "Confirm\u00e9e",
-            "cancel": "Annul\u00e9e"
-        }
+        """Met à jour le statut dans Supabase et notifie le client."""
+        status_map = {"confirm": "Confirmée", "cancel": "Annulée"}
         status = status_map.get(action)
-        if not status:
-            return False, "Action invalide."
+        if not status: return False, "Action invalide."
 
-        base_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
-
-        # ---- ÉTAPE 1 : Récupérer la résa ----
-        try:
-            res_get = requests.get(base_url, headers=self.headers, timeout=10)
-            if res_get.status_code != 200:
-                print(f"[BOOKING] GET résa échec: {res_get.status_code} {res_get.text}")
-                return False, f"Réservation introuvable (ID: {record_id})."
-            booking_data = res_get.json().get('fields', {})
-        except Exception as e:
-            print(f"[BOOKING] Exception GET: {e}")
-            return False, f"Erreur réseau: {e}"
-
-        # ---- ÉTAPE 2 : PATCH le statut (OPÉRATION CRITIQUE) ----
-        try:
-            res_patch = requests.patch(
-                base_url,
-                headers=self.headers,
-                json={"fields": {"Statut": status}},
-                timeout=10
-            )
-            if res_patch.status_code != 200:
-                print(f"[BOOKING] PATCH échec: {res_patch.status_code} {res_patch.text}")
-                return False, f"Erreur mise à jour Airtable ({res_patch.status_code})."
-            print(f"[BOOKING] PATCH OK → {status}")
-        except Exception as e:
-            print(f"[BOOKING] Exception PATCH: {e}")
-            return False, f"Erreur réseau: {e}"
-
-        # ---- ÉTAPE 3 : Email client (best-effort, n'affecte pas le résultat) ----
-        try:
-            self.send_client_response(booking_data, status)
-        except Exception as e:
-            print(f"[BOOKING] Email client ignoré: {e}")
-
-        # ---- ÉTAPE 4 : CRM (best-effort) ----
-        if action == "confirm":
+        if self.supabase:
             try:
-                self._update_crm_from_booking(booking_data)
+                # 1. Obtenir les infos actuelles
+                res_get = self.supabase.table("reservations").select("*").eq("id", record_id).execute()
+                if not res_get.data: return False, "Réservation introuvable."
+                booking_data = res_get.data[0]
+                
+                # 2. Update
+                self.supabase.table("reservations").update({"statut": status}).eq("id", record_id).execute()
+                
+                # 3. Notification
+                self.send_client_response(booking_data, status)
+                if action == "confirm": self._update_crm_from_booking(booking_data)
+                return True, f"Réservation {status.lower()} avec succès."
             except Exception as e:
-                print(f"[BOOKING] CRM ignoré: {e}")
+                print(f"[Supabase] Erreur update_status: {e}")
 
-        return True, f"Réservation {status.lower()} avec succès."
+        # Fallback Airtable
+        try:
+            res = requests.patch(f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}", headers=self.headers, json={"fields": {"Statut": status}})
+            return (True, f"Réservation {status.lower()} (Airtable)") if res.status_code == 200 else (False, "Erreur Airtable")
+        except: return False, "Erreur réseau"
 
     def delete_reservation(self, record_id):
-        """Supprime définitivement une réservation d'Airtable, sans email au client."""
-        base_url = f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}"
-        try:
-            res = requests.delete(base_url, headers=self.headers, timeout=10)
-            if res.status_code == 200:
+        """Supprime une réservation."""
+        if self.supabase:
+            try:
+                self.supabase.table("reservations").delete().eq("id", record_id).execute()
                 return True, "Réservation supprimée."
-            print(f"[BOOKING] DELETE échec: {res.status_code} {res.text}")
-            return False, f"Erreur Airtable ({res.status_code})."
-        except Exception as e:
-            print(f"[BOOKING] Exception DELETE: {e}")
-            return False, f"Erreur réseau: {e}"
+            except Exception as e: print(f"[Supabase] Erreur delete: {e}")
+
+        try:
+            res = requests.delete(f"https://api.airtable.com/v0/{self.base_id}/Reservations/{record_id}", headers=self.headers)
+            return (True, "Supprimé (Airtable)") if res.status_code == 200 else (False, "Erreur Airtable")
+        except: return False, "Erreur réseau"
 
     def _update_crm_from_booking(self, booking_data):
-        """Met à jour ou crée un client dans le CRM à partir d'une réservation confirmée."""
-        email = (booking_data.get('Email') or '').strip()
-        telephone = (booking_data.get('Telephone') or '').strip()
-        nom = (booking_data.get('Nom') or 'Inconnu').strip()
-        
-        # S'il n'y a ni email, ni téléphone, ni vrai nom, on ignore
-        if not email and not telephone and nom == 'Inconnu':
-            return
-            
-        url = f"https://api.airtable.com/v0/{self.base_id}/Clients"
-        
-        try:
-            records = []
-            
-            # 1. Chercher par email d'abord (en priorité)
-            if email:
-                search_params = {"filterByFormula": f"{{Email}}='{email}'"}
-                res = requests.get(url, headers=self.headers, params=search_params)
-                if res.status_code == 200:
-                    records = res.json().get('records', [])
-            
-            # 2. Chercher par téléphone s'il n'y a pas de correspondance par email (ou pas d'email du tout)
-            if not records and telephone:
-                search_params = {"filterByFormula": f"{{Telephone}}='{telephone}'"}
-                res = requests.get(url, headers=self.headers, params=search_params)
-                if res.status_code == 200:
-                    records = res.json().get('records', [])
-            
-            # 3. Mise à jour ou création
-            if records:
-                client_id = records[0]['id']
-                existing_fields = records[0]['fields']
-                
-                updated_fields = {
-                    "Derniere_Visite": booking_data.get('Date')
-                }
-                
-                # Conserver l'existant s'il est meilleur
-                if nom and nom != 'Inconnu':
-                    updated_fields["Nom"] = nom
-                elif existing_fields.get('Nom'):
-                    updated_fields["Nom"] = existing_fields.get('Nom')
-                
-                if email:
-                    updated_fields["Email"] = email
-                if telephone:
-                    updated_fields["Telephone"] = telephone
-                    
-                old_nb = existing_fields.get('Nb_Reservations', 0)
-                updated_fields["Nb_Reservations"] = old_nb + 1
-                
-                patch_res = requests.patch(f"{url}/{client_id}", headers=self.headers, json={"fields": updated_fields})
-                if patch_res.status_code != 200:
-                    print(f"Erreur PATCH CRM: {patch_res.status_code} - {patch_res.text}")
+        """Met à jour le CRM dans Supabase."""
+        email = (booking_data.get('email') or booking_data.get('Email', '')).strip()
+        if not email: return
+
+        if self.supabase:
+            try:
+                # 1. Chercher le client
+                res = self.supabase.table("clients").select("*").eq("email", email).execute()
+                if res.data:
+                    cid = res.data[0]['id']
+                    nb = res.data[0].get('nb_reservations', 0) + 1
+                    self.supabase.table("clients").update({"nb_reservations": nb, "derniere_visite": booking_data.get('date')}).eq("id", cid).execute()
                 else:
-                    print(f"✅ Fiche client CRM mise à jour pour '{nom}'.")
-            else:
-                # Nouveau client : Création
-                new_fields = {
-                    "Nom": nom,
-                    "Nb_Reservations": 1,
-                    "Derniere_Visite": booking_data.get('Date')
-                }
-                if email:
-                    new_fields["Email"] = email
-                if telephone:
-                    new_fields["Telephone"] = telephone
-                
-                post_res = requests.post(url, headers=self.headers, json={"records": [{"fields": new_fields}], "typecast": True})
-                if post_res.status_code != 200:
-                    print(f"Erreur POST CRM: {post_res.status_code} - {post_res.text}")
-                else:
-                    print(f"✅ Client '{nom}' créé dans le CRM.")
-        except Exception as e:
-            print(f"Erreur update CRM: {e}")
+                    self.supabase.table("clients").insert({
+                        "nom": booking_data.get('nom', 'Inconnu'),
+                        "email": email,
+                        "telephone": booking_data.get('telephone', ''),
+                        "nb_reservations": 1,
+                        "derniere_visite": booking_data.get('date')
+                    }).execute()
+            except Exception as e:
+                print(f"[Supabase] Erreur CRM: {e}")
 
     def send_client_response(self, booking_data, status):
         """Envoie un mail de confirmation ou de refus au client."""

@@ -6,6 +6,7 @@ from flask_cors import CORS
 from functools import wraps
 from datetime import datetime
 import json
+from supabase import create_client, Client
 
 # Configuration Cloudinary et Authlib
 import cloudinary
@@ -27,6 +28,11 @@ except ImportError as e:
 
 app = Flask(__name__, static_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "@ot!Jo?a#sDFnpXFSp#c!7X8&9FRR7J9LoemBQ$H")
+
+# Supabase Client
+sb_url = os.getenv("SUPABASE_URL")
+sb_key = os.getenv("SUPABASE_KEY")
+supabase_client: Client = create_client(sb_url, sb_key) if sb_url and sb_key else None
 
 @app.route('/api/ping')
 def ping():
@@ -801,12 +807,26 @@ def _sm_payload_to_fields(data):
     return fields
 
 def load_special_menus():
+    """Récupère les menus spéciaux depuis Supabase."""
+    if not supabase_client: return []
     try:
-        res = http_requests.get(_sm_airtable_url(), headers=_sm_airtable_headers())
-        if res.status_code != 200:
-            return []
-        return [_sm_record_to_menu(r) for r in res.json().get('records', [])]
-    except Exception:
+        res = supabase_client.table("special_menus").select("*").execute()
+        return [{
+            "id": r["id"],
+            "name": r["name"],
+            "theme": r["theme"],
+            "start_date": r["start_date"],
+            "end_date": r["end_date"],
+            "active": r["active"],
+            "price": r["price"],
+            "subtitle": r["subtitle"],
+            "entrees": (r["entrees"] or "").splitlines(),
+            "plats": (r["plats"] or "").splitlines(),
+            "desserts": (r["desserts"] or "").splitlines(),
+            "photo": r["photo"]
+        } for r in res.data]
+    except Exception as e:
+        print(f"[Supabase] Erreur load_special_menus: {e}")
         return []
 
 @app.route('/api/special-menus/active', methods=['GET'])
@@ -829,38 +849,52 @@ def admin_get_special_menus():
 @admin_required
 def admin_create_special_menu():
     data = request.json or {}
-    fields = _sm_payload_to_fields(data)
-    res = http_requests.post(
-        _sm_airtable_url(),
-        headers=_sm_airtable_headers(),
-        json={"records": [{"fields": fields}], "typecast": True},
-    )
-    if res.status_code != 200:
-        return jsonify({'status': 'error', 'error': res.text}), res.status_code
-    record = res.json()['records'][0]
-    return jsonify({'status': 'success', 'menu': _sm_record_to_menu(record)})
+    fields = {
+        "name": data.get("name"),
+        "theme": data.get("theme", "personnalise"),
+        "start_date": data.get("start_date"),
+        "end_date": data.get("end_date"),
+        "active": data.get("active", True),
+        "price": data.get("price"),
+        "subtitle": data.get("subtitle"),
+        "entrees": "\n".join(data.get("entrees", [])),
+        "plats": "\n".join(data.get("plats", [])),
+        "desserts": "\n".join(data.get("desserts", [])),
+        "photo": data.get("photo")
+    }
+    try:
+        res = supabase_client.table("special_menus").insert(fields).execute()
+        return jsonify({'status': 'success', 'menu': res.data[0]})
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 @app.route('/api/admin/special-menus/<menu_id>', methods=['PATCH'])
 @admin_required
 def admin_update_special_menu(menu_id):
     data = request.json or {}
-    fields = _sm_payload_to_fields(data)
-    res = http_requests.patch(
-        _sm_airtable_url(menu_id),
-        headers=_sm_airtable_headers(),
-        json={"fields": fields, "typecast": True},
-    )
-    if res.status_code != 200:
-        return jsonify({'status': 'error', 'error': res.text}), res.status_code
-    return jsonify({'status': 'success'})
+    fields = {}
+    mapping = ["name", "theme", "start_date", "end_date", "active", "price", "subtitle", "photo"]
+    for k in mapping:
+        if k in data: fields[k] = data[k]
+    
+    if "entrees" in data: fields["entrees"] = "\n".join(data["entrees"])
+    if "plats" in data: fields["plats"] = "\n".join(data["plats"])
+    if "desserts" in data: fields["desserts"] = "\n".join(data["desserts"])
+
+    try:
+        supabase_client.table("special_menus").update(fields).eq("id", menu_id).execute()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 @app.route('/api/admin/special-menus/<menu_id>', methods=['DELETE'])
 @admin_required
 def admin_delete_special_menu(menu_id):
-    res = http_requests.delete(_sm_airtable_url(menu_id), headers=_sm_airtable_headers())
-    if res.status_code != 200:
-        return jsonify({'status': 'error', 'error': res.text}), res.status_code
-    return jsonify({'status': 'success'})
+    try:
+        supabase_client.table("special_menus").delete().eq("id", menu_id).execute()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 @app.route('/<path:path>')
 def static_files(path):

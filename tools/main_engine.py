@@ -105,12 +105,12 @@ class MainEngine:
                 res = self.supabase.table("menu").select("*").order("plat").execute()
                 records = [{"id": r["id"], "fields": {
                     "Plat": r["plat"],
-                    "description_geo": r["description_geo"],
-                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
-                    "tags_meteo": r["tags_meteo"],
-                    "producteur_local": r["producteur_local"],
-                    "is_featured": r["is_featured"],
-                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                    "description_geo": r["description_geo"] or "",
+                    "prix": f"€{r['prix']:.2f}" if r['prix'] is not None else "",
+                    "tags_meteo": r.get("tags_meteo") or [],
+                    "producteur_local": r.get("producteur_local") or "",
+                    "is_featured": r.get("is_featured") or False,
+                    "Photo": [{"url": r["photo"]}] if r.get("photo") else []
                 }} for r in res.data]
                 self._set_cache("menu", records)
                 return records
@@ -142,15 +142,15 @@ class MainEngine:
                 res = self.supabase.table("wines").select("*").order("nom").execute()
                 records = [{"id": r["id"], "fields": {
                     "Nom": r["nom"],
-                    "Nom_EN": r["nom_en"],
-                    "Appellation": r["appellation"],
-                    "Millesime": r["millesime"],
-                    "Prix_Verre": r["prix_verre"],
-                    "Prix_Bouteille": r["prix_bouteille"],
-                    "Type": r["type"],
-                    "Description": r["description"],
-                    "Description_EN": r["description_en"],
-                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                    "Nom_EN": r.get("nom_en") or r["nom"],
+                    "Appellation": r.get("appellation") or "",
+                    "Millesime": r.get("millesime") or "",
+                    "Prix_Verre": r.get("prix_verre"),
+                    "Prix_Bouteille": r.get("prix_bouteille"),
+                    "Type": r.get("type") or "Rouge",
+                    "Description": r.get("description") or "",
+                    "Description_EN": r.get("description_en") or "",
+                    "Photo": [{"url": r["photo"]}] if r.get("photo") else []
                 }} for r in res.data]
                 self._set_cache("wines", records)
                 return records

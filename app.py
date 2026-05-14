@@ -296,9 +296,21 @@ def handle_reservation_action(record_id, action):
 @admin_required
 def admin_get_menu():
     try:
-        if not engine: return jsonify({"error": "Engine non chargé"}), 500
-        raw_menu = engine.get_featured_menu()
-        menu_with_ids = [{"id": r["id"], "fields": r["fields"]} for r in raw_menu]
+        if not supabase_client: return jsonify({"error": "Supabase non connecté"}), 500
+        res = supabase_client.table("menu").select("*").execute()
+        menu_with_ids = []
+        for r in res.data:
+            menu_with_ids.append({
+                "id": r["id"],
+                "fields": {
+                    "Plat": r["plat"],
+                    "description_geo": r["description_geo"],
+                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
+                    "tags_meteo": r["tags_meteo"] or [],
+                    "is_featured": r["is_featured"],
+                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                }
+            })
         return jsonify(menu_with_ids)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -307,11 +319,21 @@ def admin_get_menu():
 @admin_required
 def admin_get_item(record_id):
     try:
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
-        res = http_requests.get(url, headers=engine.headers)
-        if res.status_code == 200:
-            return jsonify(res.json())
-        return jsonify({"error": res.text}), res.status_code
+        res = supabase_client.table("menu").select("*").eq("id", record_id).execute()
+        if res.data:
+            r = res.data[0]
+            return jsonify({
+                "id": r["id"],
+                "fields": {
+                    "Plat": r["plat"],
+                    "description_geo": r["description_geo"],
+                    "prix": f"€{r['prix']:.2f}" if r['prix'] else "",
+                    "tags_meteo": r["tags_meteo"] or [],
+                    "is_featured": r["is_featured"],
+                    "Photo": [{"url": r["photo"]}] if r["photo"] else []
+                }
+            })
+        return jsonify({"error": "Not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -320,16 +342,23 @@ def admin_get_item(record_id):
 def admin_update_item(record_id):
     try:
         fields = request.json.get('fields', {})
-        # is_featured est un champ multilineText dans Airtable : False doit être ""
-        # sinon Airtable stocke la chaîne "false" qui est truthy en JS
-        if 'is_featured' in fields:
-            fields['is_featured'] = "true" if fields['is_featured'] else ""
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
-        res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
-        if res.status_code == 200:
-            engine.clear_cache("menu")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        update_data = {}
+        if 'Plat' in fields: update_data['plat'] = fields['Plat']
+        if 'description_geo' in fields: update_data['description_geo'] = fields['description_geo']
+        if 'prix' in fields:
+            try:
+                update_data['prix'] = float(str(fields['prix']).replace('€', '').replace(',', '.').strip())
+            except: pass
+        if 'tags_meteo' in fields: update_data['tags_meteo'] = fields['tags_meteo']
+        if 'is_featured' in fields: update_data['is_featured'] = bool(fields['is_featured'])
+        if 'Photo' in fields:
+            if isinstance(fields['Photo'], list) and len(fields['Photo']) > 0:
+                update_data['photo'] = fields['Photo'][0].get('url')
+            else:
+                update_data['photo'] = None
+
+        supabase_client.table("menu").update(update_data).eq("id", record_id).execute()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -337,12 +366,8 @@ def admin_update_item(record_id):
 @admin_required
 def admin_delete_item(record_id):
     try:
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu/{record_id}"
-        res = http_requests.delete(url, headers=engine.headers)
-        if res.status_code == 200:
-            engine.clear_cache("menu")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        supabase_client.table("menu").delete().eq("id", record_id).execute()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -351,14 +376,21 @@ def admin_delete_item(record_id):
 def admin_create_item():
     try:
         fields = request.json.get('fields', {})
-        if 'is_featured' in fields:
-            fields['is_featured'] = "true" if fields['is_featured'] else ""
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Dynamic_Menu"
-        res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
-        if res.status_code == 200:
-            engine.clear_cache("menu")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        prix = 0.0
+        try:
+            prix = float(str(fields.get('prix', '0')).replace('€', '').replace(',', '.').strip())
+        except: pass
+        
+        insert_data = {
+            "plat": fields.get('Plat'),
+            "description_geo": fields.get('description_geo'),
+            "prix": prix,
+            "tags_meteo": fields.get('tags_meteo', []),
+            "is_featured": bool(fields.get('is_featured')),
+            "photo": fields.get('Photo', [{}])[0].get('url') if fields.get('Photo') else None
+        }
+        res = supabase_client.table("menu").insert(insert_data).execute()
+        return jsonify({"status": "success", "data": res.data[0]})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -366,9 +398,23 @@ def admin_create_item():
 @admin_required
 def admin_get_wines():
     try:
-        if not engine: return jsonify({"error": "Engine non chargé"}), 500
-        raw = engine.get_wine_list()
-        return jsonify([{"id": r["id"], "fields": r["fields"]} for r in raw])
+        if not supabase_client: return jsonify({"error": "Supabase non connecté"}), 500
+        res = supabase_client.table("wines").select("*").execute()
+        wines_with_ids = []
+        for r in res.data:
+            wines_with_ids.append({
+                "id": r["id"],
+                "fields": {
+                    "Nom": r["nom"],
+                    "Appellation": r["appellation"],
+                    "Région": r["region"],
+                    "Type": r["type"],
+                    "Prix": f"€{r['prix']:.2f}" if r['prix'] else "",
+                    "Description": r["description"],
+                    "Disponible": r["disponible"]
+                }
+            })
+        return jsonify(wines_with_ids)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -389,12 +435,21 @@ def admin_get_wine(record_id):
 def admin_update_wine(record_id):
     try:
         fields = request.json.get('fields', {})
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
-        res = http_requests.patch(url, headers=engine.headers, json={"fields": fields, "typecast": True})
-        if res.status_code == 200:
-            engine.clear_cache("wines")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        update_data = {}
+        mapping = {
+            "Nom": "nom", "Appellation": "appellation", "Région": "region", 
+            "Type": "type", "Description": "description", "Disponible": "disponible"
+        }
+        for k, v in mapping.items():
+            if k in fields: update_data[v] = fields[k]
+        
+        if "Prix" in fields:
+            try:
+                update_data["prix"] = float(str(fields["Prix"]).replace('€', '').replace(',', '.').strip())
+            except: pass
+
+        supabase_client.table("wines").update(update_data).eq("id", record_id).execute()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -402,12 +457,8 @@ def admin_update_wine(record_id):
 @admin_required
 def admin_delete_wine(record_id):
     try:
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins/{record_id}"
-        res = http_requests.delete(url, headers=engine.headers)
-        if res.status_code == 200:
-            engine.clear_cache("wines")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        supabase_client.table("wines").delete().eq("id", record_id).execute()
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -416,12 +467,22 @@ def admin_delete_wine(record_id):
 def admin_create_wine():
     try:
         fields = request.json.get('fields', {})
-        url = f"https://api.airtable.com/v0/{engine.base_id}/Carte_Vins"
-        res = http_requests.post(url, headers=engine.headers, json={"records": [{"fields": fields}], "typecast": True})
-        if res.status_code == 200:
-            engine.clear_cache("wines")
-            return jsonify({"status": "success", "data": res.json()})
-        return jsonify({"error": res.text}), res.status_code
+        prix = 0.0
+        try:
+            prix = float(str(fields.get('Prix', '0')).replace('€', '').replace(',', '.').strip())
+        except: pass
+        
+        insert_data = {
+            "nom": fields.get('Nom'),
+            "appellation": fields.get('Appellation'),
+            "region": fields.get('Région'),
+            "type": fields.get('Type'),
+            "prix": prix,
+            "description": fields.get('Description'),
+            "disponible": fields.get('Disponible', True)
+        }
+        res = supabase_client.table("wines").insert(insert_data).execute()
+        return jsonify({"status": "success", "data": res.data[0]})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

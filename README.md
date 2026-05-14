@@ -101,10 +101,10 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
-- **Outil d'Importation Massive de Vins (v2.2.3 - 14/05/2026)** :
-  - **Modèle Excel/CSV** : Création d'un fichier `modele_import_vins.csv` pour préparer les données hors-ligne.
-  - **Automatisation de l'Import** : Nouveau script `tools/import_vins_excel.py` qui lit le fichier, télécharge les photos vers Cloudinary et synchronise le tout avec Airtable.
-  - **Support des Médias** : Le script gère aussi bien les URLs d'images que les chemins de fichiers locaux.
+- **Outils d'Importation Massive (v2.2.5 - 14/05/2026)** :
+  - **Vins & Événements** : Support complet de l'importation via Excel (.xlsx) pour les vins (`modele_import_vins.xlsx`) et les événements (`modele_import_evenements.xlsx`).
+  - **Images Incrustées** : Les images insérées directement dans les cellules Excel sont extraites, uploadées vers Cloudinary et liées aux records Airtable automatiquement.
+  - **Gestion des Événements** : Mise à jour de l'infrastructure pour supporter les photos sur les menus événements/spéciaux.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

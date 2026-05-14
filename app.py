@@ -773,6 +773,7 @@ def _sm_record_to_menu(record):
         'entrees':    _split(f.get('Entrees', '')),
         'plats':      _split(f.get('Plats', '')),
         'desserts':   _split(f.get('Desserts', '')),
+        'photo':      f.get('Photo', '')
     }
 
 def _sm_payload_to_fields(data):
@@ -791,6 +792,7 @@ def _sm_payload_to_fields(data):
         'entrees':    ('Entrees',    _join),
         'plats':      ('Plats',      _join),
         'desserts':   ('Desserts',   _join),
+        'photo':      ('Photo',      lambda v: v or ''),
     }
     fields = {}
     for key, (col, cast) in mapping.items():

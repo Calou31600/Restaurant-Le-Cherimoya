@@ -2247,8 +2247,11 @@
         function populateWineModal(f) {
             document.getElementById('wine-modal-title').innerText = 'Modifier : ' + (f.Nom || '');
             document.getElementById('wine-delete-btn').style.display = 'block';
-            const photo = f.Photo;
-            document.getElementById('wine-current-img').src = (photo && photo.startsWith('http')) ? photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : '/assets/dish1.png';
+            // f.Photo peut etre tableau [{url:...}] ou [] (cf. resolveImg).
+            const resolved = resolveImg(f);
+            document.getElementById('wine-current-img').src = resolved.startsWith('http')
+                ? resolved.replace('upload/', 'upload/f_auto,q_auto,w_600/')
+                : resolved;
             document.getElementById('wine-nom').value = f.Nom || '';
             document.getElementById('wine-nom-en').value = f.Nom_EN || '';
             document.getElementById('wine-appellation').value = f.Appellation || '';
@@ -2303,8 +2306,8 @@
                     Nom_EN: document.getElementById('wine-nom-en').value,
                     Appellation: document.getElementById('wine-appellation').value,
                     Millesime: document.getElementById('wine-millesime').value,
-                    Prix_Verre: rawVerre ? '€' + parseFloat(rawVerre).toFixed(2) : '',
-                    Prix_Bouteille: rawBout ? '€' + parseFloat(rawBout).toFixed(2) : '',
+                    Prix_Verre: rawVerre ? parseFloat(rawVerre).toFixed(2) : '',
+                    Prix_Bouteille: rawBout ? parseFloat(rawBout).toFixed(2) : '',
                     Description: document.getElementById('wine-description').value,
                     Description_EN: document.getElementById('wine-description-en').value,
                     Type: selectedType ? selectedType.value : ''
@@ -2322,7 +2325,7 @@
                     if (uploadData.url) fields.Photo = uploadData.url;
                 }
 
-                btn.innerText = 'Enregistrement Airtable...';
+                btn.innerText = 'Enregistrement…';
                 const apiUrl = currentWineEditId ? `/api/admin/wines/${currentWineEditId}` : '/api/admin/wines';
                 const apiMethod = currentWineEditId ? 'PATCH' : 'POST';
 
@@ -3203,7 +3206,7 @@
                     }
                 }
 
-                btn.innerText = "Enregistrement Airtable...";
+                btn.innerText = "Enregistrement…";
 
                 let apiUrl = '/api/admin/menu';
                 let apiMethod = 'POST';
@@ -3231,7 +3234,7 @@
                     }, 1000);
                 } else {
                     const errorDetail = await res.text();
-                    throw new Error(`Erreur serveur lors du ${apiMethod} Airtable : ` + errorDetail);
+                    throw new Error(`Erreur serveur lors du ${apiMethod} : ` + errorDetail);
                 }
             } catch (err) {
                 console.error(err);

@@ -101,11 +101,10 @@ Seul l'email administrateur défini (`lecherimoyarestaurant@gmail.com`) est auto
 - `GOOGLE_CLIENT_SECRET` : Obtenu sur Google Cloud Console.
 - `FLASK_SECRET_KEY` : Clé de session sécurisée.
 
-- **Optimisation API & Cache Persistant (v2.2.2 - 14/05/2026)** :
-  - **Réduction Drastique des Requêtes** : Augmentation du TTL du cache (de 2 min à 1 heure) pour économiser plus de 20 000 appels API par mois.
-  - **Système de Cache Persistant** : Implémentation d'un stockage local (`.tmp/airtable_cache.json`) pour conserver les données entre les redémarrages serveur.
-  - **Mode Résilient** : Le site reste fonctionnel et affiche le menu même en cas de dépassement de quota ou de panne d'Airtable grâce au fallback sur le cache persistant.
-  - **Invalidation Intelligente** : Le cache est automatiquement purgé et rafraîchi lors de chaque modification effectuée via le dashboard admin.
+- **Outil d'Importation Massive de Vins (v2.2.3 - 14/05/2026)** :
+  - **Modèle Excel/CSV** : Création d'un fichier `modele_import_vins.csv` pour préparer les données hors-ligne.
+  - **Automatisation de l'Import** : Nouveau script `tools/import_vins_excel.py` qui lit le fichier, télécharge les photos vers Cloudinary et synchronise le tout avec Airtable.
+  - **Support des Médias** : Le script gère aussi bien les URLs d'images que les chemins de fichiers locaux.
 
 ---
 *Projet propulsé par l'IA (Vibe Coding) pour Le Chérimoya - 2026. Design & Code optimisés pour la conversion et l'expérience utilisateur premium.*

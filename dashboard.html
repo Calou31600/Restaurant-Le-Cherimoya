@@ -2196,7 +2196,12 @@
 
             grid.innerHTML = currentWines.map(item => {
                 const f = item.fields;
-                const imgSrc = (f.Photo && f.Photo.startsWith('http')) ? f.Photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : '/assets/dish1.png';
+                // Photo peut etre : tableau Airtable-like [{url:"..."}] (fr Supabase),
+                // tableau vide [], ou string. resolveImg gere tous les cas.
+                const rawSrc = resolveImg(f);
+                const imgSrc = rawSrc.startsWith('http')
+                    ? rawSrc.replace('upload/', 'upload/f_auto,q_auto,w_600/')
+                    : rawSrc;
                 const typeColor = typeColors[f.Type] || 'var(--accent)';
                 const emoji = typeEmoji[f.Type] || '🍷';
 

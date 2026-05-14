@@ -137,7 +137,10 @@ h2:not(.hero-title)::after {
     padding: 0 2rem;
 }
 
-header {
+/* Hero header du site public. Scope `main > header` pour éviter de polluer
+   les <header> du dashboard admin et de la cuisine, qui ont leur propre
+   layout. */
+main > header {
     height: 100vh;
     display: flex;
     flex-direction: column;

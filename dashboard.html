@@ -34,12 +34,20 @@
         }
 
         .admin-header {
+            /* Reset des règles héritées du selecteur `header` global dans
+               index.css (height: 100vh, flex-direction: column) qui
+               provoquent un décalage vertical massif dans le dashboard. */
             display: flex;
+            flex-direction: row;
+            height: auto;
             justify-content: space-between;
             align-items: flex-end;
+            text-align: left;
             margin-bottom: 4rem;
             padding-bottom: 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 2rem;
+            flex-wrap: wrap;
         }
 
         .admin-grid {

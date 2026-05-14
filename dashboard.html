@@ -7,7 +7,7 @@
     <title>Dashboard Admin | Le Chérimoya</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="/index.css">
     <style>
         :root {
             --admin-bg: #0d0d0d;
@@ -1205,8 +1205,8 @@
                 <!-- Section 0 : Visuel -->
                 <div style="margin-bottom:1.8rem; display: flex; gap: 1.5rem; align-items: flex-start;">
                     <div style="flex: 1;">
-                        <img id="ev-current-img" src="assets/dish1.png" 
-                             onerror="this.src='assets/dish1.png'"
+                        <img id="ev-current-img" src="/assets/dish1.png" 
+                             onerror="this.src='/assets/dish1.png'"
                              style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">
                         <input type="file" id="ev-file" class="form-control ev-input" accept="image/*" style="font-size: 0.8rem; padding: 6px;">
                     </div>
@@ -1306,8 +1306,8 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label>Visuel du vin</label>
-                            <img id="wine-current-img" src="assets/dish1.png"
-                                onerror="this.src='assets/dish1.png'"
+                            <img id="wine-current-img" src="/assets/dish1.png"
+                                onerror="this.src='/assets/dish1.png'"
                                 style="width:100%;height:250px;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-bottom:1.5rem;">
                             <input type="file" id="wine-file" class="form-control" accept="image/*">
                         </div>
@@ -1410,7 +1410,7 @@
                         <div class="form-group">
                             <label>Visuel du plat</label>
                             <img id="edit-current-img" src=""
-                                onerror="this.src='assets/dish1.png'"
+                                onerror="this.src='/assets/dish1.png'"
                                 style="width: 100%; height: 250px; object-fit: cover; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
                             <input type="file" id="edit-file" class="form-control" accept="image/*">
                         </div>
@@ -2188,13 +2188,13 @@
 
             grid.innerHTML = currentWines.map(item => {
                 const f = item.fields;
-                const imgSrc = (f.Photo && f.Photo.startsWith('http')) ? f.Photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : 'assets/dish1.png';
+                const imgSrc = (f.Photo && f.Photo.startsWith('http')) ? f.Photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : '/assets/dish1.png';
                 const typeColor = typeColors[f.Type] || 'var(--accent)';
                 const emoji = typeEmoji[f.Type] || '🍷';
 
                 return `
                     <div class="admin-card" onclick="openWineModal('${item.id}')">
-                        <img src="${imgSrc}" class="admin-img" onerror="this.src='assets/dish1.png'">
+                        <img src="${imgSrc}" class="admin-img" onerror="this.src='/assets/dish1.png'">
                         <div class="admin-info">
                             <h4>${f.Nom || 'Sans nom'}</h4>
                             <div style="color:${typeColor};font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">
@@ -2235,7 +2235,7 @@
             document.getElementById('wine-modal-title').innerText = 'Modifier : ' + (f.Nom || '');
             document.getElementById('wine-delete-btn').style.display = 'block';
             const photo = f.Photo;
-            document.getElementById('wine-current-img').src = (photo && photo.startsWith('http')) ? photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : 'assets/dish1.png';
+            document.getElementById('wine-current-img').src = (photo && photo.startsWith('http')) ? photo.replace('upload/', 'upload/f_auto,q_auto,w_600/') : '/assets/dish1.png';
             document.getElementById('wine-nom').value = f.Nom || '';
             document.getElementById('wine-nom-en').value = f.Nom_EN || '';
             document.getElementById('wine-appellation').value = f.Appellation || '';
@@ -2253,7 +2253,7 @@
             currentWineEditId = null;
             document.getElementById('wine-modal-title').innerText = '➕ Nouveau Vin';
             document.getElementById('wine-delete-btn').style.display = 'none';
-            document.getElementById('wine-current-img').src = 'assets/dish1.png';
+            document.getElementById('wine-current-img').src = '/assets/dish1.png';
             document.getElementById('wine-nom').value = '';
             document.getElementById('wine-nom-en').value = '';
             document.getElementById('wine-appellation').value = '';
@@ -2971,9 +2971,9 @@
         }
 
         function resolveImg(fields) {
-            if (!fields) return 'assets/dish1.png';
+            if (!fields) return '/assets/dish1.png';
             const photo = fields.Photo;
-            let src = 'assets/dish1.png';
+            let src = '/assets/dish1.png';
 
             if (photo) {
                 if (Array.isArray(photo) && photo.length > 0) {
@@ -2986,7 +2986,7 @@
                     } else if (photo.includes('(') && photo.includes(')')) {
                         // Format legacy: "filename.ext (https://airtable_url)"
                         // Les URLs Airtable signées expirent — on ignore ce format (photo à ré-uploader)
-                        src = 'assets/dish1.png';
+                        src = '/assets/dish1.png';
                     }
                 }
             }
@@ -3025,7 +3025,7 @@
 
                 return `
                     <div class="admin-card" onclick="openEditModal('${item.id}')">
-                        <img src="${imgSrc}" class="admin-img" onerror="this.src='assets/dish1.png'">
+                        <img src="${imgSrc}" class="admin-img" onerror="this.src='/assets/dish1.png'">
                         <div class="admin-info">
                             <h4 style="display: flex; align-items: center; gap: 10px;">
                                 ${f.Plat}
@@ -3107,7 +3107,7 @@
             // Cacher le bouton supprimer
             document.getElementById('delete-btn').style.display = 'none';
 
-            document.getElementById('edit-current-img').src = 'assets/dish1.png';
+            document.getElementById('edit-current-img').src = '/assets/dish1.png';
             document.getElementById('edit-name').value = '';
             document.getElementById('edit-name-en').value = '';
             document.getElementById('edit-desc').value = '';
@@ -3420,7 +3420,7 @@
                 ].filter(Boolean).join(' &nbsp;·&nbsp; ');
                 return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${th.border};border-radius:16px;padding:1.4rem 1.8rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;cursor:pointer;transition:0.3s;" onclick="editEvent(${JSON.stringify(m).replace(/"/g,'&quot;')})">
                     <div style="width:60px; height:60px; border-radius:12px; overflow:hidden; border:1px solid ${th.border}55;">
-                        <img src="${m.photo || 'assets/dish1.png'}" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${m.photo || '/assets/dish1.png'}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div>
                         <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.3rem;">
@@ -3445,7 +3445,7 @@
             document.getElementById('ev-price').value = '';
             document.getElementById('ev-subtitle').value = '';
             document.getElementById('ev-active').checked = true;
-            document.getElementById('ev-current-img').src = 'assets/dish1.png';
+            document.getElementById('ev-current-img').src = '/assets/dish1.png';
             document.getElementById('ev-file').value = '';
             currentEventCroppedBlob = null;
             document.getElementById('ev-entrees-list').innerHTML = '';
@@ -3467,7 +3467,7 @@
             document.getElementById('ev-price').value = m.price || '';
             document.getElementById('ev-subtitle').value = m.subtitle || '';
             document.getElementById('ev-active').checked = !!m.active;
-            document.getElementById('ev-current-img').src = m.photo || 'assets/dish1.png';
+            document.getElementById('ev-current-img').src = m.photo || '/assets/dish1.png';
             document.getElementById('ev-file').value = '';
             currentEventCroppedBlob = null;
             document.getElementById('ev-active').checked = m.active !== false;
